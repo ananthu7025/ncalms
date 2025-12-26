@@ -1,0 +1,128 @@
+Table roles {
+  id uuid [pk, default: `gen_random_uuid()`]
+  name varchar(50) [unique, not null]
+  description text
+  created_at timestamp [default: `now()`, not null]
+}
+
+Table platform_settings {
+  id uuid [pk, default: `gen_random_uuid()`]
+  logo_url varchar(500)
+  platform_name varchar(255) [not null]
+  display_name varchar(255)
+  payment_currency varchar(3) [not null, default: 'USD']
+  timezone varchar(100) [not null, default: 'UTC']
+  whatsapp_number varchar(50)
+  facebook_url varchar(500)
+  twitter_url varchar(500)
+  instagram_url varchar(500)
+  linkedin_url varchar(500)
+  youtube_url varchar(500)
+  tiktok_url varchar(500)
+  created_at timestamp [default: `now()`, not null]
+  updated_at timestamp [default: `now()`, not null]
+}
+
+Table learning_streams {
+  id uuid [pk, default: `gen_random_uuid()`]
+  name varchar(100) [unique, not null]
+  description text
+  created_at timestamp [default: `now()`, not null]
+}
+
+Table exam_types {
+  id uuid [pk, default: `gen_random_uuid()`]
+  stream_id uuid [not null, ref: > learning_streams.id]
+  name varchar(100) [not null]
+  description text
+  created_at timestamp [default: `now()`, not null]
+
+  indexes {
+    (stream_id, name) [unique]
+  }
+}
+
+Table users {
+  id uuid [pk, default: `gen_random_uuid()`]
+  name varchar(255) [not null]
+  email varchar(255) [unique, not null]
+  password_hash varchar(255) [not null]
+  role_id uuid [not null, ref: > roles.id]
+  is_active boolean [default: true, not null]
+  created_at timestamp [default: `now()`, not null]
+  updated_at timestamp [default: `now()`, not null]
+}
+
+Table subjects {
+  id uuid [pk, default: `gen_random_uuid()`]
+  title varchar(255) [not null]
+  description text
+  thumbnail varchar(500)
+  demo_video_url varchar(500)
+  stream_id uuid [not null, ref: > learning_streams.id]
+  exam_type_id uuid [ref: > exam_types.id]
+  bundle_price decimal(10, 2)
+  is_bundle_enabled boolean [default: false, not null]
+  is_active boolean [default: true, not null]
+  created_at timestamp [default: `now()`, not null]
+  updated_at timestamp [default: `now()`, not null]
+}
+
+Table content_types {
+  id uuid [pk, default: `gen_random_uuid()`]
+  name varchar(50) [unique, not null]
+  description text
+  base_price decimal(10, 2) [default: 0, not null]
+  created_at timestamp [default: `now()`, not null]
+}
+
+Table subject_contents {
+  id uuid [pk, default: `gen_random_uuid()`]
+  subject_id uuid [not null, ref: > subjects.id]
+  content_type_id uuid [not null, ref: > content_types.id]
+  title varchar(255) [not null]
+  description text
+  file_url varchar(500)
+  duration integer
+  price decimal(10, 2) [default: 0, not null]
+  sort_order integer [default: 0, not null]
+  is_active boolean [default: true, not null]
+  created_at timestamp [default: `now()`, not null]
+  updated_at timestamp [default: `now()`, not null]
+}
+
+Table purchases {
+  id uuid [pk, default: `gen_random_uuid()`]
+  user_id uuid [not null, ref: > users.id]
+  subject_id uuid [not null, ref: > subjects.id]
+  content_type_id uuid [ref: > content_types.id]
+  is_bundle boolean [default: false, not null]
+  amount decimal(10, 2) [not null]
+  status varchar(50) [default: 'pending', not null]
+  transaction_id varchar(255)
+  stripe_session_id varchar(255)
+  stripe_payment_intent_id varchar(255)
+  created_at timestamp [default: `now()`, not null]
+}
+
+Table user_access {
+  id uuid [pk, default: `gen_random_uuid()`]
+  user_id uuid [not null, ref: > users.id]
+  subject_id uuid [not null, ref: > subjects.id]
+  content_type_id uuid [not null, ref: > content_types.id]
+  granted_at timestamp [default: `now()`, not null]
+
+  indexes {
+    (user_id, subject_id, content_type_id) [unique]
+  }
+}
+
+Table cart {
+  id uuid [pk, default: `gen_random_uuid()`]
+  user_id uuid [not null, ref: > users.id]
+  subject_id uuid [not null, ref: > subjects.id]
+  content_type_id uuid [ref: > content_types.id]
+  is_bundle boolean [default: false, not null]
+  price decimal(10, 2) [not null]
+  created_at timestamp [default: `now()`, not null]
+}

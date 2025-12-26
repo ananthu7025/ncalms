@@ -1,26 +1,251 @@
 @import "tailwindcss";
+@config "../tailwind.config.ts";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
+}
+
+.card {
+  padding: 2em;
+}
+
+.read-the-docs {
+  color: #888;
+}
+
+/* NCA LMS Design System - #2F80ED Blue Theme */
+
+@layer base {
+  :root {
+    /* Core Colors - #2F80ED Blue Theme */
+    --background: 214 40% 98%;
+    --foreground: 214 47% 11%;
+
+    /* Cards */
+    --card: 0 0% 100%;
+    --card-foreground: 214 47% 11%;
+
+    /* Popover */
+    --popover: 0 0% 100%;
+    --popover-foreground: 214 47% 11%;
+
+    /* Primary - #2F80ED */
+    --primary: 214 83% 56%;
+    --primary-foreground: 0 0% 100%;
+    --primary-light: 214 83% 95%;
+
+    /* Secondary - Light Blue Tint */
+    --secondary: 214 90% 93%;
+    --secondary-foreground: 214 83% 40%;
+
+    /* Muted */
+    --muted: 214 32% 91%;
+    --muted-foreground: 214 16% 47%;
+
+    /* Accent - Light Blue */
+    --accent: 214 90% 93%;
+    --accent-foreground: 214 83% 50%;
+
+    /* Destructive */
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* Success */
+    --success: 142 76% 36%;
+    --success-foreground: 0 0% 100%;
+
+    /* Warning */
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+
+    /* Info */
+    --info: 199 89% 48%;
+    --info-foreground: 0 0% 100%;
+
+    /* Border/Input/Ring */
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 214 83% 56%;
+
+    --radius: 0.75rem;
+
+    /* Sidebar - Dark Blue based on #2F80ED */
+    --sidebar-background: 214 83% 20%;
+    --sidebar-foreground: 214 40% 98%;
+    --sidebar-primary: 214 83% 60%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 214 83% 28%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 214 83% 30%;
+    --sidebar-ring: 214 83% 60%;
+    --sidebar-muted: 214 32% 70%;
+
+    /* Chart Colors */
+    --chart-1: 214 83% 56%;
+    --chart-2: 214 83% 70%;
+    --chart-3: 199 89% 48%;
+    --chart-4: 214 83% 40%;
+    --chart-5: 214 90% 75%;
+  }
+
+  .dark {
+    --background: 214 47% 8%;
+    --foreground: 214 40% 98%;
+
+    --card: 214 47% 11%;
+    --card-foreground: 214 40% 98%;
+
+    --popover: 214 47% 11%;
+    --popover-foreground: 214 40% 98%;
+
+    --primary: 214 83% 56%;
+    --primary-foreground: 0 0% 100%;
+    --primary-light: 214 83% 25%;
+
+    --secondary: 214 33% 17%;
+    --secondary-foreground: 214 40% 98%;
+
+    --muted: 214 33% 17%;
+    --muted-foreground: 214 20% 65%;
+
+    --accent: 214 33% 20%;
+    --accent-foreground: 214 83% 70%;
+
+    --destructive: 0 63% 31%;
+    --destructive-foreground: 214 40% 98%;
+
+    --success: 142 76% 36%;
+    --success-foreground: 0 0% 100%;
+
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+
+    --info: 199 89% 48%;
+    --info-foreground: 0 0% 100%;
+
+    --border: 214 33% 17%;
+    --input: 214 33% 17%;
+    --ring: 214 83% 56%;
+
+    --sidebar-background: 214 83% 10%;
+    --sidebar-foreground: 214 40% 96%;
+    --sidebar-primary: 214 83% 56%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 214 83% 18%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 214 83% 20%;
+    --sidebar-ring: 214 83% 56%;
+    --sidebar-muted: 214 20% 55%;
+
+    --chart-1: 214 83% 56%;
+    --chart-2: 214 83% 70%;
+    --chart-3: 199 89% 55%;
+    --chart-4: 214 83% 45%;
+    --chart-5: 214 90% 75%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+}
+
+@layer utilities {
+  .glass {
+    @apply bg-card/80 backdrop-blur-sm;
+  }
+  
+  .gradient-primary {
+    background: linear-gradient(135deg, hsl(214 83% 56%) 0%, hsl(214 83% 66%) 100%);
+  }
+  
+  .gradient-secondary {
+    background: linear-gradient(135deg, hsl(214 90% 93%) 0%, hsl(214 83% 95%) 100%);
+  }
+  
+  .gradient-success {
+    background: linear-gradient(135deg, hsl(var(--success)) 0%, hsl(142 76% 30%) 100%);
+  }
+  
+  .text-gradient {
+    @apply bg-clip-text text-transparent;
+    background: linear-gradient(135deg, hsl(214 83% 56%) 0%, hsl(199 89% 48%) 100%);
+  }
+
+  /* Hide scrollbar for Chrome, Safari and Opera */
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Hide scrollbar for IE, Edge and Firefox */
+  .scrollbar-hide {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+  }
+
+  /* React Modal Animations */
+  .ReactModal__Overlay {
+    opacity: 0;
+    transition: opacity 200ms ease-in-out;
+  }
+
+  .ReactModal__Overlay--after-open {
+    opacity: 1;
+  }
+
+  .ReactModal__Overlay--before-close {
+    opacity: 0;
+  }
+
+  .animate-fade-in {
+    animation: fadeIn 0.3s ease-in;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
 }
