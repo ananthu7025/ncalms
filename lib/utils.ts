@@ -9,7 +9,7 @@ export function cn(...inputs: ClassValue[]) {
 type BasicObject = { [key: string]: any };
 
 export const isError = (errObject: BasicObject, rawField: string): boolean => {
-  if (!errObject) return false;
+  if (!errObject || !rawField) return false;
   const splitField = rawField.split(".");
 
   if (!errObject[splitField[0]]) return false;

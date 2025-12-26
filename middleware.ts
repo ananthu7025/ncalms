@@ -70,9 +70,10 @@ export const config = {
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
-     * - public folder
-     * - assets folder
+     * - images folder (public assets)
+     * - assets folder (public assets)
+     * - Any files with common extensions (images, fonts, etc.)
      */
-    "/((?!api/auth|api/webhooks|_next/static|_next/image|favicon.ico|assets|public).*)",
+    "/((?!api/auth|api/webhooks|_next/static|_next/image|favicon.ico|images|assets|.*\\.(?:jpg|jpeg|png|gif|svg|ico|webp|pdf|woff|woff2|ttf|eot|otf|css|js)).*)",
   ],
 };

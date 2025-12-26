@@ -16,18 +16,22 @@ import { verifyAndProcessCheckout } from "@/lib/actions/checkout";
 async function SuccessContent({
   searchParams,
 }: {
-  searchParams: Promise<{ session_id?: string }>;
+  searchParams: Promise<{ session_id?: string; type?: string }>;
 }) {
   const params = await searchParams;
   const sessionId = params.session_id;
+  const checkoutType = params.type;
+  const isSessionBooking = checkoutType === 'session';
+
   let processingResult = null;
 
-  // If we have a session ID, verify and process the checkout
-  if (sessionId) {
+  // If we have a session ID and it's not a session booking, verify and process the checkout
+  // Session bookings are processed via webhook only
+  if (sessionId && !isSessionBooking) {
     processingResult = await verifyAndProcessCheckout(sessionId);
   }
 
-  const showError = !sessionId || (processingResult && !processingResult.success);
+  const showError = !sessionId || (processingResult && !processingResult.success && !isSessionBooking);
 
   return (
     <div className="container mx-auto px-4 py-16">
@@ -42,10 +46,10 @@ async function SuccessContent({
               )}
             </div>
             <CardTitle className={`text-3xl font-bold ${showError ? "text-yellow-600" : "text-green-600"}`}>
-              {showError ? "Payment Received" : "Payment Successful!"}
+              {showError ? "Payment Received" : isSessionBooking ? "Session Booked!" : "Payment Successful!"}
             </CardTitle>
             <CardDescription className="text-lg mt-2">
-              {showError ? "Processing your purchase..." : "Thank you for your purchase"}
+              {showError ? "Processing your purchase..." : isSessionBooking ? "Your session booking is confirmed" : "Thank you for your purchase"}
             </CardDescription>
           </CardHeader>
 
@@ -63,6 +67,19 @@ async function SuccessContent({
                     </AlertDescription>
                   </Alert>
                 )}
+              </>
+            ) : isSessionBooking ? (
+              <>
+                <p className="text-gray-700">
+                  Your session booking has been confirmed and payment has been processed successfully.
+                  We will contact you shortly via your provided contact details to schedule your session.
+                </p>
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-6">
+                  <p className="text-sm text-blue-800">
+                    <strong>Next Steps:</strong> Check your email for booking confirmation.
+                    Our team will reach out to schedule your session at a convenient time.
+                  </p>
+                </div>
               </>
             ) : (
               <>
@@ -82,24 +99,39 @@ async function SuccessContent({
 
             {sessionId && (
               <p className="text-sm text-gray-500">
-                Order ID: <span className="font-mono">{sessionId.slice(0, 20)}...</span>
+                {isSessionBooking ? 'Booking' : 'Order'} ID: <span className="font-mono">{sessionId.slice(0, 20)}...</span>
               </p>
             )}
 
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-6">
-              <p className="text-sm text-blue-800">
-                A confirmation email has been sent to your registered email address.
-              </p>
-            </div>
+            {!isSessionBooking && (
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-6">
+                <p className="text-sm text-blue-800">
+                  A confirmation email has been sent to your registered email address.
+                </p>
+              </div>
+            )}
           </CardContent>
 
           <CardFooter className="flex flex-col sm:flex-row gap-3 justify-center">
-            <Button asChild>
-              <Link href="/learner/library">Go to My Library</Link>
-            </Button>
-            <Button asChild variant="outline">
-              <Link href="/learner/courses">Browse More Courses</Link>
-            </Button>
+            {isSessionBooking ? (
+              <>
+                <Button asChild>
+                  <Link href="/learner/book-session">View My Bookings</Link>
+                </Button>
+                <Button asChild variant="outline">
+                  <Link href="/learner/dashboard">Go to Dashboard</Link>
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button asChild>
+                  <Link href="/learner/library">Go to My Library</Link>
+                </Button>
+                <Button asChild variant="outline">
+                  <Link href="/learner/courses">Browse More Courses</Link>
+                </Button>
+              </>
+            )}
           </CardFooter>
         </Card>
       </div>
@@ -110,7 +142,7 @@ async function SuccessContent({
 export default function CheckoutSuccessPage({
   searchParams,
 }: {
-  searchParams: Promise<{ session_id?: string }>;
+  searchParams: Promise<{ session_id?: string; type?: string }>;
 }) {
   return (
     <Suspense fallback={<div>Loading...</div>}>

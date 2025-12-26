@@ -6,6 +6,8 @@ const nextConfig: NextConfig = {
       bodySizeLimit: '10mb',
     },
   },
+  turbopack: {},
+  serverExternalPackages: ['postgres'],
 };
 
 export default nextConfig;

@@ -113,6 +113,54 @@ export const getUploadUrlSchema = z.object({
 });
 
 // ===========================
+// OFFERS
+// ===========================
+export const createOfferSchema = z.object({
+  name: z.string().min(2, "Name must be at least 2 characters").max(255, "Name must be less than 255 characters"),
+  code: z.string().min(3, "Code must be at least 3 characters").max(100, "Code must be less than 100 characters").toUpperCase(),
+  discountType: z.enum(["percentage", "fixed"], {
+    message: "Discount type must be either 'percentage' or 'fixed'",
+  }),
+  discountValue: z.string().regex(/^\d+(\.\d{1,2})?$/, "Invalid discount value format"),
+  subjectId: z.string().uuid("Invalid subject ID").optional().nullable(),
+  contentTypeId: z.string().uuid("Invalid content type ID").optional().nullable(),
+  maxUsage: z.number().int().positive("Max usage must be a positive number").optional().nullable(),
+  validFrom: z.date({
+    message: "Valid from date is required",
+  }),
+  validUntil: z.date({
+    message: "Valid until date is required",
+  }),
+  isActive: z.boolean().default(true),
+}).refine((data) => data.validUntil > data.validFrom, {
+  message: "Valid until date must be after valid from date",
+  path: ["validUntil"],
+});
+
+export const updateOfferSchema = z.object({
+  id: z.string().uuid("Invalid ID format"),
+  name: z.string().min(2, "Name must be at least 2 characters").max(255, "Name must be less than 255 characters"),
+  code: z.string().min(3, "Code must be at least 3 characters").max(100, "Code must be less than 100 characters").toUpperCase(),
+  discountType: z.enum(["percentage", "fixed"], {
+    message: "Discount type must be either 'percentage' or 'fixed'",
+  }),
+  discountValue: z.string().regex(/^\d+(\.\d{1,2})?$/, "Invalid discount value format"),
+  subjectId: z.string().uuid("Invalid subject ID").optional().nullable(),
+  contentTypeId: z.string().uuid("Invalid content type ID").optional().nullable(),
+  maxUsage: z.number().int().positive("Max usage must be a positive number").optional().nullable(),
+  validFrom: z.date({
+    message: "Valid from date is required",
+  }),
+  validUntil: z.date({
+    message: "Valid until date is required",
+  }),
+  isActive: z.boolean(),
+}).refine((data) => data.validUntil > data.validFrom, {
+  message: "Valid until date must be after valid from date",
+  path: ["validUntil"],
+});
+
+// ===========================
 // TYPE EXPORTS
 // ===========================
 export type CreateLearningStreamInput = z.infer<typeof createLearningStreamSchema>;
@@ -131,3 +179,6 @@ export type CreateSubjectContentInput = z.infer<typeof createSubjectContentSchem
 export type UpdateSubjectContentInput = z.infer<typeof updateSubjectContentSchema>;
 
 export type GetUploadUrlInput = z.infer<typeof getUploadUrlSchema>;
+
+export type CreateOfferInput = z.infer<typeof createOfferSchema>;
+export type UpdateOfferInput = z.infer<typeof updateOfferSchema>;

@@ -190,6 +190,9 @@ export default function AdminTransactions() {
                       <Skeleton className="h-4 w-24" />
                     </th>
                     <th className="text-left p-4">
+                      <Skeleton className="h-4 w-20" />
+                    </th>
+                    <th className="text-left p-4">
                       <Skeleton className="h-4 w-16" />
                     </th>
                     <th className="text-left p-4">
@@ -217,6 +220,9 @@ export default function AdminTransactions() {
                       </td>
                       <td className="p-4">
                         <Skeleton className="h-4 w-36" />
+                      </td>
+                      <td className="p-4">
+                        <Skeleton className="h-5 w-16 rounded-full" />
                       </td>
                       <td className="p-4">
                         <Skeleton className="h-5 w-16 rounded-full" />
@@ -357,7 +363,8 @@ export default function AdminTransactions() {
                 <tr>
                   <th className="text-left p-4 font-medium text-muted-foreground">Date</th>
                   <th className="text-left p-4 font-medium text-muted-foreground">User</th>
-                  <th className="text-left p-4 font-medium text-muted-foreground">Subject</th>
+                  <th className="text-left p-4 font-medium text-muted-foreground">Item</th>
+                  <th className="text-left p-4 font-medium text-muted-foreground">Category</th>
                   <th className="text-left p-4 font-medium text-muted-foreground">Type</th>
                   <th className="text-left p-4 font-medium text-muted-foreground">Amount</th>
                   <th className="text-left p-4 font-medium text-muted-foreground">Status</th>
@@ -367,7 +374,7 @@ export default function AdminTransactions() {
               <tbody className="divide-y divide-border">
                 {filteredTransactions.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="p-8 text-center text-muted-foreground">
+                    <td colSpan={8} className="p-8 text-center text-muted-foreground">
                       No transactions found
                     </td>
                   </tr>
@@ -389,7 +396,16 @@ export default function AdminTransactions() {
                         <p className="max-w-[200px] truncate">{tx.subjectTitle}</p>
                       </td>
                       <td className="p-4">
-                        {tx.isBundle ? (
+                        {tx.type === 'session' ? (
+                          <Badge variant="default" className="bg-purple-600">Session</Badge>
+                        ) : (
+                          <Badge variant="default">Course</Badge>
+                        )}
+                      </td>
+                      <td className="p-4">
+                        {tx.type === 'session' ? (
+                          <Badge variant="outline">Booking</Badge>
+                        ) : tx.isBundle ? (
                           <Badge variant="secondary">Bundle</Badge>
                         ) : (
                           <Badge variant="outline">{tx.contentTypeName || 'Individual'}</Badge>

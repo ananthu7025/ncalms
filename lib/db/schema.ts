@@ -225,6 +225,27 @@ export const cart = pgTable(
   })
 );
 
+// Offers/Coupons table - stores promotional discount codes
+export const offers = pgTable("offers", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(),
+  code: varchar("code", { length: 100 }).unique().notNull(),
+  discountType: varchar("discount_type", { length: 20 }).notNull(), // 'percentage' or 'fixed'
+  discountValue: decimal("discount_value", { precision: 10, scale: 2 }).notNull(),
+  subjectId: uuid("subject_id").references(() => subjects.id, { onDelete: "cascade" }), // NULL for all courses
+  contentTypeId: uuid("content_type_id").references(() => contentTypes.id), // NULL for all bundles
+  maxUsage: integer("max_usage"), // NULL for unlimited
+  currentUsage: integer("current_usage").default(0).notNull(),
+  validFrom: timestamp("valid_from").notNull(),
+  validUntil: timestamp("valid_until").notNull(),
+  isActive: boolean("is_active").default(true).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  codeIdx: index("offers_code_idx").on(table.code),
+  activeIdx: index("offers_active_idx").on(table.isActive),
+}));
+
 // Password reset tokens table
 export const passwordResetTokens = pgTable("password_reset_tokens", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -246,6 +267,51 @@ export const emailTemplates = pgTable("email_templates", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
+
+// Session types table - defines available session types for booking
+export const sessionTypes = pgTable("session_types", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  title: varchar("title", { length: 255 }).notNull(),
+  description: text("description"),
+  duration: integer("duration").notNull(), // Duration in minutes
+  price: decimal("price", { precision: 10, scale: 2 }).notNull(),
+  isActive: boolean("is_active").default(true).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+// Session bookings table - stores booking requests from learners
+export const sessionBookings = pgTable(
+  "session_bookings",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    sessionTypeId: uuid("session_type_id")
+      .notNull()
+      .references(() => sessionTypes.id, { onDelete: "restrict" }),
+    fullName: varchar("full_name", { length: 255 }).notNull(),
+    email: varchar("email", { length: 255 }).notNull(),
+    gmail: varchar("gmail", { length: 255 }),
+    whatsapp: varchar("whatsapp", { length: 50 }),
+    province: varchar("province", { length: 100 }),
+    country: varchar("country", { length: 100 }),
+    status: varchar("status", { length: 50 }).notNull().default("pending"), // pending, confirmed, completed, cancelled
+    stripeSessionId: varchar("stripe_session_id", { length: 255 }),
+    stripePurchaseId: varchar("stripe_purchase_id", { length: 255 }),
+    amountPaid: decimal("amount_paid", { precision: 10, scale: 2 }),
+    notes: text("notes"), // For admin notes
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => ({
+    userIdIdx: index("session_bookings_user_id_idx").on(table.userId),
+    sessionTypeIdIdx: index("session_bookings_session_type_id_idx").on(table.sessionTypeId),
+    statusIdx: index("session_bookings_status_idx").on(table.status),
+    stripeSessionIdIdx: index("session_bookings_stripe_session_id_idx").on(table.stripeSessionId),
+  })
+);
 
 // ===========================
 // RELATIONS
@@ -281,6 +347,7 @@ export const subjectsRelations = relations(subjects, ({ one, many }) => ({
   purchases: many(purchases),
   userAccess: many(userAccess),
   cart: many(cart),
+  offers: many(offers),
 }));
 
 export const contentTypesRelations = relations(contentTypes, ({ many }) => ({
@@ -288,6 +355,7 @@ export const contentTypesRelations = relations(contentTypes, ({ many }) => ({
   userAccess: many(userAccess),
   purchases: many(purchases),
   cart: many(cart),
+  offers: many(offers),
 }));
 
 export const subjectContentsRelations = relations(subjectContents, ({ one }) => ({
@@ -340,6 +408,8 @@ export const usersRelations = relations(users, ({ one, many }) => ({
   purchases: many(purchases),
   userAccess: many(userAccess),
   cartItems: many(cart),
+  sessionBookings: many(sessionBookings),
+  supportTickets: many(supportTickets),
 }));
 
 export const cartRelations = relations(cart, ({ one }) => ({
@@ -354,6 +424,89 @@ export const cartRelations = relations(cart, ({ one }) => ({
   contentType: one(contentTypes, {
     fields: [cart.contentTypeId],
     references: [contentTypes.id],
+  }),
+}));
+
+export const sessionTypesRelations = relations(sessionTypes, ({ many }) => ({
+  bookings: many(sessionBookings),
+}));
+
+export const sessionBookingsRelations = relations(sessionBookings, ({ one }) => ({
+  user: one(users, {
+    fields: [sessionBookings.userId],
+    references: [users.id],
+  }),
+  sessionType: one(sessionTypes, {
+    fields: [sessionBookings.sessionTypeId],
+    references: [sessionTypes.id],
+  }),
+}));
+
+export const offersRelations = relations(offers, ({ one }) => ({
+  subject: one(subjects, {
+    fields: [offers.subjectId],
+    references: [subjects.id],
+  }),
+  contentType: one(contentTypes, {
+    fields: [offers.contentTypeId],
+    references: [contentTypes.id],
+  }),
+}));
+
+// Support tickets table - stores user support requests
+export const supportTickets = pgTable(
+  "support_tickets",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    subject: varchar("subject", { length: 500 }).notNull(),
+    category: varchar("category", { length: 50 }).notNull(), // issue, question, feedback, refund
+    status: varchar("status", { length: 50 }).notNull().default("new"), // new, pending, resolved
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => ({
+    userIdIdx: index("support_tickets_user_id_idx").on(table.userId),
+    statusIdx: index("support_tickets_status_idx").on(table.status),
+  })
+);
+
+// Support ticket messages table - stores conversation thread for each ticket
+export const supportTicketMessages = pgTable(
+  "support_ticket_messages",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    ticketId: uuid("ticket_id")
+      .notNull()
+      .references(() => supportTickets.id, { onDelete: "cascade" }),
+    userId: uuid("user_id").references(() => users.id, { onDelete: "set null" }), // NULL for system messages
+    message: text("message").notNull(),
+    isFromAdmin: boolean("is_from_admin").default(false).notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => ({
+    ticketIdIdx: index("support_ticket_messages_ticket_id_idx").on(table.ticketId),
+  })
+);
+
+export const supportTicketsRelations = relations(supportTickets, ({ one, many }) => ({
+  user: one(users, {
+    fields: [supportTickets.userId],
+    references: [users.id],
+  }),
+  messages: many(supportTicketMessages),
+}));
+
+export const supportTicketMessagesRelations = relations(supportTicketMessages, ({ one }) => ({
+  ticket: one(supportTickets, {
+    fields: [supportTicketMessages.ticketId],
+    references: [supportTickets.id],
+  }),
+  user: one(users, {
+    fields: [supportTicketMessages.userId],
+    references: [users.id],
   }),
 }));
 
@@ -399,3 +552,18 @@ export type NewPasswordResetToken = typeof passwordResetTokens.$inferInsert;
 
 export type EmailTemplate = typeof emailTemplates.$inferSelect;
 export type NewEmailTemplate = typeof emailTemplates.$inferInsert;
+
+export type SessionType = typeof sessionTypes.$inferSelect;
+export type NewSessionType = typeof sessionTypes.$inferInsert;
+
+export type SessionBooking = typeof sessionBookings.$inferSelect;
+export type NewSessionBooking = typeof sessionBookings.$inferInsert;
+
+export type Offer = typeof offers.$inferSelect;
+export type NewOffer = typeof offers.$inferInsert;
+
+export type SupportTicket = typeof supportTickets.$inferSelect;
+export type NewSupportTicket = typeof supportTickets.$inferInsert;
+
+export type SupportTicketMessage = typeof supportTicketMessages.$inferSelect;
+export type NewSupportTicketMessage = typeof supportTicketMessages.$inferInsert;

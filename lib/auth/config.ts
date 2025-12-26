@@ -84,13 +84,32 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger }) {
       // Initial sign in
       if (user) {
         token.id = user.id;
         token.role = user.role;
         token.roleId = user.roleId;
       }
+
+      // Session update triggered - fetch fresh user data
+      if (trigger === "update" && token.id) {
+        const [updatedUser] = await db
+          .select({
+            id: schema.users.id,
+            name: schema.users.name,
+            email: schema.users.email,
+          })
+          .from(schema.users)
+          .where(eq(schema.users.id, token.id as string))
+          .limit(1);
+
+        if (updatedUser) {
+          token.name = updatedUser.name;
+          token.email = updatedUser.email;
+        }
+      }
+
       return token;
     },
     async session({ session, token }) {
@@ -98,6 +117,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         session.user.id = token.id as string;
         session.user.role = token.role as string;
         session.user.roleId = token.roleId as string;
+        session.user.name = token.name as string;
+        session.user.email = token.email as string;
       }
       return session;
     },

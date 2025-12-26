@@ -249,3 +249,111 @@
     }
   }
 }
+
+/* Bootstrap Utility Classes */
+.hover-border-primary:hover {
+  border-color: var(--bs-primary) !important;
+}
+
+/* Icon Sizes */
+.icon-16 {
+  width: 16px;
+  height: 16px;
+}
+
+.icon-20 {
+  width: 20px;
+  height: 20px;
+}
+
+.icon-24 {
+  width: 24px;
+  height: 24px;
+}
+
+.icon-32 {
+  width: 32px;
+  height: 32px;
+}
+
+.icon-48 {
+  width: 48px;
+  height: 48px;
+}
+
+/* Object Fit */
+.object-fit-cover {
+  object-fit: cover;
+}
+
+/* Gradient Backgrounds */
+.bg-gradient-primary-blue {
+  background: linear-gradient(to right, #2563eb, #1d4ed8);
+}
+
+/* Sticky Positioning */
+.sticky-top-24 {
+  position: sticky;
+  top: 24px;
+}
+
+/* Transitions */
+.border-transition {
+  transition: border-color 0.2s;
+}
+
+/* Flex Utilities */
+.min-w-0 {
+  min-width: 0;
+}
+
+/* Font Sizes */
+.fs-75 {
+  font-size: 0.75rem;
+}
+
+/* Badge Utilities */
+.badge-preview {
+  background-color: rgba(255, 255, 255, 0.9);
+}
+
+/* Sticky Top Custom (with offset for navbar) */
+.sticky-top-custom {
+  position: sticky;
+  top: 100px;
+  z-index: 10;
+}
+
+/* Hover Effects */
+.hover-text-dark:hover {
+  color: var(--bs-dark) !important;
+}
+
+.hover-shadow-sm:hover {
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important;
+  transition: all 0.3s ease;
+}
+
+/* Course Hero Card Animation */
+.course-hero-card {
+  transition: transform 0.3s ease;
+}
+
+.course-hero-card:hover {
+  transform: translateY(-2px);
+}
+
+/* Bundle Card Styles */
+.bundle-card {
+  border-left: 4px solid var(--bs-primary) !important;
+}
+
+/* Transition Utilities */
+.transition-all {
+  transition: all 0.3s ease;
+}
+
+/* Background Gradient */
+.bg-gradient-primary {
+  background: linear-gradient(135deg, #2490eb 0%, #0d538d 100%);
+}

@@ -4,7 +4,7 @@ import Footer from '@/components/home/Footer';
 import Reveal from '@/components/animations/Reveal';
 import { getActiveSubjects } from '@/lib/actions/subjects';
 import { EmptyState } from '@/components/EmptyState';
-import { CourseCard } from '@/components/CourseCard';
+import { PublicCourseCard } from '@/components/PublicCourseCard';
 
 export default async function CoursesPage() {
     const result = await getActiveSubjects();
@@ -13,30 +13,42 @@ export default async function CoursesPage() {
     return (
         <>
             <Header />
-            <section className="feature-course bg-white pt-24 pb-24">
-                <div className="container mx-auto px-4">
-                    <Reveal>
-                        <div className="section-heading text-center mb-12">
-                            <h4 className="sub-heading text-blue-600 font-semibold mb-2">
-                                <span className="heading-icon mr-2">⚡</span>
-                                NCA Exam Preparation
-                            </h4>
-                            <h2 className="section-title text-3xl md:text-4xl font-bold">
-                                Explore Our Courses
-                            </h2>
-                        </div>
 
+            {/* Hero Section */}
+            <section style={{marginTop:"20px"}} className="bg-gradient-to-br from-blue-600/10 via-teal-500/5 to-transparent pt-32 pb-16 mt-4 ">
+                <div className="container mx-auto px-4 max-w-7xl">
+                    <Reveal>
+                        <div className="text-center max-w-3xl mx-auto space-y-4 mt-2">
+                            <div className="inline-flex items-center gap-2 bg-blue-600/10 text-blue-600 px-4 py-2 rounded-full text-sm font-semibold mb-2 mt-4">
+                                <span className="text-lg">⚡</span>
+                                NCA Exam Preparation
+                            </div>
+                            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight">
+                                Explore Our Courses
+                            </h1>
+                            <p className="text-lg md:text-xl text-gray-600 leading-relaxed">
+                                Comprehensive preparation courses designed to help you succeed in your NCA exams
+                            </p>
+                        </div>
+                    </Reveal>
+                </div>
+            </section>
+
+            {/* Courses Grid Section */}
+            <section className="bg-gray-50/50 py-16 md:py-20 min-h-[60vh]">
+                <div className="container mx-auto px-4 max-w-7xl">
+                    <Reveal>
                         {subjects.length === 0 ? (
-                            <div className="py-12">
+                            <div className="py-20">
                                 <EmptyState
                                     title="No courses available"
                                     description="Check back soon for new courses!"
                                 />
                             </div>
                         ) : (
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-4">
                                 {subjects.map((item) => (
-                                    <CourseCard
+                                    <PublicCourseCard
                                         key={item.subject.id}
                                         id={item.subject.id}
                                         title={item.subject.title}
@@ -56,6 +68,7 @@ export default async function CoursesPage() {
                     </Reveal>
                 </div>
             </section>
+
             <Footer />
         </>
     );

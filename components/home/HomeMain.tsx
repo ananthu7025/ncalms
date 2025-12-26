@@ -9,8 +9,13 @@ import FAQSection from './FAQSection';
 import BlogSection from './BlogSection';
 import FounderSection from './FounderSection';
 import CoachingSection from './CoachingSection';
+import { CoursesSection } from './CoursesSection';
+import { getActiveSubjects } from '@/lib/actions/subjects';
 
-export default function HomeMain() {
+export default async function HomeMain() {
+    // Fetch real courses
+    const result = await getActiveSubjects();
+    const courses = result.success && result.data ? result.data : [];
     return (
         <main>
             <div id="popup-search-box">
@@ -186,30 +191,7 @@ export default function HomeMain() {
 
                         {/* ALL COURSES */}
                         <div className="tab-pane fade show active" id="home">
-                            <div className="row gy-4 justify-content-center">
-                                {[
-                                    { title: 'Canadian Constitutional Law', format: 'IRAC', price: '$50 CAD' },
-                                    { title: 'Canadian Administrative Law', format: 'IRAC', price: '$50 CAD' },
-                                    { title: 'Canadian Criminal Law', format: 'IRAC', price: '$50 CAD' },
-                                    { title: 'Foundations of Canadian Law', format: 'Essay', price: '$50 CAD' },
-                                    { title: 'Professional Responsibility', format: 'IRAC', price: '$50 CAD' },
-                                    { title: 'Legal Research & Writing', format: 'Special', price: 'Contact' }
-                                ].map((course, i) => (
-                                    <Reveal key={i} y={50} delay={0.1 * (i % 3)} className="col-lg-4 col-md-6">
-                                        <CourseItem
-                                            image={`/assets/img/images/course-img-${(i % 3) + 1}.png`}
-                                            category={`NCA · ${course.format}`}
-                                            title={course.title}
-                                            lessons={course.format}
-                                            students="NCA Exam"
-                                            views="Updated 2025"
-                                            authorImg={`/assets/img/images/course-author-${(i % 3) + 1}.png`}
-                                            authorName="NCA Made Easy"
-                                            price={course.price}
-                                        />
-                                    </Reveal>
-                                ))}
-                            </div>
+                            <CoursesSection courses={courses} />
                         </div>
 
                         {/* NCA MANDATORY */}
@@ -451,7 +433,6 @@ export default function HomeMain() {
 
             <FAQSection />
 
-            <BlogSection />
 
             <section
                 className="request-section"

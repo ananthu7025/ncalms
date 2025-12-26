@@ -6,12 +6,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import Link from 'next/link';
 import { ArrowLeft, Loader2, Eye, EyeOff } from 'lucide-react';
-import { useState, useTransition, useEffect } from 'react';
+import { useState, useTransition, useEffect, Suspense } from 'react';
 import { resetPassword } from '@/lib/actions/auth';
 import toaster from '@/lib/toaster';
 import { useRouter, useSearchParams } from 'next/navigation';
 
-export default function ResetPasswordPage() {
+function ResetPasswordForm() {
     const [isPending, startTransition] = useTransition();
     const router = useRouter();
     const searchParams = useSearchParams();
@@ -204,5 +204,22 @@ export default function ResetPasswordPage() {
                 </div>
             </div>
         </AuthLayout>
+    );
+}
+
+export default function ResetPasswordPage() {
+    return (
+        <Suspense fallback={
+            <AuthLayout
+                leftTitle="Reset Your Password"
+                leftDescription="Create a new, strong password for your account."
+            >
+                <div className="flex items-center justify-center py-12">
+                    <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+                </div>
+            </AuthLayout>
+        }>
+            <ResetPasswordForm />
+        </Suspense>
     );
 }

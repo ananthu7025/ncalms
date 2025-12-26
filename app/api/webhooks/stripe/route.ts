@@ -2,10 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { headers } from "next/headers";
 import Stripe from "stripe";
 import { db } from "@/lib/db";
-import { purchases, userAccess, cart, subjects, contentTypes } from "@/lib/db/schema";
+import { purchases, userAccess, cart, subjects, contentTypes, sessionBookings, sessionTypes } from "@/lib/db/schema";
 import { eq, and } from "drizzle-orm";
 import { verifyWebhookSignature } from "@/lib/stripe/utils";
 import { STRIPE_WEBHOOK_SECRET } from "@/lib/stripe/config";
+import { sendBookingConfirmationEmail } from "@/lib/email/service";
 
 // Disable body parsing, need raw body for webhook signature verification
 export const runtime = "nodejs";
@@ -91,6 +92,15 @@ async function handleCheckoutSessionCompleted(
 ) {
   try {
     const userId = session.metadata?.userId;
+    const checkoutType = session.metadata?.type;
+
+    // Handle session booking checkout
+    if (checkoutType === "session_booking") {
+      await handleSessionBookingPayment(session);
+      return;
+    }
+
+    // Handle regular course purchase checkout
     const cartItemIds = session.metadata?.cartItemIds
       ? JSON.parse(session.metadata.cartItemIds)
       : [];
@@ -209,6 +219,79 @@ async function handleCheckoutSessionCompleted(
     console.log(`Successfully processed checkout for user ${userId}`);
   } catch (error) {
     console.error("Error handling checkout session completed:", error);
+    throw error;
+  }
+}
+
+/**
+ * Handle session booking payment completion
+ */
+async function handleSessionBookingPayment(
+  session: Stripe.Checkout.Session
+) {
+  try {
+    const bookingId = session.metadata?.bookingId;
+
+    if (!bookingId) {
+      console.error("[Webhook] Missing bookingId in session metadata:", session.id);
+      return;
+    }
+
+    console.log(`[Webhook] Processing session booking payment for booking ${bookingId}`);
+
+    // Get booking and session type details
+    const [bookingData] = await db
+      .select({
+        booking: sessionBookings,
+        sessionType: sessionTypes,
+      })
+      .from(sessionBookings)
+      .leftJoin(sessionTypes, eq(sessionBookings.sessionTypeId, sessionTypes.id))
+      .where(eq(sessionBookings.id, bookingId))
+      .limit(1);
+
+    if (!bookingData) {
+      console.error(`[Webhook] Booking not found: ${bookingId}`);
+      return;
+    }
+
+    // Check if booking was already processed
+    if (bookingData.booking.status === "confirmed" && bookingData.booking.amountPaid) {
+      console.log(`[Webhook] Booking ${bookingId} already processed, skipping`);
+      return;
+    }
+
+    // Update booking with payment details
+    const amountPaid = session.amount_total ? (session.amount_total / 100).toString() : "0";
+
+    await db
+      .update(sessionBookings)
+      .set({
+        status: "confirmed",
+        stripePurchaseId: session.payment_intent as string,
+        amountPaid,
+        updatedAt: new Date(),
+      })
+      .where(eq(sessionBookings.id, bookingId));
+
+    console.log(`[Webhook] Updated booking ${bookingId} status to confirmed`);
+
+    // Send confirmation email
+    if (bookingData.sessionType) {
+      await sendBookingConfirmationEmail({
+        email: bookingData.booking.email,
+        fullName: bookingData.booking.fullName,
+        sessionTitle: bookingData.sessionType.title,
+        sessionDuration: bookingData.sessionType.duration,
+        sessionPrice: bookingData.sessionType.price,
+        bookingId: bookingData.booking.id,
+      });
+      console.log(`[Webhook] Sent confirmation email to ${bookingData.booking.email}`);
+    }
+
+    console.log(`[Webhook] Successfully processed session booking payment for ${bookingId}`);
+  } catch (error) {
+    console.error("[Webhook] Error handling session booking payment:", error);
     throw error;
   }
 }

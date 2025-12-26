@@ -105,7 +105,7 @@ async function seed() {
       .values([
         { name: "VIDEO", description: "Video content" },
         { name: "PDF", description: "PDF learning docs" },
-        { name: "MOCK", description: "Mock tests & question banks" },
+        { name: "Question Bank", description: "Mock tests & question banks" },
       ])
       .onConflictDoNothing();
 
@@ -124,8 +124,10 @@ async function seed() {
         title: "Professional Responsibility",
         description: "Ethics, professional conduct, and lawyer-client relationships.",
         thumbnail: "/images/subjects/professional-responsibility.jpg",
-        demoVideoUrl: "https://www.youtube.com/watch?v=demo1",
+        demoVideoUrl: "https://youtu.be/fiaTIN6g5fI?si=ggrx2u6HZYnd0P6i",
         isActive: true,
+        bundle_price: "200.00",
+        is_bundle_enabled: true,
       },
       {
         streamId: ncaStream.id,
@@ -133,8 +135,10 @@ async function seed() {
         title: "Canadian Administrative Law",
         description: "Navigate government decision-making and regulatory frameworks.",
         thumbnail: "/images/subjects/administrative-law.jpg",
-        demoVideoUrl: "https://www.youtube.com/watch?v=demo2",
+        demoVideoUrl: "https://youtu.be/UImrau29cu8?si=TgaknMmLZp3lMbl7",
         isActive: true,
+        bundle_price: "200.00",
+        is_bundle_enabled: true,
       },
       {
         streamId: ncaStream.id,
@@ -142,8 +146,10 @@ async function seed() {
         title: "Canadian Constitutional Law",
         description: "Master the foundations of Canada's constitutional framework and charter rights.",
         thumbnail: "/images/subjects/constitutional-law.jpg",
-        demoVideoUrl: "https://www.youtube.com/watch?v=demo3",
+        demoVideoUrl: "https://youtu.be/_9ye3TCzVp8?si=jpZRW6AN5cvZL4_Q",
         isActive: true,
+        bundle_price: "200.00",
+        is_bundle_enabled: true,
       },
       {
         streamId: ncaStream.id,
@@ -151,8 +157,10 @@ async function seed() {
         title: "Canadian Criminal Law",
         description: "Comprehensive coverage of criminal procedures, offenses, and defenses.",
         thumbnail: "/images/subjects/criminal-law.jpg",
-        demoVideoUrl: "https://www.youtube.com/watch?v=demo4",
+        demoVideoUrl: "https://youtu.be/dz3ik3XzR54?si=u9m5QdBG06c3CUha",
         isActive: true,
+        bundle_price: "200.00",
+        is_bundle_enabled: true,
       },
       {
         streamId: ncaStream.id,
@@ -160,8 +168,10 @@ async function seed() {
         title: "Foundations of Canadian Law",
         description: "Essential legal principles and the Canadian legal system overview.",
         thumbnail: "/images/subjects/foundations-law.jpg",
-        demoVideoUrl: "https://www.youtube.com/watch?v=demo5",
+        demoVideoUrl: "https://youtu.be/GDF2gFC-zlM?si=8Ucll1YmTeMHSrl4",
         isActive: true,
+        bundle_price: "200.00",
+        is_bundle_enabled: true,
       },
       {
         streamId: ncaStream.id,
@@ -169,8 +179,10 @@ async function seed() {
         title: "Legal Research and Writing",
         description: "Professional research assistance and writing guidance.",
         thumbnail: "/images/subjects/legal-research.jpg",
-        demoVideoUrl: "https://www.youtube.com/watch?v=demo6",
+        demoVideoUrl: "https://youtu.be/4Bsc2uI_LsM?si=DN6UooasGRCDvqMI",
         isActive: true,
+        bundle_price: "200.00",
+        is_bundle_enabled: true,
       },
       // Ontario Bar Subjects
       {
@@ -179,8 +191,10 @@ async function seed() {
         title: "Ontario Bar General Overview",
         description: "Non-exam specific subject covering general bar requirements",
         thumbnail: "/images/subjects/ontario-bar-general.jpg",
-        demoVideoUrl: "https://www.youtube.com/watch?v=demo7",
+        demoVideoUrl: "https://youtu.be/6LD30ChPsSs?si=qPE9QPc_Y1OzK22B",
         isActive: true,
+        bundle_price: "250.00",
+        is_bundle_enabled: true,
       },
       {
         streamId: ontarioStream.id,
@@ -188,8 +202,10 @@ async function seed() {
         title: "Solicitor — Civil Litigation",
         description: "Complete preparation for the Solicitor track civil litigation exam",
         thumbnail: "/images/subjects/solicitor-civil.jpg",
-        demoVideoUrl: "https://www.youtube.com/watch?v=demo8",
+        demoVideoUrl: "https://youtu.be/Y23dN3JZrcE?si=6b0OxmUwnN96mmjM",
         isActive: true,
+        bundle_price: "200.00",
+        is_bundle_enabled: true,
       },
       {
         streamId: ontarioStream.id,
@@ -197,8 +213,10 @@ async function seed() {
         title: "Barrister — Criminal Law",
         description: "Complete preparation for the Barrister track criminal law exam",
         thumbnail: "/images/subjects/barrister-criminal.jpg",
-        demoVideoUrl: "https://www.youtube.com/watch?v=demo9",
+        demoVideoUrl: "https://youtu.be/Eo9hZz3oizk?si=nJhee6pk5-u9h2Ip",
         isActive: true,
+        bundle_price: "250.00",
+        is_bundle_enabled: true,
       },
     ];
 
@@ -291,7 +309,42 @@ async function seed() {
     }
     console.log("Email templates ready");
 
-    console.log(`\nSeeded ${subjects.length} subjects\n`);
+    // ==========================
+    // Session Types
+    // ==========================
+    console.log("Creating session types...");
+    const sessionTypesData = [
+      {
+        title: "NCA Assessment Process Guidance",
+        description: "Get expert guidance on the NCA assessment process, including credential evaluation and next steps.",
+        duration: 30,
+        price: "10.00",
+        isActive: true,
+      },
+      {
+        title: "NCA Exam Preparation Guidance",
+        description: "Personalized exam preparation strategies and study plans tailored to your needs.",
+        duration: 30,
+        price: "10.00",
+        isActive: true,
+      },
+      {
+        title: "Teaching / Answer Writing",
+        description: "One-on-one teaching session on any topic or answer writing guidance to improve your exam performance.",
+        duration: 60,
+        price: "50.00",
+        isActive: true,
+      },
+    ];
+
+    await db.insert(schema.sessionTypes)
+      .values(sessionTypesData)
+      .onConflictDoNothing();
+
+    const sessionTypes = await db.select().from(schema.sessionTypes);
+    console.log("Session types ready");
+
+    console.log(`\nSeeded ${subjects.length} subjects and ${sessionTypes.length} session types\n`);
 
   } catch (err) {
     console.error("❌ Seed error:", err);

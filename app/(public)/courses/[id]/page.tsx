@@ -1,266 +1,358 @@
-import React from 'react';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @next/next/no-img-element */
+/* eslint-disable react/no-unescaped-entities */
+import { CheckCircle, ArrowLeft, Clock, Users, Award, BookOpen } from "lucide-react";
+import Link from "next/link";
+import { getSubjectById } from "@/lib/actions/subjects";
+import { EmptyState } from "@/components/EmptyState";
+import { DemoVideoButton } from "@/components/DemoVideoButton";
+import { AddToCartButton } from "@/components/learner/add-to-cart-button";
+import { getCartItems } from "@/lib/actions/cart";
+import {
+  getContentTypeIcon,
+  getContentTypeColor,
+  getContentBundleDescription
+} from "@/lib/content-type-utils";
+import { getActiveSubjectContents } from "@/lib/actions/subject-contents";
 import Header from '@/components/home/Header';
 import Footer from '@/components/home/Footer';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { MonitorPlay, FileText, Lock, Unlock, Clock, Tag, User, BookOpen, Share2 } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import Link from 'next/link';
-import { notFound } from 'next/navigation';
-import { getSubjectById } from '@/lib/actions/subjects';
-import { getActiveSubjectContents } from '@/lib/actions/subject-contents';
+import auth from "@/auth";
 
-export default async function CourseDetailsPage({ params }: { params: { id: string } }) {
-    const [subjectResult, contentsResult] = await Promise.all([
-        getSubjectById(params.id),
-        getActiveSubjectContents(params.id),
-    ]);
+export default async function PublicCourseDetailsPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const [subjectResult, contentsResult] = await Promise.all([
+    getSubjectById(id),
+    getActiveSubjectContents(id),
+  ]);
 
-    if (!subjectResult.success || !subjectResult.data) {
-        notFound();
-    }
-
-    const { subject, stream, examType } = subjectResult.data;
-    const contents = contentsResult.success && contentsResult.data ? contentsResult.data : [];
-
-    // Group contents by content type
-    const contentsByType = contents.reduce((acc: any, item: any) => {
-        const typeName = item.contentType?.name || 'Other';
-        if (!acc[typeName]) {
-            acc[typeName] = [];
-        }
-        acc[typeName].push(item);
-        return acc;
-    }, {});
-
-    const formatDuration = (minutes: number | null) => {
-        if (!minutes) return 'N/A';
-        const hours = Math.floor(minutes / 60);
-        const mins = minutes % 60;
-        if (hours > 0) {
-            return `${hours}h ${mins}m`;
-        }
-        return `${mins} min`;
-    };
-
-    const getContentIcon = (typeName: string, hasAccess: boolean) => {
-        const isVideo = typeName?.toLowerCase().includes('video');
-        const Icon = isVideo ? MonitorPlay : FileText;
-        const LockIcon = hasAccess ? Unlock : Lock;
-        return { Icon, LockIcon, hasAccess };
-    };
-
+  if (!subjectResult.success || !subjectResult.data) {
     return (
-        <>
-            <Header />
-            <section className="course-details pt-32 pb-40 bg-gray-50/30">
-                <div className="container">
-                    <div className="row">
-                        {/* Left Column */}
-                        <div className="col-xl-9 col-lg-8">
-                            <div className="course-details-content pr-lg-5">
-                                <div className="course-details-img mb-10 rounded-3xl overflow-hidden shadow-lg border border-gray-100">
-                                    {subject.thumbnail ? (
-                                        <img src={subject.thumbnail} alt={subject.title} className="w-100 h-auto object-cover" />
-                                    ) : (
-                                        <div className="w-full h-80 bg-gradient-to-br from-blue-600/20 to-teal-500/20 flex items-center justify-center">
-                                            <span className="text-9xl font-bold text-blue-600/30">
-                                                {subject.title.charAt(0)}
-                                            </span>
-                                        </div>
-                                    )}
-                                </div>
-                                <div className="details-inner mb-10">
-                                    <ul className="details-meta flex gap-4 mb-6 text-xs font-bold text-white pl-0 list-none">
-                                        {stream && (
-                                            <li className="bg-teal-500 px-5 py-2 rounded-full shadow-sm shadow-teal-500/20">
-                                                {stream.name}
-                                            </li>
-                                        )}
-                                        {examType && (
-                                            <li className="bg-blue-600 px-5 py-2 rounded-full shadow-sm shadow-blue-600/20">
-                                                {examType.name}
-                                            </li>
-                                        )}
-                                    </ul>
-                                    <h2 className="title text-4xl md:text-5xl font-bold mb-8 text-gray-900 leading-tight">
-                                        {subject.title}
-                                    </h2>
-                                    {subject.description && (
-                                        <p className="text-lg text-gray-600 leading-relaxed mb-6">
-                                            {subject.description}
-                                        </p>
-                                    )}
-                                </div>
-
-                                <div className="course-details-tab border border-gray-200 rounded-2xl overflow-hidden bg-white shadow-sm">
-                                    <Tabs defaultValue="overview" className="w-full">
-                                        <TabsList className="w-full justify-start bg-gray-50 border-b border-gray-200 p-0 h-auto flex-wrap">
-                                            <TabsTrigger value="overview" className="flex-1 rounded-none border-t-4 border-transparent data-[state=active]:border-teal-500 data-[state=active]:bg-white data-[state=active]:text-teal-600 data-[state=active]:shadow-none px-8 py-5 text-gray-500 font-bold text-lg transition-all hover:text-teal-600 gap-2">
-                                                <BookOpen size={20} /> Overview
-                                            </TabsTrigger>
-                                            <TabsTrigger value="curriculum" className="flex-1 rounded-none border-t-4 border-transparent data-[state=active]:border-teal-500 data-[state=active]:bg-white data-[state=active]:text-teal-600 data-[state=active]:shadow-none px-8 py-5 text-gray-500 font-bold text-lg transition-all hover:text-teal-600 gap-2">
-                                                <FileText size={20} /> Content
-                                            </TabsTrigger>
-                                        </TabsList>
-
-                                        <div className="p-10 md:p-12 bg-white">
-                                            <TabsContent value="overview" className="prose max-w-none text-gray-600 mt-0">
-                                                <h3 className="text-3xl font-bold text-gray-900 mb-8">Course Description</h3>
-                                                <p className="mb-8 leading-loose text-lg">
-                                                    {subject.description || 'Comprehensive preparation for your NCA exam with expert-curated content designed to help you succeed.'}
-                                                </p>
-
-                                                <h3 className="text-3xl font-bold text-gray-900 mb-8">What You'll Get</h3>
-                                                <ul className="space-y-3 mb-6">
-                                                    {Object.keys(contentsByType).map((typeName) => (
-                                                        <li key={typeName} className="flex items-center gap-3">
-                                                            <span className="w-2 h-2 bg-teal-500 rounded-full"></span>
-                                                            <span className="text-lg">{contentsByType[typeName].length} {typeName} {contentsByType[typeName].length === 1 ? 'item' : 'items'}</span>
-                                                        </li>
-                                                    ))}
-                                                </ul>
-
-                                                {subject.isBundleEnabled && (
-                                                    <>
-                                                        <h3 className="text-3xl font-bold text-gray-900 mb-8 mt-10">Bundle Pricing</h3>
-                                                        <p className="leading-loose text-lg">
-                                                            Get access to all content types at a discounted price with our bundle option.
-                                                            Purchase everything together and save!
-                                                        </p>
-                                                    </>
-                                                )}
-                                            </TabsContent>
-
-                                            <TabsContent value="curriculum" className="mt-0">
-                                                <div className="curriculum-area">
-                                                    {Object.keys(contentsByType).length === 0 ? (
-                                                        <div className="text-center py-12 text-gray-500">
-                                                            <p>No content available yet. Check back soon!</p>
-                                                        </div>
-                                                    ) : (
-                                                        <Accordion type="single" collapsible defaultValue="item-0" className="w-full space-y-6">
-                                                            {Object.entries(contentsByType).map(([typeName, items]: [string, any], typeIndex) => (
-                                                                <AccordionItem
-                                                                    key={typeName}
-                                                                    value={`item-${typeIndex}`}
-                                                                    className="bg-white border border-gray-200 rounded-xl px-0 overflow-hidden shadow-sm"
-                                                                >
-                                                                    <AccordionTrigger className="hover:no-underline font-bold text-xl py-5 px-8 bg-gray-50 text-gray-900 data-[state=open]:text-teal-600 data-[state=open]:bg-white border-b border-transparent data-[state=open]:border-gray-100">
-                                                                        {typeName} ({items.length} items)
-                                                                    </AccordionTrigger>
-                                                                    <AccordionContent className="px-8 pt-6 pb-2">
-                                                                        <ul className="space-y-5 pb-2 text-gray-600 list-none pl-0">
-                                                                            {items.map((item: any) => {
-                                                                                const { Icon, LockIcon, hasAccess } = getContentIcon(
-                                                                                    item.contentType?.name || '',
-                                                                                    item.hasAccess || false
-                                                                                );
-                                                                                return (
-                                                                                    <li
-                                                                                        key={item.content.id}
-                                                                                        className="flex justify-between items-center border-b border-dashed border-gray-200 pb-4 last:border-0 last:pb-0"
-                                                                                    >
-                                                                                        <div className="flex items-center gap-4 font-medium text-lg">
-                                                                                            <Icon size={20} className="text-teal-500" />
-                                                                                            {item.content.title}
-                                                                                        </div>
-                                                                                        <div className="flex items-center gap-3">
-                                                                                            <span className="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-md">
-                                                                                                ${item.content.price}
-                                                                                            </span>
-                                                                                            {item.content.duration && (
-                                                                                                <span className="text-sm font-semibold text-gray-500">
-                                                                                                    {formatDuration(item.content.duration)}
-                                                                                                </span>
-                                                                                            )}
-                                                                                            <LockIcon
-                                                                                                size={14}
-                                                                                                className={hasAccess ? 'text-teal-500' : 'text-red-400'}
-                                                                                            />
-                                                                                        </div>
-                                                                                    </li>
-                                                                                );
-                                                                            })}
-                                                                        </ul>
-                                                                    </AccordionContent>
-                                                                </AccordionItem>
-                                                            ))}
-                                                        </Accordion>
-                                                    )}
-                                                </div>
-                                            </TabsContent>
-                                        </div>
-                                    </Tabs>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Right Sidebar */}
-                        <div className="col-xl-3 col-lg-4">
-                            <div className="sticky top-24 space-y-8">
-                                {subject.isBundleEnabled && subject.bundlePrice && (
-                                    <div className="course-sidebar p-10 bg-white border border-gray-100 rounded-3xl shadow-xl shadow-gray-200/50">
-                                        <div className="flex items-center gap-4 mb-8 pb-8 border-b border-gray-100">
-                                            <h4 className="price text-5xl font-bold text-gray-900 mb-0">
-                                                ${subject.bundlePrice}
-                                            </h4>
-                                            <span className="text-sm font-bold text-white bg-teal-500 px-3 py-1.5 rounded-lg shadow-lg shadow-teal-500/30">
-                                                Bundle
-                                            </span>
-                                        </div>
-                                        <div className="flex flex-col gap-4">
-                                            <button className="w-100 bg-teal-600 text-white font-bold py-4 rounded-xl hover:bg-teal-700 transition-all shadow-lg shadow-teal-600/30 uppercase tracking-wide text-sm border-0 transform hover:-translate-y-1">
-                                                Add to Cart
-                                            </button>
-                                            <button className="w-100 bg-white text-teal-600 border-2 border-teal-600 font-bold py-3.5 rounded-xl hover:bg-teal-50 transition-colors uppercase tracking-wide text-sm">
-                                                Buy Now
-                                            </button>
-                                        </div>
-                                    </div>
-                                )}
-
-                                <div className="course-sidebar p-10 bg-white border border-gray-100 rounded-3xl shadow-xl shadow-gray-200/50">
-                                    <h4 className="sidebar-title text-xl font-bold mb-8 text-gray-900 pb-4 border-b border-gray-100">
-                                        Course Information
-                                    </h4>
-                                    <ul className="course-sidebar-list space-y-0 text-gray-600 list-none pl-0">
-                                        {stream && (
-                                            <li className="flex items-center justify-between border-b border-dashed border-gray-100 py-4 last:border-0">
-                                                <span className="flex items-center gap-3 text-sm font-medium">
-                                                    <Tag size={20} className="text-teal-500" />Stream:
-                                                </span>
-                                                <span className="font-bold text-gray-900 text-sm">{stream.name}</span>
-                                            </li>
-                                        )}
-                                        {examType && (
-                                            <li className="flex items-center justify-between border-b border-dashed border-gray-100 py-4 last:border-0">
-                                                <span className="flex items-center gap-3 text-sm font-medium">
-                                                    <BookOpen size={20} className="text-teal-500" />Exam Type:
-                                                </span>
-                                                <span className="font-bold text-gray-900 text-sm">{examType.name}</span>
-                                            </li>
-                                        )}
-                                        <li className="flex items-center justify-between border-b border-dashed border-gray-100 py-4 last:border-0">
-                                            <span className="flex items-center gap-3 text-sm font-medium">
-                                                <FileText size={20} className="text-teal-500" />Total Items:
-                                            </span>
-                                            <span className="font-bold text-gray-900 text-sm">{contents.length}</span>
-                                        </li>
-                                    </ul>
-                                    <div className="share-btn mt-10 pt-8 border-t border-gray-100">
-                                        <button className="w-100 flex items-center justify-center gap-2 bg-gray-50 text-teal-600 py-4 rounded-xl hover:bg-teal-600 hover:text-white transition-all font-bold text-sm border-0">
-                                            <Share2 size={18} /> Share This Course
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-            <Footer />
-        </>
+      <>
+        <Header />
+        <div className="container py-5 min-vh-100">
+          <div className="my-5">
+            <EmptyState
+              title="Course not found"
+              description="The course you're looking for doesn't exist or has been removed."
+            />
+          </div>
+        </div>
+        <Footer />
+      </>
     );
+  }
+
+  const { subject, stream, examType } = subjectResult.data;
+  const contents = contentsResult.success && contentsResult.data ? contentsResult.data : [];
+
+  // Group contents by content type to get all content types
+  const contentTypesMap = new Map();
+  contents.forEach((item: any) => {
+    if (item.contentType) {
+      contentTypesMap.set(item.contentType.id, item.contentType);
+    }
+  });
+  const contentTypes = Array.from(contentTypesMap.values());
+
+  // Fetch cart items to check what's already added (only for logged-in users)
+  const session = await auth();
+  const cartItems = session?.user?.id ? await getCartItems() : [];
+
+  const isItemInCart = (contentTypeId: string | null, isBundle: boolean) => {
+    return cartItems.some(item =>
+      item.subjectId === subject.id &&
+      item.isBundle === isBundle &&
+      (isBundle || item.contentTypeId === contentTypeId)
+    );
+  };
+
+  // Group contents by content type
+  const contentsByType = contents.reduce((acc: any, item: any) => {
+    const typeId = item.contentType?.id;
+    if (typeId) {
+      if (!acc[typeId]) {
+        acc[typeId] = [];
+      }
+      acc[typeId].push(item.content);
+    }
+    return acc;
+  }, {} as Record<string, any[]>);
+
+  // Calculate total price for each content type by summing individual content prices
+  const getContentTypePrice = (contentTypeId: string): number => {
+    const typeContents = contentsByType[contentTypeId] || [];
+    return typeContents.reduce((sum: number, content: any) => {
+      return sum + parseFloat(content.price || "0");
+    }, 0);
+  };
+
+  return (
+    <>
+      <Header />
+      <section className="course-details-section bg-light py-5">
+        <div className="container">
+          {/* Breadcrumb */}
+          <nav aria-label="breadcrumb" className="mb-4">
+            <Link
+              href="/courses"
+              className="d-inline-flex align-items-center text-decoration-none text-primary fw-medium"
+            >
+              <ArrowLeft className="me-2 icon-16" />
+              <span className="hover-text-dark">Back to All Courses</span>
+            </Link>
+          </nav>
+
+          {/* Main Content */}
+          <div className="row g-4">
+            {/* Left Column - Course Details */}
+            <div className="col-12 col-lg-8">
+              {/* Course Image */}
+              {subject.thumbnail && (
+                <div className="card border-0 shadow-lg mb-4 overflow-hidden course-hero-card">
+                  <div className="position-relative">
+                    <div className="ratio ratio-16x9">
+                      <img
+                        src={subject.thumbnail}
+                        alt={subject.title}
+                        className="object-fit-cover"
+                      />
+                    </div>
+                    {subject.demoVideoUrl && (
+                      <DemoVideoButton videoUrl={subject.demoVideoUrl} courseTitle={subject.title} />
+                    )}
+                    <div className="position-absolute top-0 start-0 m-3">
+                      <span className="badge bg-white text-dark px-3 py-2 shadow-sm">
+                        <BookOpen className="icon-16 me-1" />
+                        Preview Available
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Course Title & Meta */}
+              <div className="mb-4">
+                <div className="d-flex flex-wrap gap-2 mb-3">
+                  {stream && (
+                    <span className="badge bg-primary-subtle text-primary px-3 py-2 fs-6">
+                      {stream.name}
+                    </span>
+                  )}
+                  {examType && (
+                    <span className="badge bg-info-subtle text-info px-3 py-2 fs-6">
+                      {examType.name}
+                    </span>
+                  )}
+                </div>
+
+                <h1 className="display-4 fw-bold mb-3 text-dark">{subject.title}</h1>
+
+                {subject.description && (
+                  <p className="lead text-muted mb-4">{subject.description}</p>
+                )}
+
+                {/* Course Stats */}
+                <div className="d-flex flex-wrap gap-4 mb-4">
+                  <div className="d-flex align-items-center text-muted">
+                    <BookOpen className="icon-20 me-2 text-primary" />
+                    <span className="fw-medium">{contents.length} Learning Items</span>
+                  </div>
+                  <div className="d-flex align-items-center text-muted">
+                    <Award className="icon-20 me-2 text-success" />
+                    <span className="fw-medium">Professional Certification</span>
+                  </div>
+                  <div className="d-flex align-items-center text-muted">
+                    <Clock className="icon-20 me-2 text-warning" />
+                    <span className="fw-medium">Lifetime Access</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* What You'll Learn Card */}
+              <div className="card border-0 shadow-sm mb-4">
+                <div className="card-body p-4 p-lg-5">
+                  <h3 className="h4 fw-bold mb-4 text-dark">
+                    <Award className="icon-24 me-2 text-primary" />
+                    What You'll Learn
+                  </h3>
+                  <div className="row g-3">
+                    {contentTypes.map((ct: any) => (
+                      <div key={ct.id} className="col-12 col-md-6">
+                        <div className="d-flex align-items-start">
+                          <CheckCircle className="text-success flex-shrink-0 icon-20 me-3 mt-1" />
+                          <div>
+                            <h6 className="fw-bold mb-1">{ct.name} Content</h6>
+                            {ct.description && (
+                              <p className="text-muted small mb-0">{ct.description}</p>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Course Features */}
+              <div className="card border-0 shadow-sm">
+                <div className="card-body p-4 p-lg-5">
+                  <h3 className="h4 fw-bold mb-4 text-dark">Course Features</h3>
+                  <div className="row g-4">
+                    <div className="col-6 col-md-3 text-center">
+                      <div className="p-3 bg-primary-subtle rounded-3 mb-2 d-inline-block">
+                        <BookOpen className="icon-32 text-primary" />
+                      </div>
+                      <p className="fw-medium mb-0 small">Rich Content</p>
+                    </div>
+                    <div className="col-6 col-md-3 text-center">
+                      <div className="p-3 bg-success-subtle rounded-3 mb-2 d-inline-block">
+                        <Users className="icon-32 text-success" />
+                      </div>
+                      <p className="fw-medium mb-0 small">Expert Support</p>
+                    </div>
+                    <div className="col-6 col-md-3 text-center">
+                      <div className="p-3 bg-warning-subtle rounded-3 mb-2 d-inline-block">
+                        <Clock className="icon-32 text-warning" />
+                      </div>
+                      <p className="fw-medium mb-0 small">Lifetime Access</p>
+                    </div>
+                    <div className="col-6 col-md-3 text-center">
+                      <div className="p-3 bg-info-subtle rounded-3 mb-2 d-inline-block">
+                        <Award className="icon-32 text-info" />
+                      </div>
+                      <p className="fw-medium mb-0 small">Certification</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Column - Pricing */}
+            <div className="col-12 col-lg-4">
+              <div className="sticky-top-custom">
+                {/* Bundle Card */}
+                {subject.isBundleEnabled && subject.bundlePrice && (
+                  <div className="card border-0 shadow-lg mb-4 overflow-hidden bundle-card">
+                    {/* Best Value Ribbon */}
+                    <div className="bg-gradient-primary text-white text-center py-3">
+                      <h6 className="mb-0 fw-bold">
+                        <Award className="icon-16 me-2" />
+                        ⚡ BEST VALUE - COMPLETE BUNDLE
+                      </h6>
+                    </div>
+
+                    <div className="card-body p-4">
+                      {/* Price */}
+                      <div className="text-center mb-4 pb-4 border-bottom">
+                        <div className="d-flex align-items-center justify-content-center gap-3 mb-3">
+                          <span className="display-3 fw-bold text-primary">${subject.bundlePrice}</span>
+                          {(() => {
+                            const totalIndividual = contentTypes.reduce((sum: number, ct: any) => sum + getContentTypePrice(ct.id), 0);
+                            const bundlePrice = parseFloat(subject.bundlePrice);
+                            const savings = totalIndividual - bundlePrice;
+                            const discountPercent = totalIndividual > 0 ? Math.round((savings / totalIndividual) * 100) : 0;
+
+                            return totalIndividual > bundlePrice ? (
+                              <div className="text-start">
+                                <div className="text-muted text-decoration-line-through fs-4">${totalIndividual.toFixed(2)}</div>
+                                <span className="badge bg-success fs-6">{discountPercent}% OFF</span>
+                              </div>
+                            ) : null;
+                          })()}
+                        </div>
+                        <p className="text-muted mb-0">One-time payment • Lifetime access</p>
+                      </div>
+
+                      {/* What's Included */}
+                      <div className="mb-4">
+                        <h6 className="fw-bold mb-3">This bundle includes:</h6>
+                        <div className="list-group list-group-flush">
+                          {contentTypes.map((ct: any) => (
+                            <div key={ct.id} className="list-group-item px-0 border-0 py-2">
+                              <CheckCircle className="text-success icon-16 me-2" />
+                              <span className="fw-medium small">All {ct.name} {getContentBundleDescription(ct.name)}</span>
+                            </div>
+                          ))}
+                          <div className="list-group-item px-0 border-0 py-2">
+                            <CheckCircle className="text-success icon-16 me-2" />
+                            <span className="fw-medium small">Lifetime Access</span>
+                          </div>
+                          <div className="list-group-item px-0 border-0 py-2">
+                            <CheckCircle className="text-success icon-16 me-2" />
+                            <span className="fw-medium small">Expert Support</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* CTA Button */}
+                      <AddToCartButton
+                        subjectId={subject.id}
+                        contentTypeId={null}
+                        isBundle={true}
+                        price={parseFloat(subject.bundlePrice || "0")}
+                        buttonText="Add Complete Bundle to Cart"
+                        size="lg"
+                        fullWidth={true}
+                        className="btn btn-primary btn-lg w-100 fw-bold py-3 shadow-sm"
+                        initialIsAdded={isItemInCart(null, true)}
+                      />
+
+                      <p className="text-center text-muted small mb-0 mt-3">
+                        30-day money-back guarantee
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Individual Items Card */}
+                <div className="card border-0 shadow-sm">
+                  <div className="card-body p-4">
+                    <h5 className="fw-bold mb-3">
+                      {subject.isBundleEnabled && subject.bundlePrice
+                        ? "Or buy individually:"
+                        : "Available Content:"}
+                    </h5>
+
+                    <div className="d-flex flex-column gap-3">
+                      {contentTypes.map((ct: any) => {
+                        const Icon = getContentTypeIcon(ct.name);
+                        const colors = getContentTypeColor(ct.name);
+                        return (
+                          <div key={ct.id} className="p-3 border rounded-3 hover-shadow-sm transition-all">
+                            <div className="d-flex align-items-center justify-content-between mb-2">
+                              <div className="d-flex align-items-center gap-2">
+                                <div className={`rounded-circle d-flex align-items-center justify-content-center ${colors.bg} icon-32`}>
+                                  <Icon className={`${colors.icon} icon-16`} />
+                                </div>
+                                <div>
+                                  <h6 className="fw-bold mb-0 small">{ct.name}</h6>
+                                  <p className="text-primary fw-bold mb-0 fs-6">${getContentTypePrice(ct.id).toFixed(2)}</p>
+                                </div>
+                              </div>
+                            </div>
+                            <AddToCartButton
+                              subjectId={subject.id}
+                              contentTypeId={ct.id}
+                              isBundle={false}
+                              price={getContentTypePrice(ct.id)}
+                              buttonText="Add to Cart"
+                              size="sm"
+                              variant="outline"
+                              className="btn btn-outline-primary btn-sm w-100 fw-medium"
+                              initialIsAdded={isItemInCart(ct.id, false)}
+                            />
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <Footer />
+    </>
+  );
 }

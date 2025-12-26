@@ -7,10 +7,14 @@ import {
   purchases,
   userAccess,
   contentTypes,
+  sessionBookings,
+  sessionTypes,
 } from "@/lib/db/schema";
 import { eq, and } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
-import { getCheckoutSession } from "@/lib/stripe/utils";
+import { getCheckoutSession, formatAmountForStripe } from "@/lib/stripe/utils";
+import { stripe } from "@/lib/stripe/config";
+import { requireAuth } from "@/lib/auth/helpers";
 
 /**
  * Verify and process a Stripe checkout session
@@ -202,5 +206,115 @@ export async function isCheckoutProcessed(sessionId: string): Promise<boolean> {
   } catch (error) {
     console.error("Error checking checkout status:", error);
     return false;
+  }
+}
+
+/**
+ * Create Stripe checkout session for session booking
+ */
+export async function createSessionCheckout(bookingId: string): Promise<{
+  success: boolean;
+  checkoutUrl?: string;
+  error?: string;
+}> {
+  try {
+    const session = await requireAuth();
+    const userId = session.user.id;
+
+    // Get booking details
+    const [bookingData] = await db
+      .select({
+        booking: sessionBookings,
+        sessionType: sessionTypes,
+      })
+      .from(sessionBookings)
+      .leftJoin(sessionTypes, eq(sessionBookings.sessionTypeId, sessionTypes.id))
+      .where(eq(sessionBookings.id, bookingId))
+      .limit(1);
+
+    if (!bookingData) {
+      return {
+        success: false,
+        error: "Booking not found",
+      };
+    }
+
+    // Verify booking belongs to user
+    if (bookingData.booking.userId !== userId) {
+      return {
+        success: false,
+        error: "Unauthorized - booking does not belong to you",
+      };
+    }
+
+    // Verify session type exists
+    if (!bookingData.sessionType) {
+      return {
+        success: false,
+        error: "Session type not found",
+      };
+    }
+
+    // Check if booking already has a Stripe session
+    if (bookingData.booking.stripeSessionId) {
+      return {
+        success: false,
+        error: "Booking already has a payment session",
+      };
+    }
+
+    // Create Stripe checkout session
+    const priceInCents = formatAmountForStripe(
+      parseFloat(bookingData.sessionType.price),
+      "CAD"
+    );
+
+    const checkoutSession = await stripe.checkout.sessions.create({
+      mode: "payment",
+      payment_method_types: ["card"],
+      line_items: [
+        {
+          price_data: {
+            currency: "cad",
+            product_data: {
+              name: bookingData.sessionType.title,
+              description: bookingData.sessionType.description || undefined,
+            },
+            unit_amount: priceInCents,
+          },
+          quantity: 1,
+        },
+      ],
+      success_url: `${process.env.NEXT_PUBLIC_APP_URL}/learner/checkout/success?session_id={CHECKOUT_SESSION_ID}&type=session`,
+      cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/learner/book-session?cancelled=true`,
+      metadata: {
+        userId,
+        bookingId,
+        type: "session_booking",
+      },
+      allow_promotion_codes: false,
+      billing_address_collection: "required",
+      customer_email: bookingData.booking.email,
+    });
+
+    // Update booking with Stripe session ID
+    await db
+      .update(sessionBookings)
+      .set({
+        stripeSessionId: checkoutSession.id,
+        updatedAt: new Date(),
+      })
+      .where(eq(sessionBookings.id, bookingId));
+
+    return {
+      success: true,
+      checkoutUrl: checkoutSession.url || undefined,
+    };
+  } catch (error) {
+    console.error("Create session checkout error:", error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Failed to create checkout session",
+    };
   }
 }

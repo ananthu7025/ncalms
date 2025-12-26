@@ -3,7 +3,7 @@
 
 import Link from "next/link";
 import { Play } from "lucide-react";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -39,8 +39,8 @@ export function CourseCard({
   showInactiveBadge = false,
   customActions,
 }: CourseCardProps) {
-  console.log(demoVideoUrl);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [imageError, setImageError] = useState(false);
 
   const handlePlayClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -50,100 +50,124 @@ export function CourseCard({
     }
   };
 
+  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+    console.error('Image failed to load:', thumbnail, e);
+    setImageError(true);
+  };
+
+  // Debug logging
+  useEffect(() => {
+    console.log('CourseCard render:', { title, thumbnail, imageError });
+  }, [title, thumbnail, imageError]);
+
   return (
     <>
-      <Link href={href} className="block">
-        <Card className="group h-full hover:shadow-card-hover transition-all duration-300 overflow-hidden cursor-pointer">
-          <div className="relative aspect-video overflow-hidden">
-            {thumbnail ? (
+      <Link href={href} className="block h-full group">
+        <Card className="h-full hover:shadow-2xl hover:border-blue-300 transition-all duration-300 overflow-hidden cursor-pointer flex flex-col border-gray-200">
+          {/* Thumbnail Section */}
+          <div className="relative aspect-[16/10] overflow-hidden bg-gray-100 shrink-0">
+            {thumbnail && !imageError ? (
               <img
                 src={thumbnail}
                 alt={title}
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                loading="lazy"
+                onLoad={() => console.log('Image loaded successfully:', thumbnail)}
+                onError={handleImageError}
+                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                style={{ display: 'block' }}
               />
             ) : (
               <div className="w-full h-full bg-gradient-to-br from-blue-600/20 to-teal-500/20 flex items-center justify-center">
-                <span className="text-6xl font-bold text-blue-600/30">
+                <span className="text-7xl font-bold text-blue-600/30">
                   {title.charAt(0)}
                 </span>
               </div>
             )}
 
+            {/* Demo Video Overlay */}
             {demoVideoUrl && (
               <div
-                className="absolute inset-0 bg-foreground/30 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity"
+                className="absolute inset-0 bg-black/40 backdrop-blur-[2px] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300"
                 onClick={handlePlayClick}
               >
                 <Button
                   size="lg"
-                  className="rounded-full w-12 h-12 gradient-primary"
+                  className="rounded-full w-14 h-14 bg-white/90 hover:bg-white text-blue-600 shadow-xl hover:scale-110 transition-transform"
                   onClick={handlePlayClick}
                 >
-                  <Play className="w-5 h-5" />
+                  <Play className="w-6 h-6 fill-current" />
                 </Button>
               </div>
             )}
 
+            {/* Status Badges */}
             {showInactiveBadge && !isActive && (
-              <Badge className="absolute top-3 left-3 bg-muted text-muted-foreground">
+              <Badge className="absolute top-3 left-3 bg-gray-800 text-white shadow-md">
                 Inactive
               </Badge>
             )}
 
             {isBundleEnabled && bundlePrice && (
-              <Badge className="absolute top-3 right-3 bg-teal-500 text-white">
+              <Badge className="absolute top-3 right-3 bg-teal-500 hover:bg-teal-600 text-white shadow-md font-semibold">
                 Bundle ${bundlePrice}
               </Badge>
             )}
           </div>
 
-          <CardContent className="p-6">
-            <div className="flex items-center gap-2 mb-3">
+          {/* Content Section */}
+          <CardContent className="p-6 flex-1 flex flex-col min-h-0">
+            {/* Category Badges */}
+            <div className="flex flex-wrap items-center gap-2 mb-4">
               {streamName && (
-                <Badge variant="secondary" className="text-xs">
+                <Badge variant="secondary" className="text-xs font-semibold bg-blue-50 text-blue-700 hover:bg-blue-100 px-3 py-1">
                   {streamName}
                 </Badge>
               )}
               {examTypeName && (
-                <Badge variant="outline" className="text-xs">
+                <Badge variant="outline" className="text-xs font-semibold border-teal-300 text-teal-700 px-3 py-1">
                   {examTypeName}
                 </Badge>
               )}
             </div>
 
-            <h3 className="font-bold text-xl line-clamp-2 group-hover:text-blue-600 transition-colors mb-3">
+            {/* Title */}
+            <h3 className="font-bold text-xl line-clamp-2 group-hover:text-blue-600 transition-colors mb-3 leading-tight">
               {title}
             </h3>
 
+            {/* Description */}
             {description && (
-              <p className="text-sm text-gray-600 line-clamp-3 mb-4">
+              <p className="text-sm text-gray-600 line-clamp-3 mb-auto leading-relaxed">
                 {description}
               </p>
             )}
 
-            <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+            {/* Footer with Price and Button */}
+            <div className="flex items-center justify-between pt-5 mt-6 border-t border-gray-200 gap-4">
               {customActions ? (
                 <>
-                  <div></div>
+                  <div className="flex-1"></div>
                   {customActions}
                 </>
               ) : (
                 <>
-                  {isBundleEnabled && bundlePrice ? (
-                    <div className="flex items-baseline gap-2">
-                      <span className="text-2xl font-bold text-blue-600">
-                        ${bundlePrice}
+                  <div className="flex-1 min-w-0">
+                    {isBundleEnabled && bundlePrice ? (
+                      <div className="flex items-baseline gap-2">
+                        <span className="text-2xl font-bold text-blue-600">
+                          ${bundlePrice}
+                        </span>
+                        <span className="text-sm text-gray-500 font-medium">Bundle</span>
+                      </div>
+                    ) : (
+                      <span className="text-sm text-gray-600 font-medium">
+                        Individual pricing
                       </span>
-                      <span className="text-sm text-gray-500">Bundle</span>
-                    </div>
-                  ) : (
-                    <span className="text-sm text-gray-500">
-                      Individual pricing
-                    </span>
-                  )}
+                    )}
+                  </div>
                   <Button
-                    size="sm"
-                    className="bg-gradient-to-r from-blue-600 to-teal-500 text-white hover:from-blue-700 hover:to-teal-600"
+                    size="default"
+                    className="bg-gradient-to-r from-blue-600 to-teal-500 text-white hover:from-blue-700 hover:to-teal-600 shadow-md hover:shadow-lg transition-all font-semibold shrink-0 px-6"
                   >
                     View Course
                   </Button>

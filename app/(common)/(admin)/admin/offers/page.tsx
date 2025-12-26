@@ -1,53 +1,38 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Switch } from '@/components/ui/switch';
-import { 
-  Plus, 
-  Percent, 
-  Tag, 
-  Gift,
-  Clock
-} from 'lucide-react';
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
+  Gift,
+  Tag,
+  Clock,
+  Percent
+} from 'lucide-react';
+import { getOffers, getOfferStats } from '@/lib/actions/offers';
+import { getActiveSubjects } from '@/lib/actions/subjects';
+import { getContentTypes } from '@/lib/actions/content-types';
+import { OffersTable } from '@/components/admin/offers/OffersTable';
+import { OfferDialog } from '@/components/admin/offers/OfferDialog';
 
-export default function AdminOffersUIOnly() {
+export default async function AdminOffersPage() {
+  // Fetch data in parallel
+  const [offersResult, statsResult, subjectsResult, contentTypesResult] = await Promise.all([
+    getOffers(),
+    getOfferStats(),
+    getActiveSubjects(),
+    getContentTypes(),
+  ]);
 
-  const mockOffers = [
-    {
-      id: '1',
-      name: 'New Year Sale',
-      code: 'NEWYEAR25',
-      discount: '25%',
-      course: 'All Courses',
-      bundle: 'All Bundles',
-      validity: '25 Dec 2024 ➝ 05 Jan 2025',
-      usage: '34 / 100',
-      isActive: true,
-    },
-    {
-      id: '2',
-      name: 'Video Bundle Special',
-      code: 'VIDEO20OFF',
-      discount: '$20',
-      course: 'Python Masterclass',
-      bundle: 'Video Bundle',
-      validity: '20 Dec 2024 ➝ 31 Dec 2024',
-      usage: '12 / 50',
-      isActive: true,
-    }
-  ];
+  const offers = offersResult.success && offersResult.data ? offersResult.data : [];
+  const stats = statsResult.success && statsResult.data ? statsResult.data : {
+    activeOffers: 0,
+    totalRedemptions: 0,
+    expiringSoon: 0,
+    avgDiscount: 0,
+  };
+  const subjects = subjectsResult.success && subjectsResult.data ? subjectsResult.data.map(s => s.subject) : [];
+  const contentTypes = contentTypesResult.success && contentTypesResult.data ? contentTypesResult.data : [];
 
   return (
     <div className="space-y-6 animate-fade-in">
-      
+
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
@@ -56,10 +41,10 @@ export default function AdminOffersUIOnly() {
             Manage discounts and promotional offers
           </p>
         </div>
-        <Button className="gradient-primary">
-          <Plus className="w-4 h-4 mr-2" />
-          Create Offer
-        </Button>
+        <OfferDialog
+          subjects={subjects}
+          contentTypes={contentTypes}
+        />
       </div>
 
       {/* Stats */}
@@ -72,7 +57,7 @@ export default function AdminOffersUIOnly() {
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Active Offers</p>
-                <p className="text-2xl font-bold">2</p>
+                <p className="text-2xl font-bold">{stats.activeOffers}</p>
               </div>
             </div>
           </CardContent>
@@ -86,7 +71,7 @@ export default function AdminOffersUIOnly() {
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Total Redemptions</p>
-                <p className="text-2xl font-bold">46</p>
+                <p className="text-2xl font-bold">{stats.totalRedemptions}</p>
               </div>
             </div>
           </CardContent>
@@ -100,7 +85,7 @@ export default function AdminOffersUIOnly() {
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Expiring Soon</p>
-                <p className="text-2xl font-bold">1</p>
+                <p className="text-2xl font-bold">{stats.expiringSoon}</p>
               </div>
             </div>
           </CardContent>
@@ -114,7 +99,7 @@ export default function AdminOffersUIOnly() {
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Avg. Discount</p>
-                <p className="text-2xl font-bold">22%</p>
+                <p className="text-2xl font-bold">{stats.avgDiscount}%</p>
               </div>
             </div>
           </CardContent>
@@ -127,49 +112,11 @@ export default function AdminOffersUIOnly() {
           <CardTitle>All Offers</CardTitle>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Offer</TableHead>
-                <TableHead>Code</TableHead>
-                <TableHead>Discount</TableHead>
-                <TableHead>Applies To</TableHead>
-                <TableHead>Validity</TableHead>
-                <TableHead>Usage</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {mockOffers.map((o) => (
-                <TableRow key={o.id}>
-                  <TableCell className="font-medium">{o.name}</TableCell>
-                  <TableCell>
-                    <Badge variant="outline">{o.code}</Badge>
-                  </TableCell>
-                  <TableCell>{o.discount}</TableCell>
-                  <TableCell>
-                    <div className="text-sm">
-                      <p>{o.course}</p>
-                      <p className="text-muted-foreground text-xs">
-                        {o.bundle}
-                      </p>
-                    </div>
-                  </TableCell>
-                  <TableCell>{o.validity}</TableCell>
-                  <TableCell>{o.usage}</TableCell>
-                  <TableCell>
-                    <Switch checked={o.isActive} disabled />
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <span className="text-sm text-muted-foreground">
-                      Edit | Delete
-                    </span>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+          <OffersTable
+            offers={offers}
+            subjects={subjects}
+            contentTypes={contentTypes}
+          />
         </CardContent>
       </Card>
 

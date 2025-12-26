@@ -1,8 +1,10 @@
+/* eslint-disable @next/next/no-img-element */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import {
   BookOpen,
   Clock,
@@ -13,16 +15,48 @@ import {
   TrendingUp,
   Edit
 } from 'lucide-react';
-import { currentUser, purchasedCourses, learnerStats } from '@/data/mockData';
 import Link from 'next/link';
+import { getProfileData } from '@/lib/actions/profile';
 
-export default function Profile() {
-  const achievements = [
-    { icon: Trophy, title: 'First Course', description: 'Completed your first course', earned: true },
-    { icon: Star, title: 'High Achiever', description: 'Scored 90%+ on an exam', earned: true },
-    { icon: TrendingUp, title: '7-Day Streak', description: 'Studied for 7 days in a row', earned: true },
-    { icon: Award, title: 'Scholar', description: 'Complete 5 courses', earned: false },
-  ];
+const iconMap: Record<string, any> = {
+  Trophy,
+  Star,
+  TrendingUp,
+  Award,
+};
+
+// Force dynamic rendering since we use auth() which requires headers
+export const dynamic = 'force-dynamic';
+
+export default async function Profile() {
+  const result = await getProfileData();
+
+  // Handle errors gracefully without redirecting
+  if (!result.success || !result.data) {
+    console.error('Profile data fetch error:', result.error);
+
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <Card className="w-full max-w-md">
+          <CardContent className="p-6 text-center">
+            <p className="text-lg font-medium">Unable to load profile data</p>
+            <p className="text-sm text-muted-foreground mt-2">{result.error || 'Please try again later'}</p>
+            <Link href="/learner/dashboard" className="mt-4 inline-block">
+              <Button>Return to Dashboard</Button>
+            </Link>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  const { user, stats, enrolledCourses, achievements } = result.data;
+
+  // Format member since date
+  const memberSince = new Date(user.createdAt).toLocaleDateString('en-US', {
+    month: 'short',
+    year: 'numeric',
+  });
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -32,8 +66,7 @@ export default function Profile() {
           <div className="flex flex-col md:flex-row items-center gap-6">
             <div className="relative">
               <Avatar className="w-24 h-24">
-                <AvatarImage src={currentUser.avatar} alt={currentUser.name} />
-                <AvatarFallback className="text-2xl">{currentUser.name.charAt(0)}</AvatarFallback>
+                <AvatarFallback className="text-2xl">{user.name.charAt(0)}</AvatarFallback>
               </Avatar>
               <Button
                 size="icon"
@@ -44,11 +77,11 @@ export default function Profile() {
               </Button>
             </div>
             <div className="text-center md:text-left flex-1">
-              <h1 className="text-2xl font-bold">{currentUser.name}</h1>
-              <p className="text-muted-foreground">{currentUser.email}</p>
+              <h1 className="text-2xl font-bold">{user.name}</h1>
+              <p className="text-muted-foreground">{user.email}</p>
               <div className="flex flex-wrap justify-center md:justify-start gap-2 mt-3">
                 <Badge variant="secondary">NCA Candidate</Badge>
-                <Badge variant="outline">Member since Jan 2024</Badge>
+                <Badge variant="outline">Member since {memberSince}</Badge>
               </div>
             </div>
             <Link href="/learner/settings">
@@ -63,28 +96,28 @@ export default function Profile() {
         <Card>
           <CardContent className="p-4 text-center">
             <BookOpen className="w-8 h-8 mx-auto text-primary mb-2" />
-            <p className="text-2xl font-bold">{learnerStats.coursesEnrolled}</p>
+            <p className="text-2xl font-bold">{stats.coursesEnrolled}</p>
             <p className="text-sm text-muted-foreground">Courses</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4 text-center">
             <Clock className="w-8 h-8 mx-auto text-info mb-2" />
-            <p className="text-2xl font-bold">{learnerStats.hoursLearned}</p>
+            <p className="text-2xl font-bold">{stats.hoursLearned}</p>
             <p className="text-sm text-muted-foreground">Hours Learned</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4 text-center">
             <Award className="w-8 h-8 mx-auto text-success mb-2" />
-            <p className="text-2xl font-bold">{learnerStats.certificatesEarned}</p>
+            <p className="text-2xl font-bold">{stats.certificatesEarned}</p>
             <p className="text-sm text-muted-foreground">Certificates</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4 text-center">
             <Calendar className="w-8 h-8 mx-auto text-warning mb-2" />
-            <p className="text-2xl font-bold">{learnerStats.currentStreak}</p>
+            <p className="text-2xl font-bold">{stats.currentStreak}</p>
             <p className="text-sm text-muted-foreground">Day Streak</p>
           </CardContent>
         </Card>
@@ -102,24 +135,34 @@ export default function Profile() {
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
-            {purchasedCourses.map((pc) => (
-              <div key={pc.id} className="flex items-center gap-4 p-3 rounded-lg hover:bg-accent/50 transition-colors">
-                <div className="w-16 h-12 rounded-lg overflow-hidden flex-shrink-0">
-                  <img
-                    src={pc.course.thumbnail}
-                    alt={pc.course.title}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-medium text-sm truncate">{pc.course.title}</p>
-                  <div className="flex items-center gap-2 mt-1">
-                    <Progress value={pc.overallProgress} className="h-1.5 flex-1" />
-                    <span className="text-xs text-muted-foreground">{pc.overallProgress}%</span>
+            {enrolledCourses.length > 0 ? (
+              enrolledCourses.map((course) => (
+                <div key={course.id} className="flex items-center gap-4 p-3 rounded-lg hover:bg-accent/50 transition-colors">
+                  <div className="w-16 h-12 rounded-lg overflow-hidden flex-shrink-0 bg-muted">
+                    {course.thumbnail ? (
+                      <img
+                        src={course.thumbnail}
+                        alt={course.title}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <BookOpen className="w-6 h-6 text-muted-foreground" />
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-sm truncate">{course.title}</p>
+                    <div className="flex items-center gap-2 mt-1">
+                      <Progress value={course.overallProgress} className="h-1.5 flex-1" />
+                      <span className="text-xs text-muted-foreground">{course.overallProgress}%</span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))
+            ) : (
+              <p className="text-sm text-muted-foreground text-center py-4">No courses enrolled yet</p>
+            )}
           </CardContent>
         </Card>
 
@@ -130,20 +173,23 @@ export default function Profile() {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 gap-4">
-              {achievements.map((achievement, i) => (
-                <div
-                  key={i}
-                  className={`p-4 rounded-xl border ${achievement.earned
-                      ? 'bg-accent/50 border-primary/30'
-                      : 'bg-muted/30 border-border opacity-50'
-                    }`}
-                >
-                  <achievement.icon className={`w-8 h-8 ${achievement.earned ? 'text-primary' : 'text-muted-foreground'
-                    }`} />
-                  <p className="font-medium text-sm mt-2">{achievement.title}</p>
-                  <p className="text-xs text-muted-foreground mt-1">{achievement.description}</p>
-                </div>
-              ))}
+              {achievements.map((achievement, i) => {
+                const IconComponent = iconMap[achievement.icon] || Trophy;
+                return (
+                  <div
+                    key={i}
+                    className={`p-4 rounded-xl border ${achievement.earned
+                        ? 'bg-accent/50 border-primary/30'
+                        : 'bg-muted/30 border-border opacity-50'
+                      }`}
+                  >
+                    <IconComponent className={`w-8 h-8 ${achievement.earned ? 'text-primary' : 'text-muted-foreground'
+                      }`} />
+                    <p className="font-medium text-sm mt-2">{achievement.title}</p>
+                    <p className="text-xs text-muted-foreground mt-1">{achievement.description}</p>
+                  </div>
+                );
+              })}
             </div>
           </CardContent>
         </Card>
