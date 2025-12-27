@@ -1,13 +1,12 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { ShoppingCart, ArrowLeft, Package } from "lucide-react";
 import Link from "next/link";
 import { getCartItems, getCartTotal } from "@/lib/actions/cart";
 import { CartItemCard } from "@/components/learner/cart-item-card";
-import { CheckoutButton } from "@/components/learner/checkout-button";
 import { EmptyState } from "@/components/EmptyState";
+import { CartSummary } from "@/components/learner/cart-summary";
 
 export default async function CartPage() {
   const cartItems = await getCartItems();
@@ -62,35 +61,7 @@ export default async function CartPage() {
 
         {/* Order Summary */}
         <div className="lg:col-span-1">
-          <Card className="sticky top-6">
-            <CardHeader>
-              <CardTitle>Order Summary</CardTitle>
-            </CardHeader>
-
-            <CardContent className="space-y-4">
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Subtotal</span>
-                <span className="font-medium">
-                  ${total.toFixed(2)} CAD
-                </span>
-              </div>
-
-              <Separator />
-
-              <div className="flex justify-between">
-                <span className="font-semibold">Total</span>
-                <span className="text-xl font-bold text-primary">
-                  ${total.toFixed(2)} CAD
-                </span>
-              </div>
-
-              <CheckoutButton />
-
-              <p className="text-xs text-center text-muted-foreground">
-                Secure checkout powered by Stripe
-              </p>
-            </CardContent>
-          </Card>
+          <CartSummary initialSubtotal={total} />
         </div>
       </div>
     </div>

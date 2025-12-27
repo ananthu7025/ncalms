@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import auth from "@/auth";
 import { db } from "@/lib/db";
-import { cart, subjects, contentTypes } from "@/lib/db/schema";
-import { eq, and, inArray } from "drizzle-orm";
+import { cart, subjects, contentTypes, offers } from "@/lib/db/schema";
+import { eq, and, inArray, gte, lte } from "drizzle-orm";
 import { createCheckoutSession, formatAmountForStripe } from "@/lib/stripe/utils";
 import { CURRENCY } from "@/lib/stripe/config";
 
@@ -15,6 +15,10 @@ export async function POST(request: NextRequest) {
     }
 
     const userId = session.user.id;
+
+    // Parse request body for offer information
+    const body = await request.json().catch(() => ({}));
+    const { offerCode, offerId } = body;
 
     // Get user's cart items
     const cartItems = await db
@@ -39,35 +43,139 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create line items for Stripe checkout
+    // Validate and apply offer if provided
+    let appliedOffer = null;
+    let totalDiscount = 0;
+
+    if (offerCode && offerId) {
+      const now = new Date();
+
+      // Fetch and validate the offer
+      const [offer] = await db
+        .select()
+        .from(offers)
+        .where(eq(offers.id, offerId))
+        .limit(1);
+
+      // Validate offer
+      if (
+        offer &&
+        offer.isActive &&
+        offer.code === offerCode.toUpperCase() &&
+        now >= offer.validFrom &&
+        now <= offer.validUntil &&
+        (!offer.maxUsage || offer.currentUsage < offer.maxUsage)
+      ) {
+        // Calculate discount
+        for (const item of cartItems) {
+          // Check if offer applies to this item
+          if (offer.subjectId && offer.subjectId !== item.subjectId) {
+            continue;
+          }
+          if (offer.contentTypeId && offer.contentTypeId !== item.contentTypeId) {
+            continue;
+          }
+
+          const itemPrice = parseFloat(item.price || "0");
+
+          if (offer.discountType === "percentage") {
+            totalDiscount += (itemPrice * parseFloat(offer.discountValue)) / 100;
+          } else {
+            totalDiscount += parseFloat(offer.discountValue);
+          }
+        }
+
+        appliedOffer = offer;
+      }
+    }
+
+    // Calculate the subtotal
+    const subtotal = cartItems.reduce(
+      (sum, item) => sum + parseFloat(item.price || "0"),
+      0
+    );
+
+    // Ensure discount doesn't exceed subtotal
+    if (totalDiscount > subtotal) {
+      totalDiscount = subtotal;
+    }
+
+    // Calculate discount per item proportionally
+    const discountPerItem: { [key: string]: number } = {};
+
+    if (totalDiscount > 0 && appliedOffer) {
+      for (const item of cartItems) {
+        // Check if offer applies to this item
+        const itemApplies =
+          (!appliedOffer.subjectId || appliedOffer.subjectId === item.subjectId) &&
+          (!appliedOffer.contentTypeId || appliedOffer.contentTypeId === item.contentTypeId);
+
+        if (itemApplies) {
+          const itemPrice = parseFloat(item.price || "0");
+
+          if (appliedOffer.discountType === "percentage") {
+            discountPerItem[item.id] = (itemPrice * parseFloat(appliedOffer.discountValue)) / 100;
+          } else {
+            // For fixed discounts, distribute proportionally based on price
+            discountPerItem[item.id] = (itemPrice / subtotal) * totalDiscount;
+          }
+        } else {
+          discountPerItem[item.id] = 0;
+        }
+      }
+    }
+
+    // Create line items for Stripe checkout with discounts applied
     const lineItems = cartItems.map((item) => {
       const itemName = item.isBundle
         ? `${item.subjectTitle} - Complete Bundle`
         : `${item.subjectTitle} - ${item.contentTypeName}`;
+
+      const itemPrice = parseFloat(item.price || "0");
+      const itemDiscount = discountPerItem[item.id] || 0;
+      const finalPrice = Math.max(0, itemPrice - itemDiscount);
+
+      // Build description with discount info if applicable
+      let description = item.isBundle
+        ? "Access to all content types for this subject"
+        : `Access to ${item.contentTypeName} content`;
+
+      if (itemDiscount > 0 && appliedOffer) {
+        description += ` (${appliedOffer.code}: -$${itemDiscount.toFixed(2)})`;
+      }
 
       return {
         price_data: {
           currency: CURRENCY.toLowerCase(),
           product_data: {
             name: itemName,
-            description: item.isBundle
-              ? "Access to all content types for this subject"
-              : `Access to ${item.contentTypeName} content`,
+            description: description,
           },
-          unit_amount: formatAmountForStripe(
-            parseFloat(item.price || "0"),
-            CURRENCY
-          ),
+          unit_amount: formatAmountForStripe(finalPrice, CURRENCY),
         },
         quantity: 1,
       };
     });
 
-    // Create Stripe checkout session
-    const checkoutSession = await createCheckoutSession(lineItems, {
+    // Create metadata
+    const metadata: {
+      userId: string;
+      cartItemIds: string[];
+      [key: string]: string | string[];
+    } = {
       userId,
       cartItemIds: cartItems.map((item) => item.id),
-    });
+    };
+
+    // Add offer information to metadata
+    if (appliedOffer) {
+      metadata.offerId = appliedOffer.id;
+      metadata.offerCode = appliedOffer.code;
+      metadata.discountAmount = totalDiscount.toFixed(2);
+    }
+
+    // Create Stripe checkout session
+    const checkoutSession = await createCheckoutSession(lineItems, metadata);
 
     return NextResponse.json({
       sessionId: checkoutSession.id,

@@ -9,18 +9,27 @@ export async function createCheckoutSession(
   metadata: {
     userId: string;
     cartItemIds: string[];
+    [key: string]: string | string[];
   }
 ): Promise<Stripe.Checkout.Session> {
+  // Build metadata object, converting arrays to JSON strings
+  const stripeMetadata: Record<string, string> = {};
+
+  for (const [key, value] of Object.entries(metadata)) {
+    if (Array.isArray(value)) {
+      stripeMetadata[key] = JSON.stringify(value);
+    } else {
+      stripeMetadata[key] = value;
+    }
+  }
+
   const session = await stripe.checkout.sessions.create({
     mode: "payment",
     payment_method_types: ["card"],
     line_items: lineItems,
     success_url: `${process.env.NEXT_PUBLIC_APP_URL}/learner/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/learner/cart`,
-    metadata: {
-      userId: metadata.userId,
-      cartItemIds: JSON.stringify(metadata.cartItemIds),
-    },
+    metadata: stripeMetadata,
     allow_promotion_codes: true,
     billing_address_collection: "required",
   });

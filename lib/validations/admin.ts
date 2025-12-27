@@ -80,7 +80,7 @@ export const createSubjectContentSchema = z.object({
   contentTypeId: z.string().uuid("Invalid content type ID"),
   title: z.string().min(2, "Title must be at least 2 characters").max(255, "Title must be less than 255 characters"),
   description: z.string().optional().nullable(),
-  fileUrl: z.string().url("Invalid URL").max(500, "URL too long").optional().nullable(),
+  fileUrl: z.string().optional().nullable(), // Accept JSON string or single URL
   duration: z.number().int().positive().optional().nullable(),
   price: z.string().regex(/^\d+(\.\d{1,2})?$/, "Invalid price format").default("0"),
   sortOrder: z.number().int().default(0),
@@ -93,7 +93,7 @@ export const updateSubjectContentSchema = z.object({
   contentTypeId: z.string().uuid("Invalid content type ID"),
   title: z.string().min(2, "Title must be at least 2 characters").max(255, "Title must be less than 255 characters"),
   description: z.string().optional().nullable(),
-  fileUrl: z.string().url("Invalid URL").max(500, "URL too long").optional().nullable(),
+  fileUrl: z.string().optional().nullable(), // Accept JSON string or single URL
   duration: z.number().int().positive().optional().nullable(),
   price: z.string().regex(/^\d+(\.\d{1,2})?$/, "Invalid price format"),
   sortOrder: z.number().int(),
@@ -161,6 +161,24 @@ export const updateOfferSchema = z.object({
 });
 
 // ===========================
+// EMAIL TEMPLATES
+// ===========================
+export const createEmailTemplateSchema = z.object({
+  name: z.string().min(2, "Name must be at least 2 characters").max(100, "Name must be less than 100 characters").toUpperCase(),
+  subject: z.string().min(2, "Subject must be at least 2 characters").max(255, "Subject must be less than 255 characters"),
+  htmlContent: z.string().min(10, "HTML content must be at least 10 characters"),
+  textContent: z.string().min(10, "Text content must be at least 10 characters"),
+});
+
+export const updateEmailTemplateSchema = z.object({
+  id: z.string().uuid("Invalid ID format"),
+  name: z.string().min(2, "Name must be at least 2 characters").max(100, "Name must be less than 100 characters").toUpperCase(),
+  subject: z.string().min(2, "Subject must be at least 2 characters").max(255, "Subject must be less than 255 characters"),
+  htmlContent: z.string().min(10, "HTML content must be at least 10 characters"),
+  textContent: z.string().min(10, "Text content must be at least 10 characters"),
+});
+
+// ===========================
 // TYPE EXPORTS
 // ===========================
 export type CreateLearningStreamInput = z.infer<typeof createLearningStreamSchema>;
@@ -182,3 +200,6 @@ export type GetUploadUrlInput = z.infer<typeof getUploadUrlSchema>;
 
 export type CreateOfferInput = z.infer<typeof createOfferSchema>;
 export type UpdateOfferInput = z.infer<typeof updateOfferSchema>;
+
+export type CreateEmailTemplateInput = z.infer<typeof createEmailTemplateSchema>;
+export type UpdateEmailTemplateInput = z.infer<typeof updateEmailTemplateSchema>;

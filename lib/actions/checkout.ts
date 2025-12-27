@@ -9,8 +9,9 @@ import {
   contentTypes,
   sessionBookings,
   sessionTypes,
+  offers,
 } from "@/lib/db/schema";
-import { eq, and } from "drizzle-orm";
+import { eq, and, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { getCheckoutSession, formatAmountForStripe } from "@/lib/stripe/utils";
 import { stripe } from "@/lib/stripe/config";
@@ -170,6 +171,25 @@ export async function verifyAndProcessCheckout(sessionId: string): Promise<{
     // Clear cart items
     console.log(`[Success Page] Clearing cart for user ${userId}`);
     await db.delete(cart).where(eq(cart.userId, userId));
+
+    // Track offer usage if an offer was applied
+    const offerId = checkoutSession.metadata?.offerId;
+    if (offerId) {
+      console.log(`[Success Page] Incrementing usage for offer ${offerId}`);
+      try {
+        await db
+          .update(offers)
+          .set({
+            currentUsage: sql`${offers.currentUsage} + 1`,
+            updatedAt: new Date(),
+          })
+          .where(eq(offers.id, offerId));
+        console.log(`[Success Page] Successfully incremented offer usage for ${offerId}`);
+      } catch (offerError) {
+        console.error(`[Success Page] Error incrementing offer usage:`, offerError);
+        // Don't throw - we still want the purchase to succeed even if offer tracking fails
+      }
+    }
 
     // Revalidate relevant paths
     revalidatePath("/learner/cart");

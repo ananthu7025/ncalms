@@ -73,6 +73,7 @@ export function ContentManagement({
   const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
   const [isPDFModalOpen, setIsPDFModalOpen] = useState(false);
   const [selectedContent, setSelectedContent] = useState<Content | null>(null);
+  const [currentFileIndex, setCurrentFileIndex] = useState(0);
 
   // Update contents when initialContents changes
   useEffect(() => {
@@ -81,6 +82,7 @@ export function ContentManagement({
 
   const handleViewContent = (content: Content) => {
     setSelectedContent(content);
+    setCurrentFileIndex(0); // Reset to first file
 
     if (!content.content.fileUrl) {
       toaster.error("No file URL available for this content");
@@ -95,6 +97,63 @@ export function ContentManagement({
       setIsPDFModalOpen(true);
     } else {
       toaster.error("Unsupported content type for preview");
+    }
+  };
+
+  // Helper function to get the count of files from fileUrl
+  const getFileCount = (fileUrl: string | null): number => {
+    if (!fileUrl) return 0;
+
+    try {
+      // Try to parse as JSON array
+      const parsed = JSON.parse(fileUrl);
+      if (Array.isArray(parsed)) {
+        return parsed.length;
+      }
+      return 1; // Single URL
+    } catch {
+      // If not valid JSON, assume it's a single URL
+      return 1;
+    }
+  };
+
+  // Helper function to get all URLs from fileUrl
+  const getAllFileUrls = (fileUrl: string | null): string[] => {
+    if (!fileUrl) return [];
+
+    try {
+      // Try to parse as JSON array
+      const parsed = JSON.parse(fileUrl);
+      if (Array.isArray(parsed)) {
+        return parsed;
+      }
+      return [fileUrl]; // Single URL
+    } catch {
+      // If not valid JSON, assume it's a single URL
+      return [fileUrl];
+    }
+  };
+
+  // Get current file URL based on index
+  const getCurrentFileUrl = (): string => {
+    if (!selectedContent) return "";
+    const urls = getAllFileUrls(selectedContent.content.fileUrl);
+    return urls[currentFileIndex] || "";
+  };
+
+  // Navigate to next file
+  const handleNextFile = () => {
+    if (!selectedContent) return;
+    const urls = getAllFileUrls(selectedContent.content.fileUrl);
+    if (currentFileIndex < urls.length - 1) {
+      setCurrentFileIndex(currentFileIndex + 1);
+    }
+  };
+
+  // Navigate to previous file
+  const handlePreviousFile = () => {
+    if (currentFileIndex > 0) {
+      setCurrentFileIndex(currentFileIndex - 1);
     }
   };
 
@@ -211,6 +270,13 @@ export function ContentManagement({
                             {item.contentType?.name} • ${item.content.price}
                             {item.content.duration &&
                               ` • ${item.content.duration} min`}
+                            {item.content.fileUrl && getFileCount(item.content.fileUrl) > 0 && (
+                              ` • ${getFileCount(item.content.fileUrl)} ${
+                                item.contentType?.name.toLowerCase().includes("video")
+                                  ? `video${getFileCount(item.content.fileUrl) > 1 ? 's' : ''}`
+                                  : `file${getFileCount(item.content.fileUrl) > 1 ? 's' : ''}`
+                              }`
+                            )}
                           </p>
                         </div>
                         <Badge
@@ -254,9 +320,20 @@ export function ContentManagement({
           onClose={() => {
             setIsVideoModalOpen(false);
             setSelectedContent(null);
+            setCurrentFileIndex(0);
           }}
-          videoUrl={selectedContent.content.fileUrl || ""}
-          title={selectedContent.content.title}
+          videoUrl={getCurrentFileUrl()}
+          title={`${selectedContent.content.title}${
+            getFileCount(selectedContent.content.fileUrl) > 1
+              ? ` (${currentFileIndex + 1}/${getFileCount(selectedContent.content.fileUrl)})`
+              : ""
+          }`}
+          onNext={
+            currentFileIndex < getFileCount(selectedContent.content.fileUrl) - 1
+              ? handleNextFile
+              : undefined
+          }
+          onPrevious={currentFileIndex > 0 ? handlePreviousFile : undefined}
         />
       )}
 
@@ -267,9 +344,20 @@ export function ContentManagement({
           onClose={() => {
             setIsPDFModalOpen(false);
             setSelectedContent(null);
+            setCurrentFileIndex(0);
           }}
-          pdfUrl={selectedContent.content.fileUrl || ""}
-          title={selectedContent.content.title}
+          pdfUrl={getCurrentFileUrl()}
+          title={`${selectedContent.content.title}${
+            getFileCount(selectedContent.content.fileUrl) > 1
+              ? ` (${currentFileIndex + 1}/${getFileCount(selectedContent.content.fileUrl)})`
+              : ""
+          }`}
+          onNext={
+            currentFileIndex < getFileCount(selectedContent.content.fileUrl) - 1
+              ? handleNextFile
+              : undefined
+          }
+          onPrevious={currentFileIndex > 0 ? handlePreviousFile : undefined}
         />
       )}
     </Tabs>

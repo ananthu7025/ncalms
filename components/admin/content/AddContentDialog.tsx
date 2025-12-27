@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { getUploadUrl } from "@/lib/actions/upload";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Plus, Upload, Loader2 } from "lucide-react";
+import { Plus, Upload, Loader2, Trash2, PlusCircle } from "lucide-react";
 import InputText from "@/components/InputComponents/InputText";
 import InputSelect from "@/components/InputComponents/InputSelect";
 import InputSwitch from "@/components/InputComponents/InputSwitch";
@@ -40,7 +40,7 @@ const contentSchema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string(),
   contentTypeId: z.string().min(1, "Content type is required"),
-  fileUrl: z.string().url("Please enter a valid URL").or(z.literal("")),
+  fileUrl: z.union([z.string(), z.array(z.string())]).optional(),
   duration: z.string(),
   price: z.string().min(1, "Price is required"),
   sortOrder: z.number(),
@@ -58,8 +58,11 @@ export function AddContentDialog({
 }: AddContentDialogProps) {
   
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [uploadingFile, setUploadingFile] = useState(false);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [uploadingFiles, setUploadingFiles] = useState(false);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [uploadedUrls, setUploadedUrls] = useState<string[]>([]);
+  const [uploadProgress, setUploadProgress] = useState<{[key: string]: number}>({});
+  const [videoUrls, setVideoUrls] = useState<string[]>([""]);
 
   const hookForm = useForm<ContentFormData>({
     resolver: zodResolver(contentSchema),
@@ -69,74 +72,119 @@ export function AddContentDialog({
       contentTypeId: "",
       fileUrl: "",
       duration: "",
-      price: "",
+      price: "0",
       sortOrder: 0,
       isActive: true,
     },
   });
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setSelectedFile(e.target.files[0]);
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const files = Array.from(e.target.files);
+      setSelectedFiles(files);
+
+      // Auto-upload files immediately
+      await handleUploadFiles(files);
     }
   };
 
-  const handleUploadPdf = async () => {
-    const contentTypeId = hookForm.getValues("contentTypeId");
+  const handleUploadFiles = async (files: File[]) => {
+    const selectedContentTypeId = hookForm.getValues("contentTypeId");
 
-    if (!selectedFile || !selectedSubjectId || !contentTypeId) {
-      toaster.error("Please select a file");
+    if (!selectedSubjectId || !selectedContentTypeId) {
+      toaster.error("Please select content type first");
       return;
     }
 
-    setUploadingFile(true);
+    setUploadingFiles(true);
 
     try {
-      const fileType = selectedFile.type;
+      const uploadedFileUrls: string[] = [];
 
-      const uploadUrlResult = await getUploadUrl({
-        fileName: selectedFile.name,
-        fileType: fileType,
-        contentType: "pdf",
-        subjectId: selectedSubjectId,
-      });
+      for (const file of files) {
+        setUploadProgress(prev => ({ ...prev, [file.name]: 0 }));
 
-      if (!uploadUrlResult.success || !uploadUrlResult.data) {
-        toaster.error(uploadUrlResult.error || "Failed to generate upload URL");
-        setUploadingFile(false);
-        return;
+        const fileType = file.type;
+
+        const uploadUrlResult = await getUploadUrl({
+          fileName: file.name,
+          fileType: fileType,
+          contentType: "pdf",
+          subjectId: selectedSubjectId,
+        });
+
+        if (!uploadUrlResult.success || !uploadUrlResult.data) {
+          toaster.error(`Failed to generate upload URL for ${file.name}`);
+          continue;
+        }
+
+        setUploadProgress(prev => ({ ...prev, [file.name]: 50 }));
+
+        const uploadResponse = await fetch(uploadUrlResult.data.uploadUrl, {
+          method: "PUT",
+          body: file,
+          headers: {
+            "Content-Type": fileType,
+          },
+        });
+
+        if (!uploadResponse.ok) {
+          toaster.error(`Failed to upload ${file.name} to S3`);
+          continue;
+        }
+
+        setUploadProgress(prev => ({ ...prev, [file.name]: 100 }));
+        uploadedFileUrls.push(uploadUrlResult.data.publicUrl);
       }
 
-      const uploadResponse = await fetch(uploadUrlResult.data.uploadUrl, {
-        method: "PUT",
-        body: selectedFile,
-        headers: {
-          "Content-Type": fileType,
-        },
-      });
-
-      if (!uploadResponse.ok) {
-        toaster.error("Failed to upload file to S3");
-        setUploadingFile(false);
-        return;
-      }
-
-      hookForm.setValue("fileUrl", uploadUrlResult.data.publicUrl);
-      toaster.success("PDF uploaded successfully. Now save the content.");
-    } catch {
+      setUploadedUrls(uploadedFileUrls);
+      hookForm.setValue("fileUrl", uploadedFileUrls);
+      toaster.success(`${uploadedFileUrls.length} file(s) uploaded successfully!`);
+    } catch (error) {
       toaster.error("An error occurred during upload");
+      console.error(error);
     } finally {
-      setUploadingFile(false);
+      setUploadingFiles(false);
     }
+  };
+
+  // Handle video URL changes
+  const handleVideoUrlChange = (index: number, value: string) => {
+    const newUrls = [...videoUrls];
+    newUrls[index] = value;
+    setVideoUrls(newUrls);
+    hookForm.setValue("fileUrl", newUrls.filter(url => url.trim() !== ""));
+  };
+
+  // Add new video URL input
+  const handleAddVideoUrl = () => {
+    setVideoUrls([...videoUrls, ""]);
+  };
+
+  // Remove video URL input
+  const handleRemoveVideoUrl = (index: number) => {
+    const newUrls = videoUrls.filter((_, i) => i !== index);
+    setVideoUrls(newUrls.length > 0 ? newUrls : [""]);
+    hookForm.setValue("fileUrl", newUrls.filter(url => url.trim() !== ""));
   };
 
   const onSubmit = async (data: ContentFormData) => {
     if (!selectedSubjectId) return;
 
     try {
+      // Convert fileUrl array to JSON string for storage
+      const fileUrlData = Array.isArray(data.fileUrl)
+        ? JSON.stringify(data.fileUrl)
+        : data.fileUrl;
+
+      // Ensure price is a valid string number
+      const priceValue = data.price && data.price.trim() !== "" ? data.price : "0";
+
       const result = await createSubjectContent({
         subjectId: selectedSubjectId,
         ...data,
+        fileUrl: fileUrlData,
+        price: priceValue,
         duration: data.duration ? parseInt(data.duration) : null,
       });
 
@@ -144,7 +192,10 @@ export function AddContentDialog({
         toaster.success("Content created successfully");
         setIsDialogOpen(false);
         hookForm.reset();
-        setSelectedFile(null);
+        setSelectedFiles([]);
+        setUploadedUrls([]);
+        setUploadProgress({});
+        setVideoUrls([""]);
         onContentCreated();
       } else {
         toaster.error(result.error || "Failed to create content");
@@ -156,6 +207,7 @@ export function AddContentDialog({
 
   const handleOpenDialog = () => {
     hookForm.setValue("contentTypeId", activeContentTypeId);
+    setVideoUrls([""]);
     setIsDialogOpen(true);
   };
 
@@ -164,17 +216,20 @@ export function AddContentDialog({
     label: ct.name,
   }));
 
-  const fileUrl = hookForm.watch("fileUrl");
   const selectedContentTypeId = hookForm.watch("contentTypeId");
 
-  // Determine if selected content type is video
+  // Determine if selected content type is video or PDF
   const selectedContentType = contentTypes.find(
     (ct) => ct.id === selectedContentTypeId
   );
   const isVideoContent = selectedContentType?.name
     ?.toLowerCase()
     .includes("video");
-  const isPdfContent = selectedContentType?.name?.toLowerCase().includes("pdf");
+const isPdfContent =
+  ["pdf", "question bank", "questionbank", "qb"].some(keyword =>
+    selectedContentType?.name?.toLowerCase().includes(keyword)
+  );
+
 
   return (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -248,54 +303,97 @@ export function AddContentDialog({
 
           {/* Conditional rendering based on content type */}
           {isVideoContent ? (
-            <InputText
-              hookForm={hookForm}
-              field="fileUrl"
-              label="YouTube Video URL"
-              labelMandatory
-              placeholder="https://www.youtube.com/watch?v=..."
-              infoText="Enter the full YouTube video URL"
-              showInfoIcon
-            />
+            <div className="space-y-2">
+              <Label>
+                YouTube Video URLs
+                <span className="text-red-500 ml-1">*</span>
+              </Label>
+              <div className="space-y-3">
+                {videoUrls.map((url, index) => (
+                  <div key={index} className="flex gap-2">
+                    <Input
+                      type="url"
+                      placeholder="https://www.youtube.com/watch?v=..."
+                      value={url}
+                      onChange={(e) => handleVideoUrlChange(index, e.target.value)}
+                      className="flex-1"
+                    />
+                    {videoUrls.length > 1 && (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="icon"
+                        onClick={() => handleRemoveVideoUrl(index)}
+                        className="text-destructive hover:text-destructive"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    )}
+                  </div>
+                ))}
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={handleAddVideoUrl}
+                  className="w-full"
+                >
+                  <PlusCircle className="w-4 h-4 mr-2" />
+                  Add Another Video URL
+                </Button>
+              </div>
+              {videoUrls.filter(url => url.trim() !== "").length > 0 && (
+                <p className="text-xs text-muted-foreground">
+                  {videoUrls.filter(url => url.trim() !== "").length} video URL(s) added
+                </p>
+              )}
+            </div>
           ) : isPdfContent ? (
             <div className="space-y-2">
-              <Label>Upload PDF File</Label>
+              <Label>
+                Upload PDF File(s)
+                <span className="text-red-500 ml-1">*</span>
+              </Label>
               <div className="border-2 border-dashed border-border rounded-lg p-6 text-center">
                 <Upload className="w-8 h-8 mx-auto text-muted-foreground mb-2" />
                 <p className="text-sm text-muted-foreground mb-2">
-                  Upload PDF file
+                  Upload PDF file(s) - Files will be uploaded automatically
                 </p>
                 <Input
                   type="file"
                   accept="application/pdf"
                   onChange={handleFileChange}
+                  multiple
                   className="mb-2"
+                  disabled={uploadingFiles}
                 />
-                {selectedFile && (
-                  <p className="text-sm text-foreground mb-2">
-                    Selected: {selectedFile.name}
-                  </p>
+                {selectedFiles.length > 0 && (
+                  <div className="mt-4 space-y-2">
+                    <p className="text-sm font-medium text-foreground">
+                      Selected Files:
+                    </p>
+                    {selectedFiles.map((file, index) => (
+                      <div key={index} className="flex items-center justify-between text-xs bg-muted p-2 rounded">
+                        <span className="truncate flex-1">{file.name}</span>
+                        {uploadProgress[file.name] !== undefined && (
+                          <span className="ml-2 text-green-600">
+                            {uploadProgress[file.name]}%
+                          </span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
                 )}
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={handleUploadPdf}
-                  disabled={!selectedFile || uploadingFile}
-                >
-                  {uploadingFile ? (
-                    <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Uploading...
-                    </>
-                  ) : (
-                    "Upload PDF to S3"
-                  )}
-                </Button>
+                {uploadingFiles && (
+                  <div className="mt-4 flex items-center justify-center">
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    <span className="text-sm">Uploading files...</span>
+                  </div>
+                )}
               </div>
-              {fileUrl && (
+              {uploadedUrls.length > 0 && (
                 <p className="text-xs text-green-600">
-                  PDF uploaded successfully!
+                  {uploadedUrls.length} file(s) uploaded successfully!
                 </p>
               )}
             </div>

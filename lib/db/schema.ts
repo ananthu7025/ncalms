@@ -133,7 +133,7 @@ export const subjectContents = pgTable(
       .references(() => contentTypes.id),
     title: varchar("title", { length: 255 }).notNull(),
     description: text("description"),
-    fileUrl: varchar("file_url", { length: 500 }),
+    fileUrl: text("file_url"), // Stores JSON array of file URLs
     duration: integer("duration"), // Duration in minutes for videos
     price: decimal("price", { precision: 10, scale: 2 }).notNull().default("0"),
     sortOrder: integer("sort_order").default(0).notNull(),

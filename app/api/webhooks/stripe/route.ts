@@ -2,8 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { headers } from "next/headers";
 import Stripe from "stripe";
 import { db } from "@/lib/db";
-import { purchases, userAccess, cart, subjects, contentTypes, sessionBookings, sessionTypes } from "@/lib/db/schema";
-import { eq, and } from "drizzle-orm";
+import { purchases, userAccess, cart, subjects, contentTypes, sessionBookings, sessionTypes, offers } from "@/lib/db/schema";
+import { eq, and, sql } from "drizzle-orm";
 import { verifyWebhookSignature } from "@/lib/stripe/utils";
 import { STRIPE_WEBHOOK_SECRET } from "@/lib/stripe/config";
 import { sendBookingConfirmationEmail } from "@/lib/email/service";
@@ -215,6 +215,25 @@ async function handleCheckoutSessionCompleted(
     await db
       .delete(cart)
       .where(eq(cart.userId, userId));
+
+    // Track offer usage if an offer was applied
+    const offerId = session.metadata?.offerId;
+    if (offerId) {
+      console.log(`[Webhook] Incrementing usage for offer ${offerId}`);
+      try {
+        await db
+          .update(offers)
+          .set({
+            currentUsage: sql`${offers.currentUsage} + 1`,
+            updatedAt: new Date(),
+          })
+          .where(eq(offers.id, offerId));
+        console.log(`[Webhook] Successfully incremented offer usage for ${offerId}`);
+      } catch (offerError) {
+        console.error(`[Webhook] Error incrementing offer usage:`, offerError);
+        // Don't throw - we still want the purchase to succeed even if offer tracking fails
+      }
+    }
 
     console.log(`Successfully processed checkout for user ${userId}`);
   } catch (error) {

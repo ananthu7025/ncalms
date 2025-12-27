@@ -4,7 +4,11 @@
       "Bash(npm run build:*)",
       "Bash(npm install:*)",
       "Bash(ls:*)",
-      "Bash(nul)"
+      "Bash(nul)",
+      "Bash(del \"c:\\Users\\Anathapadmanabhan\\Desktop\\nca-lms\\middleware.ts\")",
+      "Bash(npx tsc:*)",
+      "Bash(npx drizzle-kit:*)",
+      "Bash(npm run build:test:*)"
     ],
     "deny": [],
     "ask": []

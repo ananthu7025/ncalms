@@ -5,7 +5,16 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, Loader2 } from "lucide-react";
 import { toast } from "react-toastify";
 
-export function CheckoutButton() {
+interface CheckoutButtonProps {
+  appliedOffer?: {
+    code: string;
+    name: string;
+    discount: number;
+    offerId: string;
+  } | null;
+}
+
+export function CheckoutButton({ appliedOffer }: CheckoutButtonProps) {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleCheckout = async () => {
@@ -17,6 +26,10 @@ export function CheckoutButton() {
         headers: {
           "Content-Type": "application/json",
         },
+        body: JSON.stringify({
+          offerCode: appliedOffer?.code,
+          offerId: appliedOffer?.offerId,
+        }),
       });
 
       if (!response.ok) {

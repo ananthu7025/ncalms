@@ -1,7 +1,7 @@
 "use client";
 
 import Modal from "react-modal";
-import { X } from "lucide-react";
+import { X, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface PDFModalProps {
@@ -9,6 +9,8 @@ interface PDFModalProps {
   onClose: () => void;
   pdfUrl: string;
   title?: string;
+  onNext?: () => void;
+  onPrevious?: () => void;
 }
 
 // Set app element for accessibility
@@ -21,7 +23,11 @@ export function PDFModal({
   onClose,
   pdfUrl,
   title,
+  onNext,
+  onPrevious,
 }: PDFModalProps) {
+  const hasNavigation = onNext || onPrevious;
+
   return (
     <Modal
       isOpen={isOpen}
@@ -33,9 +39,33 @@ export function PDFModal({
       <div className="relative h-[90vh] flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-border">
-          <h3 className="text-lg font-semibold text-foreground">
-            {title || "PDF Viewer"}
-          </h3>
+          <div className="flex items-center gap-2">
+            {hasNavigation && (
+              <div className="flex gap-1">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={onPrevious}
+                  disabled={!onPrevious}
+                  className="hover:bg-muted"
+                >
+                  <ChevronLeft className="w-5 h-5" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={onNext}
+                  disabled={!onNext}
+                  className="hover:bg-muted"
+                >
+                  <ChevronRight className="w-5 h-5" />
+                </Button>
+              </div>
+            )}
+            <h3 className="text-lg font-semibold text-foreground">
+              {title || "PDF Viewer"}
+            </h3>
+          </div>
           <Button
             variant="ghost"
             size="icon"
