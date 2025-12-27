@@ -1,13 +1,9 @@
-import Header from '@/components/home/Header';
-import Footer from '@/components/home/Footer';
-import HomeMain from '@/components/home/HomeMain';
+import React from 'react'
 
-export default function Home() {
+const page = () => {
   return (
-    <>
-      <Header />
-      <HomeMain />
-      <Footer />
-    </>
-  );
+    <div>page</div>
+  )
 }
+
+export default page
