@@ -15,8 +15,16 @@ if (!process.env.DATABASE_URL) {
 // Create postgres connection
 const connectionString = process.env.DATABASE_URL;
 
-// For query purposes
-const queryClient = postgres(connectionString);
+// Connection pooling configuration
+const queryClient = postgres(connectionString, {
+  // Limit max connections to prevent pool exhaustion
+  max: 10,
+  // Connection timeout
+  idle_timeout: 20,
+  connect_timeout: 10,
+  // Reuse connections
+  prepare: false,
+});
 
 // Create drizzle instance
 export const db = drizzle(queryClient, { schema });

@@ -2,6 +2,7 @@
 
 import React from "react";
 import Image from "next/image";
+import Link from "next/link";
 
 const OfferBanner = () => {
   return (
@@ -43,7 +44,7 @@ const OfferBanner = () => {
               </p>
 
               <div className="inline-block">
-                <a className="btn btn-secondary is-icon group" href="#">
+                <Link className="btn btn-secondary is-icon group" href="/courses">
                   Start Learning Today
                   <span className="btn-icon bg-colorBlackPearl group-hover:right-0 group-hover:translate-x-full">
                     <Image
@@ -61,7 +62,7 @@ const OfferBanner = () => {
                       height={12}
                     />
                   </span>
-                </a>
+                </Link>
               </div>
             </div>
           </div>

@@ -1,5 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 
+import type { Metadata } from 'next';
 import Categories from "@/components/public/Catogories";
 import WelcomeSection from "@/components/public/Welcome";
 import HeroSection from "@/components/public/HeroSection";
@@ -10,6 +11,34 @@ import FeaturesSection from "@/components/public/FeaturesSection";
 import PrivateTutoring from "@/components/public/PrivateTutoring";
 import BlogSection from "@/components/public/BlogSection";
 
+export const metadata: Metadata = {
+  title: 'NCA Made Easy - Best Online Platform for NCA Courses',
+  description: 'Master your NCA exams with expert guidance from Vidya. Comprehensive courses, interactive workshops, and personalized coaching for Canadian legal education.',
+  keywords: ['NCA courses', 'NCA exam preparation', 'Canadian legal education', 'NCA Made Easy', 'law courses online'],
+  openGraph: {
+    title: 'NCA Made Easy - Your Path to Canadian Legal Success',
+    description: 'Expert-led NCA courses and personalized coaching to help you ace your exams',
+    url: process.env.NEXT_PUBLIC_APP_URL || 'https://ncamadeeasy.com',
+    siteName: 'NCA Made Easy',
+    images: [
+      {
+        url: '/assets/img/logo.jpeg',
+        width: 1200,
+        height: 630,
+        alt: 'NCA Made Easy',
+      },
+    ],
+    locale: 'en_CA',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'NCA Made Easy - Best Online Platform for NCA Courses',
+    description: 'Master your NCA exams with expert guidance',
+    images: ['/assets/img/logo.jpeg'],
+  },
+};
+
 export default function HomePage() {
   return (
     <>
@@ -19,8 +48,7 @@ export default function HomePage() {
       <FeaturesSection />
       <FeaturedCourse />
       <WhyChooseUs />
-      <PrivateTutoring />
-      <div className="section-client-logo">
+         <div className="section-client-logo">
         <div className="bg-white">
           <div className="z-10 -mt-44">
             <div className="container">
@@ -58,6 +86,8 @@ export default function HomePage() {
           </div>
         </div>
       </div>
+      <PrivateTutoring />
+   
       <TestimonialSection />
       <BlogSection />
     </>

@@ -1,7 +1,9 @@
+/* eslint-disable react/no-unescaped-entities */
 "use client";
 
 import React from "react";
 import Image from "next/image";
+import Link from "next/link";
 
 const Categories = () => {
   return (
@@ -20,7 +22,7 @@ const Categories = () => {
             </div>
 
             <div className="inline-block" data-aos="fade-left" data-aos-delay="100">
-              <a className="btn btn-primary is-icon group" href="#">
+              <Link className="btn btn-primary is-icon group" href="/contact">
                 Enquire Now
                 <span className="btn-icon bg-white group-hover:right-0 group-hover:translate-x-full">
                   <Image src="/assets/img/icons/icon-purple-arrow-right.svg" alt="arrow" width={13} height={12} />
@@ -28,7 +30,7 @@ const Categories = () => {
                 <span className="btn-icon bg-white group-hover:left-[5px] group-hover:translate-x-0">
                   <Image src="/assets/img/icons/icon-purple-arrow-right.svg" alt="arrow" width={13} height={12} />
                 </span>
-              </a>
+              </Link>
             </div>
           </div>
 

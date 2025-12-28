@@ -1,8 +1,25 @@
+import type { Metadata } from 'next';
 import Image from "next/image";
 import Link from "next/link";
 import Breadcrumb from "@/components/public/Breadcrumb";
 import { getActiveSubjectsWithStats } from "@/lib/actions/subjects";
 import CourseCardImage from "@/components/public/CourseCardImage";
+import CourseSearchForm from "@/components/public/CourseSearchForm";
+
+export const metadata: Metadata = {
+  title: 'NCA Courses - Comprehensive Online Learning | NCA Made Easy',
+  description: 'Browse our complete collection of NCA courses. Expert-led instruction, detailed study materials, and interactive workshops to help you succeed in your NCA exams.',
+  keywords: ['NCA courses', 'online law courses', 'NCA exam prep', 'Canadian law education', 'legal studies'],
+  openGraph: {
+    title: 'NCA Courses - Expert-Led Online Learning',
+    description: 'Comprehensive NCA courses with study materials, videos, and mock exams',
+    url: `${process.env.NEXT_PUBLIC_APP_URL || 'https://ncamadeeasy.com'}/courses`,
+    siteName: 'NCA Made Easy',
+    images: ['/assets/img/logo.jpeg'],
+    locale: 'en_CA',
+    type: 'website',
+  },
+};
 
 // Helper function to convert YouTube URLs to embed format
 function getEmbedUrl(url: string): string | null {
@@ -20,13 +37,32 @@ function getEmbedUrl(url: string): string | null {
   return url;
 }
 
-const CoursePage = async () => {
+interface CoursePageProps {
+  searchParams: Promise<{ search?: string }>;
+}
+
+const CoursePage = async ({ searchParams }: CoursePageProps) => {
+  const params = await searchParams;
+  const searchQuery = params.search?.toLowerCase().trim() || '';
+
   const result = await getActiveSubjectsWithStats();
   const allCourses = result.success && result.data ? result.data : [];
 
-  // For now, show all courses (pagination can be added later)
-  const displayedCourses = allCourses;
+  // Filter courses based on search query
+  const displayedCourses = searchQuery
+    ? allCourses.filter((item) => {
+        const { subject, stream, examType } = item;
+        return (
+          subject.title.toLowerCase().includes(searchQuery) ||
+          subject.description?.toLowerCase().includes(searchQuery) ||
+          stream?.name?.toLowerCase().includes(searchQuery) ||
+          examType?.name?.toLowerCase().includes(searchQuery)
+        );
+      })
+    : allCourses;
+
   const totalCourses = allCourses.length;
+  const filteredCount = displayedCourses.length;
 
   return (
     <>
@@ -47,32 +83,13 @@ const CoursePage = async () => {
               <div className="mb-8 flex flex-wrap items-center justify-center gap-x-10 gap-y-5 md:mb-10 md:justify-between">
                 {/* Left Block */}
                 <div className="order-2 md:order-1" data-aos="fade-right">
-                  Showing 1-{displayedCourses.length} of {totalCourses} Result{totalCourses !== 1 ? 's' : ''}
+                  Showing {filteredCount > 0 ? '1' : '0'}-{filteredCount} of {searchQuery ? `${filteredCount}` : totalCourses} Result{filteredCount !== 1 ? 's' : ''}
+                  {searchQuery && ` for "${searchQuery}"`}
                 </div>
 
                 {/* Right Block - Search Form */}
                 <div className="order-1 w-full md:order-2 md:w-[436px]" data-aos="fade-left">
-                  <form action="#" method="get" className="w-full">
-                    <div className="relative flex items-center">
-                      <input
-                        type="search"
-                        placeholder="Search your courses"
-                        className="w-full rounded-[50px] border px-8 py-3.5 pr-36 text-sm font-medium outline-none placeholder:text-colorBlackPearl/55"
-                      />
-                      <button
-                        type="submit"
-                        className="absolute bottom-[5px] right-0 top-[5px] mr-[5px] inline-flex items-center justify-center gap-x-2.5 rounded-[50px] bg-colorPurpleBlue px-6 text-center text-sm text-white hover:bg-colorBlackPearl"
-                      >
-                        Search
-                        <Image
-                          src="/assets/img/icons/icon-white-search-line.svg"
-                          alt="search icon"
-                          width={16}
-                          height={16}
-                        />
-                      </button>
-                    </div>
-                  </form>
+                  <CourseSearchForm initialQuery={searchQuery} />
                 </div>
               </div>
 
@@ -173,7 +190,11 @@ const CoursePage = async () => {
                 </ul>
               ) : (
                 <div className="text-center py-20">
-                  <p className="text-colorBlackPearl/70">No courses available at the moment.</p>
+                  <p className="text-colorBlackPearl/70">
+                    {searchQuery
+                      ? `No courses found matching "${searchQuery}". Try a different search term.`
+                      : "No courses available at the moment."}
+                  </p>
                 </div>
               )}
 

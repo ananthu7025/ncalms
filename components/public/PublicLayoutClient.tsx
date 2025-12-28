@@ -10,7 +10,8 @@ import Preloader from '@/components/public/Preloader'
 import SmoothScroll from '@/components/public/SmoothScroll'
 import ScrollToTop from '@/components/public/ScrollToTop'
 import AOSInit from '@/components/public/AOSInit'
-import { Toaster } from 'sonner'
+import { ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 
 export default function PublicLayoutClient({
   children,
@@ -25,7 +26,7 @@ export default function PublicLayoutClient({
 
   return (
     <>
-      <Toaster position="bottom-right" richColors />
+      <ToastContainer position="bottom-right" autoClose={3000} />
       <PublicStyleLoader onLoaded={handleStylesLoaded} />
       <AOSInit />
 
@@ -50,33 +51,33 @@ export default function PublicLayoutClient({
         <ScrollToTop />
       </SmoothScroll>
 
-      {/* Vendor Scripts */}
-      <Script
-        src="/assets/js/vendors/counterup.js"
-        strategy="afterInteractive"
-        type="module"
-      />
-      <Script
-        src="/assets/js/vendors/swiper-bundle.min.js"
-        strategy="afterInteractive"
-      />
-      <Script
-        src="/assets/js/vendors/fslightbox.js"
-        strategy="afterInteractive"
-      />
+      {/* JOS Animation Library */}
       <Script
         src="/assets/js/vendors/jos.min.js"
         strategy="afterInteractive"
       />
-      <Script
-        src="/assets/js/vendors/menu.js"
-        strategy="afterInteractive"
-      />
 
-      {/* Main Script */}
+      {/* Initialize JOS Animations */}
       <Script
-        src="/assets/js/main.js"
+        id="jos-init"
         strategy="afterInteractive"
+        dangerouslySetInnerHTML={{
+          __html: `
+            if (typeof JOS !== 'undefined') {
+              JOS.init({
+                passive: false,
+                once: true,
+                animation: "fade-up",
+                timingFunction: "ease",
+                threshold: 0,
+                delay: 0.5,
+                duration: 0.7,
+                scrollDirection: "down",
+                rootMargin: "0% 0% 15% 0%"
+              });
+            }
+          `
+        }}
       />
     </>
   )

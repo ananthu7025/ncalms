@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { ShoppingCart, Zap, Loader2 } from 'lucide-react';
 import { addToCart } from '@/lib/actions/cart';
-import { toast } from 'sonner';
+import { toast } from 'react-toastify';
 
 interface CourseActionsProps {
   subjectId: string;

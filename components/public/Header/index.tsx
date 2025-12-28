@@ -2,8 +2,14 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 const HeaderPublic = () => {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const router = useRouter();
+
   const menuItems = [
     { label: "Home", href: "/" },
     { label: "Courses", href: "/courses" },
@@ -11,6 +17,20 @@ const HeaderPublic = () => {
     { label: "About", href: "/about" },
     { label: "Contact", href: "/contact" },
   ];
+
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/courses?search=${encodeURIComponent(searchQuery.trim())}`);
+    } else {
+      router.push('/courses');
+    }
+  };
+
   return (
     <div className="absolute left-0 top-0 z-20 w-full">
       {/* Header Top Area */}
@@ -35,11 +55,13 @@ const HeaderPublic = () => {
                 <div className="flex w-full divide-[#B8B8B8] lg:divide-x">
 
                   {/* Search */}
-                  <form className="w-full flex-1 px-8">
+                  <form className="w-full flex-1 px-8" onSubmit={handleSearch}>
                     <input
                       type="search"
                       placeholder="Search your courses"
                       className="w-full bg-transparent outline-none placeholder:text-colorBlackPearl/55"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
                     />
                     <button
                       type="submit"
@@ -59,9 +81,9 @@ const HeaderPublic = () => {
 
               {/* Social Links */}
               <div className="hidden items-center gap-x-3.5 xl:flex">
-                {["facebook", "twitter", "dribbble", "instagram"].map((s) => (
+                {["facebook", "twitter", "dribbble", "instagram"].map((s, index) => (
                   <a
-                    key={s}
+                    key={`social-${s}-${index}`}
                     href={`https://www.${s}.com`}
                     target="_blank"
                     rel="noopener noreferrer"
@@ -90,7 +112,11 @@ const HeaderPublic = () => {
                 </Link>
                 {/* Mobile Menu */}
                 <div className="site-header inline-block lg:hidden">
-                  <button className="hamburger-menu mobile-menu-trigger">
+                  <button
+                    className={`hamburger-menu mobile-menu-trigger ${isMobileMenuOpen ? 'active' : ''}`}
+                    onClick={toggleMobileMenu}
+                    aria-label="Toggle menu"
+                  >
                     <span className="bg-colorBlackPearl before:bg-colorBlackPearl after:bg-colorBlackPearl" />
                   </button>
                 </div>
@@ -126,6 +152,51 @@ const HeaderPublic = () => {
           </div>
         </div>
       </header>
+
+      {/* Mobile Menu Overlay */}
+      {isMobileMenuOpen && (
+        <div
+          className="fixed inset-0 z-30 bg-black/50 lg:hidden"
+          onClick={toggleMobileMenu}
+        >
+          <div
+            className="absolute right-0 top-0 h-full w-[280px] bg-white shadow-lg"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex flex-col p-6">
+              <button
+                onClick={toggleMobileMenu}
+                className="mb-6 self-end text-2xl text-colorBlackPearl"
+                aria-label="Close menu"
+              >
+                ×
+              </button>
+              <nav>
+                <ul className="space-y-4">
+                  {menuItems.map((item) => (
+                    <li key={item.label}>
+                      <Link
+                        href={item.href}
+                        className="block py-2 text-base font-medium text-colorBlackPearl hover:text-colorPurpleBlue"
+                        onClick={toggleMobileMenu}
+                      >
+                        {item.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </nav>
+              <div className="mt-6 space-y-2">
+                <Link href="/register" onClick={toggleMobileMenu}>
+                  <button className="w-full rounded-[50px] bg-colorBrightGold px-6 py-2.5 text-sm font-medium text-colorBlackPearl hover:shadow">
+                    Register
+                  </button>
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

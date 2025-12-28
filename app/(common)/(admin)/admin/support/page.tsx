@@ -18,7 +18,7 @@ import {
   type TicketCategory,
   type TicketStatus
 } from "@/lib/actions/support"
-import { toast } from "sonner"
+import { toast } from "react-toastify"
 import { AdminSupportPageSkeleton } from "@/components/skeletons/support-skeleton"
 
 export default function SupportPage() {

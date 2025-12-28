@@ -83,6 +83,7 @@ export const users = pgTable(
   (table) => ({
     emailIdx: index("users_email_idx").on(table.email),
     roleIdIdx: index("users_role_id_idx").on(table.roleId),
+    isActiveIdx: index("users_is_active_idx").on(table.isActive),
   })
 );
 
@@ -109,6 +110,7 @@ export const subjects = pgTable(
   (table) => ({
     streamIdIdx: index("subjects_stream_id_idx").on(table.streamId),
     examTypeIdIdx: index("subjects_exam_type_id_idx").on(table.examTypeId),
+    isActiveIdx: index("subjects_is_active_idx").on(table.isActive),
   })
 );
 
@@ -172,6 +174,8 @@ export const purchases = pgTable(
     userIdIdx: index("purchases_user_id_idx").on(table.userId),
     subjectIdIdx: index("purchases_subject_id_idx").on(table.subjectId),
     stripeSessionIdIdx: index("purchases_stripe_session_id_idx").on(table.stripeSessionId),
+    statusIdx: index("purchases_status_idx").on(table.status),
+    userSubjectIdx: index("purchases_user_subject_idx").on(table.userId, table.subjectId),
   })
 );
 

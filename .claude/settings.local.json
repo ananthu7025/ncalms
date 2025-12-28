@@ -18,7 +18,18 @@
       "Bash(del \"c:\\Users\\Anathapadmanabhan\\Desktop\\nca-lms\\components\\public\\VideoModal.tsx\")",
       "Bash(del \"c:\\Users\\Anathapadmanabhan\\Desktop\\nca-lms\\components\\public\\CourseCardThumbnail.tsx\")",
       "Bash(npm run db:seed:*)",
-      "Bash(timeout 30 npx drizzle-kit:*)"
+      "Bash(timeout 30 npx drizzle-kit:*)",
+      "Bash(del \"public\\assets\\js\\vendors\\menu.js\")",
+      "Bash(del \"public\\assets\\js\\vendors\\counterup.js\")",
+      "Bash(del \"public\\assets\\js\\vendors\\swiper-bundle.min.js\")",
+      "Bash(del \"public\\assets\\js\\vendors\\fslightbox.js\")",
+      "Bash(del \"public\\assets\\js\\main.js\")",
+      "Bash(npm run db:generate:*)",
+      "Bash(npm uninstall:*)",
+      "Bash(npm run db:push:*)",
+      "Bash(for file in accordion alert-dialog alert aspect-ratio avatar badge breadcrumb button calendar card chart checkbox collapsible command context-menu dialog dropdown-menu form hover-card input label menubar navigation-menu pagination popover progress radio-group scroll-area select separator sheet sidebar skeleton slider switch table tabs textarea toggle-group toggle tooltip)",
+      "Bash(do echo -n '$file: ')",
+      "Bash(done)"
     ],
     "deny": [],
     "ask": []
