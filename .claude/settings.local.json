@@ -17,7 +17,8 @@
       "Bash(del \"c:\\Users\\Anathapadmanabhan\\Desktop\\nca-lms\\course-details.html\")",
       "Bash(del \"c:\\Users\\Anathapadmanabhan\\Desktop\\nca-lms\\components\\public\\VideoModal.tsx\")",
       "Bash(del \"c:\\Users\\Anathapadmanabhan\\Desktop\\nca-lms\\components\\public\\CourseCardThumbnail.tsx\")",
-      "Bash(npm run db:seed:*)"
+      "Bash(npm run db:seed:*)",
+      "Bash(timeout 30 npx drizzle-kit:*)"
     ],
     "deny": [],
     "ask": []

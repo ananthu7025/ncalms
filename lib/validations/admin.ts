@@ -179,6 +179,28 @@ export const updateEmailTemplateSchema = z.object({
 });
 
 // ===========================
+// BLOG POSTS
+// ===========================
+export const createBlogPostSchema = z.object({
+  title: z.string().min(5, "Title must be at least 5 characters").max(500, "Title must be less than 500 characters"),
+  slug: z.string().min(3, "Slug must be at least 3 characters").max(500, "Slug must be less than 500 characters").regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Slug must be lowercase with hyphens only"),
+  image: z.string().max(1000, "Image URL too long").optional().nullable(),
+  content: z.string().min(10, "Content must be at least 10 characters"),
+  excerpt: z.string().max(500, "Excerpt must be less than 500 characters").optional().nullable(),
+  isPublished: z.boolean().default(false),
+});
+
+export const updateBlogPostSchema = z.object({
+  id: z.string().uuid("Invalid ID format"),
+  title: z.string().min(5, "Title must be at least 5 characters").max(500, "Title must be less than 500 characters"),
+  slug: z.string().min(3, "Slug must be at least 3 characters").max(500, "Slug must be less than 500 characters").regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Slug must be lowercase with hyphens only"),
+  image: z.string().max(1000, "Image URL too long").optional().nullable(),
+  content: z.string().min(10, "Content must be at least 10 characters"),
+  excerpt: z.string().max(500, "Excerpt must be less than 500 characters").optional().nullable(),
+  isPublished: z.boolean(),
+});
+
+// ===========================
 // TYPE EXPORTS
 // ===========================
 export type CreateLearningStreamInput = z.infer<typeof createLearningStreamSchema>;
@@ -203,3 +225,6 @@ export type UpdateOfferInput = z.infer<typeof updateOfferSchema>;
 
 export type CreateEmailTemplateInput = z.infer<typeof createEmailTemplateSchema>;
 export type UpdateEmailTemplateInput = z.infer<typeof updateEmailTemplateSchema>;
+
+export type CreateBlogPostInput = z.infer<typeof createBlogPostSchema>;
+export type UpdateBlogPostInput = z.infer<typeof updateBlogPostSchema>;

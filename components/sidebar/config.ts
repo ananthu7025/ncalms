@@ -13,6 +13,7 @@ import {
     Video,
     Tag,
     ShoppingCart,
+    FileText,
 } from "lucide-react";
 
 export const learnerNavItems = [
@@ -29,6 +30,7 @@ export const learnerNavItems = [
 export const adminNavItems = [
     { title: "Dashboard", href: "/admin/dashboard", icon: BarChart3 },
     { title: "All Courses", href: "/admin/courses", icon: BookOpen },
+    { title: "Blog", href: "/admin/blog", icon: FileText },
     { title: "Offers", href: "/admin/offers", icon: Tag },
     { title: "Sessions", href: "/admin/sessions", icon: Video },
     { title: "Transactions", href: "/admin/transactions", icon: CreditCard },

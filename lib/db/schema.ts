@@ -410,6 +410,7 @@ export const usersRelations = relations(users, ({ one, many }) => ({
   cartItems: many(cart),
   sessionBookings: many(sessionBookings),
   supportTickets: many(supportTickets),
+  blogPosts: many(blogPosts),
 }));
 
 export const cartRelations = relations(cart, ({ one }) => ({
@@ -510,6 +511,38 @@ export const supportTicketMessagesRelations = relations(supportTicketMessages, (
   }),
 }));
 
+// Blog posts table - stores blog articles
+export const blogPosts = pgTable(
+  "blog_posts",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    title: varchar("title", { length: 500 }).notNull(),
+    slug: varchar("slug", { length: 500 }).unique().notNull(),
+    image: varchar("image", { length: 1000 }), // Featured image URL
+    content: text("content").notNull(), // Main blog content (HTML/Markdown)
+    excerpt: text("excerpt"), // Short summary for listing pages
+    authorId: uuid("author_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "restrict" }),
+    isPublished: boolean("is_published").default(false).notNull(),
+    publishedAt: timestamp("published_at"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => ({
+    slugIdx: index("blog_posts_slug_idx").on(table.slug),
+    authorIdIdx: index("blog_posts_author_id_idx").on(table.authorId),
+    publishedIdx: index("blog_posts_published_idx").on(table.isPublished),
+  })
+);
+
+export const blogPostsRelations = relations(blogPosts, ({ one }) => ({
+  author: one(users, {
+    fields: [blogPosts.authorId],
+    references: [users.id],
+  }),
+}));
+
 // ===========================
 // TypeScript types inferred from schema
 // ===========================
@@ -567,3 +600,6 @@ export type NewSupportTicket = typeof supportTickets.$inferInsert;
 
 export type SupportTicketMessage = typeof supportTicketMessages.$inferSelect;
 export type NewSupportTicketMessage = typeof supportTicketMessages.$inferInsert;
+
+export type BlogPost = typeof blogPosts.$inferSelect;
+export type NewBlogPost = typeof blogPosts.$inferInsert;
