@@ -1,7 +1,7 @@
 "use server";
 
 import { db, schema } from "@/lib/db";
-import { eq, desc, sql } from "drizzle-orm";
+import { eq, desc, sql, and } from "drizzle-orm";
 import { requireAdmin } from "@/lib/auth/helpers";
 import {
   createBlogPostSchema,
@@ -338,6 +338,58 @@ export async function getPublishedBlogPosts(limit?: number) {
       success: false,
       error: "Failed to fetch blog posts",
       data: [],
+    };
+  }
+}
+
+/**
+ * Get a single published blog post by slug
+ */
+export async function getBlogPostBySlug(slug: string) {
+  try {
+    const [post] = await db
+      .select({
+        id: schema.blogPosts.id,
+        title: schema.blogPosts.title,
+        slug: schema.blogPosts.slug,
+        image: schema.blogPosts.image,
+        content: schema.blogPosts.content,
+        excerpt: schema.blogPosts.excerpt,
+        publishedAt: schema.blogPosts.publishedAt,
+        author: {
+          id: schema.users.id,
+          name: schema.users.name,
+          email: schema.users.email,
+        },
+      })
+      .from(schema.blogPosts)
+      .leftJoin(schema.users, eq(schema.blogPosts.authorId, schema.users.id))
+      .where(
+        and(
+          eq(schema.blogPosts.slug, slug),
+          eq(schema.blogPosts.isPublished, true)
+        )
+      )
+      .limit(1);
+
+    if (!post) {
+      return {
+        success: false,
+        error: "Blog post not found",
+        data: null,
+      };
+    }
+
+    return {
+      success: true,
+      data: post,
+    };
+  } catch (error) {
+    console.error("Get blog post by slug error:", error);
+    return {
+      success: false,
+      error: "Failed to fetch blog post",
+      data: null,
     };
   }
 }

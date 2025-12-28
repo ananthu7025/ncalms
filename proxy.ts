@@ -7,7 +7,7 @@ export const proxy = auth((req) => {
   const userRole = req.auth?.user?.role;
 
   // Public routes (no authentication required)
-  const publicRoutes = ["/", "/about", "/contact", "/courses","/book-a-call","/cart"];
+  const publicRoutes = ["/", "/about", "/contact", "/courses","/book-a-call","/cart","/blog"];
   const authRoutes = ["/login", "/register", "/forgot-password", "/reset-password"];
 
   // Check if route is public or starts with public prefix
