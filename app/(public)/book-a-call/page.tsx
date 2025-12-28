@@ -1,9 +1,22 @@
 /* eslint-disable @next/next/no-img-element */
+"use client";
 
+import { useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import Breadcrumb from "@/components/public/Breadcrumb";
 import BookACallForm from "@/components/public/BookACallForm";
+import toaster from "@/lib/toaster";
 
 export default function BookACallPage() {
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    // Check if booking was cancelled
+    if (searchParams?.get('cancelled') === 'true') {
+      toaster.error("Booking payment was cancelled. Please try again.");
+    }
+  }, [searchParams]);
+
   return (
     <>
       <Breadcrumb

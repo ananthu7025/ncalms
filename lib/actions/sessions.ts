@@ -542,3 +542,113 @@ export async function cancelBooking(id: string) {
     };
   }
 }
+
+// ===========================
+// PUBLIC BOOKING (NO AUTH REQUIRED)
+// ===========================
+
+/**
+ * Create booking request from public page (no authentication required)
+ * Will auto-create user account if email doesn't exist
+ */
+export async function createPublicBooking(data: BookingRequestInput) {
+  try {
+    // Validate input
+    const validated = bookingRequestSchema.parse(data);
+
+    // Verify session type exists and is active
+    const [sessionType] = await db
+      .select()
+      .from(schema.sessionTypes)
+      .where(eq(schema.sessionTypes.id, validated.sessionTypeId))
+      .limit(1);
+
+    if (!sessionType) {
+      return {
+        success: false,
+        error: "Session type not found",
+      };
+    }
+
+    if (!sessionType.isActive) {
+      return {
+        success: false,
+        error: "This session type is no longer available",
+      };
+    }
+
+    // Check if user exists with this email
+    const [existingUser] = await db
+      .select()
+      .from(schema.users)
+      .where(eq(schema.users.email, validated.email))
+      .limit(1);
+
+    let userId: string;
+
+    if (existingUser) {
+      // Use existing user
+      userId = existingUser.id;
+    } else {
+      // Get USER role ID (for learners)
+      const [userRole] = await db
+        .select()
+        .from(schema.roles)
+        .where(eq(schema.roles.name, "USER"))
+        .limit(1);
+
+      if (!userRole) {
+        return {
+          success: false,
+          error: "System configuration error: USER role not found",
+        };
+      }
+
+      // Create new user account automatically
+      // Use a temporary password hash - user will need to set password via reset
+      const [newUser] = await db
+        .insert(schema.users)
+        .values({
+          name: validated.fullName,
+          email: validated.email,
+          passwordHash: "", // User will set password later
+          roleId: userRole.id,
+          isActive: true,
+        })
+        .returning();
+
+      userId = newUser.id;
+    }
+
+    // Create booking with pending status
+    const [booking] = await db
+      .insert(schema.sessionBookings)
+      .values({
+        userId,
+        sessionTypeId: validated.sessionTypeId,
+        fullName: validated.fullName,
+        email: validated.email,
+        gmail: validated.gmail || null,
+        whatsapp: validated.whatsapp || null,
+        province: validated.province || null,
+        country: validated.country || null,
+        status: "pending",
+      })
+      .returning();
+
+    revalidatePath("/admin/sessions");
+    revalidatePath("/learner/book-session");
+
+    return {
+      success: true,
+      data: booking,
+      message: "Booking request created successfully",
+    };
+  } catch (error) {
+    console.error("Create public booking error:", error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Failed to create booking",
+    };
+  }
+}

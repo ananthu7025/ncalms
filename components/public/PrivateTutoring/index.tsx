@@ -1,9 +1,10 @@
 import Image from "next/image";
+import Link from "next/link";
 
 const PrivateTutoring = () => {
   return (
     <section className="section-private-tutoring">
-      <div className="relative z-10 overflow-hidden bg-white">
+      <div className="relative z-10 overflow-hidden bg-white ">
         <div className="section-space">
           <div className="container">
             {/* Section Header */}
@@ -84,22 +85,24 @@ const PrivateTutoring = () => {
 
                     {/* CTA Button */}
                     <div className="mt-8 pt-6">
-                      <button className="group inline-flex items-center gap-3 rounded-lg bg-colorPurpleBlue px-8 py-4 font-semibold text-white transition-all duration-300 hover:bg-colorBlackPearl hover:shadow-lg">
-                        <span>Book Your Session</span>
-                        <svg
-                          className="h-5 w-5 transition-transform duration-300 group-hover:translate-x-1"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M13 7l5 5m0 0l-5 5m5-5H6"
-                          />
-                        </svg>
-                      </button>
+                      <Link href="/book-a-call">
+                        <button className="group inline-flex items-center gap-3 rounded-lg bg-colorPurpleBlue px-8 py-4 font-semibold text-white transition-all duration-300 hover:bg-colorBlackPearl hover:shadow-lg">
+                          <span>Book Your Session</span>
+                          <svg
+                            className="h-5 w-5 transition-transform duration-300 group-hover:translate-x-1"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M13 7l5 5m0 0l-5 5m5-5H6"
+                            />
+                          </svg>
+                        </button>
+                      </Link>
                     </div>
                   </div>
                 </div>
