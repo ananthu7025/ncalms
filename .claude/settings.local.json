@@ -8,7 +8,15 @@
       "Bash(del \"c:\\Users\\Anathapadmanabhan\\Desktop\\nca-lms\\middleware.ts\")",
       "Bash(npx tsc:*)",
       "Bash(npx drizzle-kit:*)",
-      "Bash(npm run build:test:*)"
+      "Bash(npm run build:test:*)",
+      "Bash(powershell -Command:*)",
+      "Bash($null)",
+      "Bash(mkdir:*)",
+      "Bash(findstr:*)",
+      "Bash(dir:*)",
+      "Bash(del \"c:\\Users\\Anathapadmanabhan\\Desktop\\nca-lms\\course-details.html\")",
+      "Bash(del \"c:\\Users\\Anathapadmanabhan\\Desktop\\nca-lms\\components\\public\\VideoModal.tsx\")",
+      "Bash(del \"c:\\Users\\Anathapadmanabhan\\Desktop\\nca-lms\\components\\public\\CourseCardThumbnail.tsx\")"
     ],
     "deny": [],
     "ask": []

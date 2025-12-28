@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { AuthLayout } from '@/components/auth/AuthLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,10 +9,36 @@ import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import Link from 'next/link';
 import { Loader2, CheckCircle2 } from 'lucide-react';
-import { registerUser } from "@/lib/actions/auth";
+import { registerUser, loginUser } from "@/lib/actions/auth";
 
 export default function RegisterPage() {
+    return (
+        <Suspense fallback={
+            <AuthLayout
+                leftTitle="Join the Premier Legal Education Network"
+                leftDescription="Connect with top legal professionals and access our extensive library of resources, webinars, and interactive courses."
+                showFeatures={true}
+            >
+                <div className="flex h-full items-center justify-center">
+                    <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                </div>
+            </AuthLayout>
+        }>
+            <RegisterFormContent />
+        </Suspense>
+    );
+}
+
+function RegisterFormContent() {
     const router = useRouter();
+    const searchParams = useSearchParams();
+
+    // Check if user is trying to enroll in a course
+    const enrollCourse = searchParams.get("enrollCourse");
+    const contentType = searchParams.get("contentType");
+    const isBundle = searchParams.get("isBundle") === "true";
+    const price = parseFloat(searchParams.get("price") || "0");
+    const callbackUrl = searchParams.get("callbackUrl") || "/";
 
     const [formData, setFormData] = useState({
         name: "",
@@ -58,10 +84,47 @@ export default function RegisterPage() {
 
             if (result.success) {
                 setSuccess(true);
-                // Redirect to login after 2 seconds
-                setTimeout(() => {
-                    router.push("/login");
-                }, 2000);
+
+                // If user is enrolling, auto-login and redirect to cart with enrollment params
+                if (enrollCourse) {
+                    try {
+                        // Auto-login the user
+                        const loginResult = await loginUser(formData.email, formData.password);
+
+                        if (loginResult.success) {
+                            // Redirect to cart with enrollment params
+                            // The cart page will handle adding the item on load
+                            const enrollParams = new URLSearchParams({
+                                autoEnroll: 'true',
+                                subjectId: enrollCourse,
+                                ...(contentType && { contentTypeId: contentType }),
+                                isBundle: isBundle.toString(),
+                                price: price.toString(),
+                            });
+
+                            setTimeout(() => {
+                                router.push(`/learner/cart?${enrollParams.toString()}`);
+                                router.refresh();
+                            }, 1000);
+                        } else {
+                            // If auto-login fails, redirect to login with enrollment params
+                            setTimeout(() => {
+                                router.push(`/login?enrollCourse=${enrollCourse}&contentType=${contentType || ''}&isBundle=${isBundle}&price=${price}&callbackUrl=${callbackUrl}`);
+                            }, 2000);
+                        }
+                    } catch (enrollError) {
+                        console.error("Error during enrollment:", enrollError);
+                        // Redirect to login with enrollment params
+                        setTimeout(() => {
+                            router.push(`/login?enrollCourse=${enrollCourse}&contentType=${contentType || ''}&isBundle=${isBundle}&price=${price}&callbackUrl=${callbackUrl}`);
+                        }, 2000);
+                    }
+                } else {
+                    // Normal registration - redirect to login after 2 seconds
+                    setTimeout(() => {
+                        router.push("/login");
+                    }, 2000);
+                }
             } else {
                 setError(result.error || "Registration failed. Please try again.");
             }
@@ -81,8 +144,20 @@ export default function RegisterPage() {
             <div className="space-y-6">
                 <div className="space-y-2">
                     <h2 className="text-3xl font-bold tracking-tight">Create Account</h2>
-                    <p className="text-muted-foreground">Join our learning platform today</p>
+                    <p className="text-muted-foreground">
+                        {enrollCourse
+                            ? "Create an account to enroll in this course."
+                            : "Join our learning platform today"}
+                    </p>
                 </div>
+
+                {enrollCourse && (
+                    <Alert>
+                        <AlertDescription>
+                            After creating your account, the course will be added to your cart automatically.
+                        </AlertDescription>
+                    </Alert>
+                )}
 
                 {error && (
                     <Alert variant="destructive">
@@ -94,7 +169,9 @@ export default function RegisterPage() {
                     <Alert className="border-green-200 bg-green-50 text-green-900 dark:border-green-800 dark:bg-green-950 dark:text-green-100">
                         <CheckCircle2 className="h-4 w-4" />
                         <AlertDescription>
-                            Account created successfully! Redirecting to login...
+                            {enrollCourse
+                                ? "Account created successfully! Adding course to cart..."
+                                : "Account created successfully! Redirecting to login..."}
                         </AlertDescription>
                     </Alert>
                 )}
@@ -184,7 +261,13 @@ export default function RegisterPage() {
 
                 <div className="text-center text-sm text-muted-foreground">
                     Already have an account?{' '}
-                    <Link href="/login" className="font-medium text-primary hover:underline">
+                    <Link
+                        href={enrollCourse
+                            ? `/login?enrollCourse=${enrollCourse}&contentType=${contentType || ''}&isBundle=${isBundle}&price=${price}&callbackUrl=${callbackUrl}`
+                            : "/login"
+                        }
+                        className="font-medium text-primary hover:underline"
+                    >
                         Sign in
                     </Link>
                 </div>

@@ -7,6 +7,8 @@ import { getCartItems, getCartTotal } from "@/lib/actions/cart";
 import { CartItemCard } from "@/components/learner/cart-item-card";
 import { EmptyState } from "@/components/EmptyState";
 import { CartSummary } from "@/components/learner/cart-summary";
+import { AutoEnrollHandler } from "@/components/learner/AutoEnrollHandler";
+import { Suspense } from "react";
 
 export default async function CartPage() {
   const cartItems = await getCartItems();
@@ -15,6 +17,11 @@ export default async function CartPage() {
   if (cartItems.length === 0) {
     return (
       <div className="max-w-6xl mx-auto animate-fade-in">
+        {/* Auto Enroll Handler */}
+        <Suspense fallback={null}>
+          <AutoEnrollHandler />
+        </Suspense>
+
         <EmptyState
           icon={<Package className="w-10 h-10 text-primary" />}
           title="Your cart is empty"
@@ -33,6 +40,10 @@ export default async function CartPage() {
 
   return (
     <div className="max-w-6xl mx-auto animate-fade-in">
+      {/* Auto Enroll Handler */}
+      <Suspense fallback={null}>
+        <AutoEnrollHandler />
+      </Suspense>
       {/* Back Link */}
       <Link
         href="/learner/courses"

@@ -1,0 +1,167 @@
+import Image from "next/image";
+
+const PrivateTutoring = () => {
+  return (
+    <section className="section-private-tutoring">
+      <div className="relative z-10 overflow-hidden bg-white">
+        <div className="section-space">
+          <div className="container">
+            {/* Section Header */}
+            <div className="mb-10 lg:mb-[60px]">
+              <div className="mx-auto max-w-2xl text-center" data-aos="fade-up">
+                <span className="mb-5 block uppercase tracking-wider text-colorPurpleBlue">
+                  Private Tutoring
+                </span>
+                <h2 className="font-title text-3xl font-bold text-colorBlackPearl lg:text-5xl">
+                  Personalised learning tailored to your needs
+                </h2>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-2 xl:gap-20">
+
+              {/* Left Content */}
+              <div className="order-2 lg:order-1" data-aos="fade-right">
+
+                {/* 1-1 Coaching Card */}
+                <div className="rounded-2xl bg-gradient-to-br from-colorPurpleBlue/5 to-colorLightSeaGreen/5 p-8 lg:p-10">
+                  <div className="mb-6 flex items-center gap-5">
+                    <div className="inline-flex h-[70px] w-[70px] items-center justify-center rounded-[50%] bg-colorPurpleBlue/10">
+                      <Image
+                        src="/assets/img/icons/icon-red-tomato-graduation-cap-line.svg"
+                        alt="1-1 coaching"
+                        width={35}
+                        height={35}
+                      />
+                    </div>
+                    <h3 className="flex-1 font-title text-2xl font-bold text-colorBlackPearl lg:text-3xl">
+                      1-1 Coaching
+                    </h3>
+                  </div>
+
+                  <div className="space-y-5">
+                    <p className="text-lg leading-relaxed text-gray-700">
+                      At <span className="font-semibold text-colorPurpleBlue">NCA MADE EASY</span>, we
+                      understand that each student&apos;s journey is unique. To support your individual
+                      learning goals, we offer private tutoring on Demand.
+                    </p>
+
+                    <p className="text-lg leading-relaxed text-gray-700">
+                      You can book <span className="font-semibold">Private Tutoring</span> for a
+                      particular NCA Subject and get started with 1-1 Lectures, paper solving,
+                      doubt clearing etc., providing you an overall preparation to ace your NCA Exam.
+                    </p>
+
+                    {/* Features List */}
+                    <ul className="mt-8 space-y-4">
+                      {[
+                        "Personalized 1-1 lectures",
+                        "Custom paper solving sessions",
+                        "Dedicated doubt clearing",
+                        "Flexible scheduling",
+                        "Subject-specific focus"
+                      ].map((feature, idx) => (
+                        <li key={idx} className="flex items-center gap-3">
+                          <div className="flex h-6 w-6 items-center justify-center rounded-full bg-colorLightSeaGreen/20">
+                            <svg
+                              className="h-4 w-4 text-colorLightSeaGreen"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2.5}
+                                d="M5 13l4 4L19 7"
+                              />
+                            </svg>
+                          </div>
+                          <span className="text-base text-gray-700">{feature}</span>
+                        </li>
+                      ))}
+                    </ul>
+
+                    {/* CTA Button */}
+                    <div className="mt-8 pt-6">
+                      <button className="group inline-flex items-center gap-3 rounded-lg bg-colorPurpleBlue px-8 py-4 font-semibold text-white transition-all duration-300 hover:bg-colorBlackPearl hover:shadow-lg">
+                        <span>Book Your Session</span>
+                        <svg
+                          className="h-5 w-5 transition-transform duration-300 group-hover:translate-x-1"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M13 7l5 5m0 0l-5 5m5-5H6"
+                          />
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+
+              {/* Right Visual */}
+              <div className="relative order-1 lg:order-2" data-aos="fade-left">
+                <div className="relative rounded-2xl bg-gradient-to-br from-colorPurpleBlue/10 to-colorLightSeaGreen/10 p-8">
+                  <Image
+                    src="/assets/img/images/th-1/cta-img.png"
+                    alt="private tutoring"
+                    width={600}
+                    height={600}
+                    className="mx-auto max-w-full"
+                  />
+
+                  {/* Limited Slots Badge */}
+                  <div className="absolute -top-4 right-8 z-10 rounded-full bg-gradient-to-r from-[#DF4343] to-[#FF6B6B] px-6 py-3 shadow-lg" data-aos="zoom-in" data-aos-delay="200">
+                    <div className="flex items-center gap-3">
+                      <div className="relative flex h-3 w-3">
+                        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-white opacity-75"></span>
+                        <span className="relative inline-flex h-3 w-3 rounded-full bg-white"></span>
+                      </div>
+                      <span className="font-semibold text-white">
+                        Limited Slots - Filling Fast!
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Decorative Elements */}
+                  <div className="absolute -left-10 top-20 -z-10 h-40 w-40 rounded-full bg-colorPurpleBlue/20 blur-3xl"></div>
+                  <div className="absolute -bottom-10 -right-10 -z-10 h-40 w-40 rounded-full bg-colorLightSeaGreen/20 blur-3xl"></div>
+                </div>
+
+                {/* Abstract Decorations */}
+                <Image
+                  src="/assets/img/abstracts/abstract-dots-3.svg"
+                  alt="abstract"
+                  width={79}
+                  height={50}
+                  className="absolute -left-5 top-10 hidden animate-pulse lg:inline-block"
+                />
+                <Image
+                  src="/assets/img/abstracts/abstract-orange-1.svg"
+                  alt="abstract"
+                  width={70}
+                  height={55}
+                  className="absolute -bottom-5 -right-5 hidden animate-bounce lg:inline-block"
+                />
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        {/* Background Decorations */}
+        <div className="absolute -left-80 bottom-1/4 -z-10 h-[457px] w-[457px] rounded-[50%] bg-[#BFC06F] blur-[230px]"></div>
+        <div className="absolute -right-80 top-1/4 -z-10 h-[457px] w-[457px] rounded-[50%] bg-[#6FC081] blur-[230px]"></div>
+      </div>
+    </section>
+  );
+};
+
+export default PrivateTutoring;

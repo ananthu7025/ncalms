@@ -477,6 +477,158 @@ export async function toggleSubjectStatus(id: string) {
 }
 
 /**
+ * Get active subjects with statistics (for public course listing)
+ */
+export async function getActiveSubjectsWithStats() {
+  try {
+    const subjects = await db
+      .select()
+      .from(schema.subjects)
+      .leftJoin(schema.learningStreams, eq(schema.subjects.streamId, schema.learningStreams.id))
+      .leftJoin(schema.examTypes, eq(schema.subjects.examTypeId, schema.examTypes.id))
+      .where(eq(schema.subjects.isActive, true))
+      .orderBy(schema.subjects.createdAt);
+
+    // Get content counts and statistics for each subject
+    const subjectsWithStats = await Promise.all(
+      subjects.map(async (row) => {
+        const subject = row.subjects;
+        const stream = row.learning_streams;
+        const examType = row.exam_types;
+
+        // Get content count (lessons)
+        const contents = await db
+          .select()
+          .from(schema.subjectContents)
+          .where(
+            and(
+              eq(schema.subjectContents.subjectId, subject.id),
+              eq(schema.subjectContents.isActive, true)
+            )
+          );
+
+        // Get enrolled students count (users with access to this subject)
+        const enrollments = await db
+          .select({ userId: schema.userAccess.userId })
+          .from(schema.userAccess)
+          .where(eq(schema.userAccess.subjectId, subject.id))
+          .groupBy(schema.userAccess.userId);
+
+        return {
+          subject,
+          stream,
+          examType,
+          stats: {
+            lessonsCount: contents.length,
+            studentsCount: enrollments.length,
+            reviews: 0, // Can be implemented later with a reviews table
+            rating: 5, // Default rating, can be calculated from reviews
+          },
+        };
+      })
+    );
+
+    return {
+      success: true,
+      data: subjectsWithStats,
+    };
+  } catch (error) {
+    console.error("Get active subjects with stats error:", error);
+    return {
+      success: false,
+      error: "Failed to fetch subjects",
+    };
+  }
+}
+
+/**
+ * Get subject details with statistics (for public course detail page)
+ */
+export async function getSubjectByIdWithStats(id: string) {
+  try {
+    const [result] = await db
+      .select({
+        subject: schema.subjects,
+        stream: schema.learningStreams,
+        examType: schema.examTypes,
+      })
+      .from(schema.subjects)
+      .leftJoin(schema.learningStreams, eq(schema.subjects.streamId, schema.learningStreams.id))
+      .leftJoin(schema.examTypes, eq(schema.subjects.examTypeId, schema.examTypes.id))
+      .where(eq(schema.subjects.id, id))
+      .limit(1);
+
+    if (!result) {
+      return {
+        success: false,
+        error: "Subject not found",
+      };
+    }
+
+    // Get content count (lessons)
+    const contents = await db
+      .select()
+      .from(schema.subjectContents)
+      .where(
+        and(
+          eq(schema.subjectContents.subjectId, id),
+          eq(schema.subjectContents.isActive, true)
+        )
+      );
+
+    // Get enrolled students count
+    const enrollments = await db
+      .select({ userId: schema.userAccess.userId })
+      .from(schema.userAccess)
+      .where(eq(schema.userAccess.subjectId, id))
+      .groupBy(schema.userAccess.userId);
+
+    // Get all content types to show what's available
+    const contentTypes = await db
+      .select()
+      .from(schema.contentTypes)
+      .orderBy(schema.contentTypes.name);
+
+    // Get contents with their prices grouped by content type for pricing calculation
+    const contentsWithTypes = await db
+      .select({
+        content: schema.subjectContents,
+        contentType: schema.contentTypes,
+      })
+      .from(schema.subjectContents)
+      .leftJoin(schema.contentTypes, eq(schema.subjectContents.contentTypeId, schema.contentTypes.id))
+      .where(
+        and(
+          eq(schema.subjectContents.subjectId, id),
+          eq(schema.subjectContents.isActive, true)
+        )
+      )
+      .orderBy(schema.subjectContents.sortOrder);
+
+    return {
+      success: true,
+      data: {
+        ...result,
+        stats: {
+          lessonsCount: contents.length,
+          studentsCount: enrollments.length,
+          reviews: 0, // Can be implemented later with a reviews table
+          rating: 5, // Default rating, can be calculated from reviews
+        },
+        contentTypes,
+        contents: contentsWithTypes,
+      },
+    };
+  } catch (error) {
+    console.error("Get subject by ID with stats error:", error);
+    return {
+      success: false,
+      error: "Failed to fetch subject details",
+    };
+  }
+}
+
+/**
  * Get subject details with content types and user access (for learners)
  */
 export async function getSubjectForLearner(subjectId: string, userId: string) {

@@ -33,6 +33,12 @@ function LoginFormContent() {
     const searchParams = useSearchParams();
     const callbackUrl = searchParams.get("callbackUrl") || "/";
 
+    // Check if user is trying to enroll in a course
+    const enrollCourse = searchParams.get("enrollCourse");
+    const contentType = searchParams.get("contentType");
+    const isBundle = searchParams.get("isBundle") === "true";
+    const price = parseFloat(searchParams.get("price") || "0");
+
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
@@ -51,8 +57,18 @@ function LoginFormContent() {
                 if (result.role === 'ADMIN') {
                     router.push('/admin/dashboard');
                 } else {
-                    // Default to learner dashboard or callbackUrl if it's specific
-                    if (callbackUrl && callbackUrl !== '/' && callbackUrl !== '/login') {
+                    // If enrolling, redirect to cart with enrollment params
+                    // The cart page will handle adding the item on load
+                    if (enrollCourse) {
+                        const enrollParams = new URLSearchParams({
+                            autoEnroll: 'true',
+                            subjectId: enrollCourse,
+                            ...(contentType && { contentTypeId: contentType }),
+                            isBundle: isBundle.toString(),
+                            price: price.toString(),
+                        });
+                        router.push(`/learner/cart?${enrollParams.toString()}`);
+                    } else if (callbackUrl && callbackUrl !== '/' && callbackUrl !== '/login') {
                         router.push(callbackUrl);
                     } else {
                         router.push('/learner/dashboard');
@@ -77,8 +93,20 @@ function LoginFormContent() {
             <div className="space-y-6">
                 <div className="space-y-2">
                     <h2 className="text-3xl font-bold tracking-tight">Sign in to your account</h2>
-                    <p className="text-muted-foreground">Welcome back! Please enter your details.</p>
+                    <p className="text-muted-foreground">
+                        {enrollCourse
+                            ? "Please sign in to enroll in this course."
+                            : "Welcome back! Please enter your details."}
+                    </p>
                 </div>
+
+                {enrollCourse && (
+                    <Alert>
+                        <AlertDescription>
+                            After signing in, the course will be added to your cart automatically.
+                        </AlertDescription>
+                    </Alert>
+                )}
 
                 {error && (
                     <Alert variant="destructive">
@@ -143,7 +171,13 @@ function LoginFormContent() {
 
                 <div className="text-center text-sm text-muted-foreground">
                     Don&apos;t have an account?{' '}
-                    <Link href="/register" className="font-medium text-primary hover:underline">
+                    <Link
+                        href={enrollCourse
+                            ? `/register?enrollCourse=${enrollCourse}&contentType=${contentType || ''}&isBundle=${isBundle}&price=${price}&callbackUrl=${callbackUrl}`
+                            : "/register"
+                        }
+                        className="font-medium text-primary hover:underline"
+                    >
                         Sign up
                     </Link>
                 </div>

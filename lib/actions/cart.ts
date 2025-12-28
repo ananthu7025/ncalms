@@ -105,10 +105,6 @@ export async function addToCart(
         )
       );
 
-    if (existingCartItem.length > 0) {
-      return { success: false, message: "Item already in cart" };
-    }
-
     // Add to cart
     await db.insert(cart).values({
       userId: session.user.id,
