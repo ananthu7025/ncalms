@@ -17,8 +17,9 @@ export const metadata: Metadata = {
   title: "NCA LMS",
   description: "NCA based LMS",
   icons: {
-    icon: "/assets/img/logo/logo-new.jpeg",
-    shortcut: "/assets/img/logo/logo-new.jpeg",
+    icon: "/assets/img/logo.jpeg",
+    shortcut: "/assets/img/logo.jpeg",
+    apple: "/assets/img/logo.jpeg",
   },
 };
 

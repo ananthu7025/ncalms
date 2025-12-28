@@ -29,7 +29,14 @@
       "Bash(npm run db:push:*)",
       "Bash(for file in accordion alert-dialog alert aspect-ratio avatar badge breadcrumb button calendar card chart checkbox collapsible command context-menu dialog dropdown-menu form hover-card input label menubar navigation-menu pagination popover progress radio-group scroll-area select separator sheet sidebar skeleton slider switch table tabs textarea toggle-group toggle tooltip)",
       "Bash(do echo -n '$file: ')",
-      "Bash(done)"
+      "Bash(done)",
+      "Bash(del \"components\\animations\\Reveal.tsx\")",
+      "Bash(del \"components\\public\\CourseCard\\index.tsx\")",
+      "Bash(del \"components\\PublicCourseCard.tsx\")",
+      "Bash(del \"components\\skeletons\\public-course-card-skeleton.tsx\")",
+      "Bash(del \"components\\sidebar\\index.tsx\")",
+      "Bash(del:*)",
+      "Bash(test:*)"
     ],
     "deny": [],
     "ask": []
