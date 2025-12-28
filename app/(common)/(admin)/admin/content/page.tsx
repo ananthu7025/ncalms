@@ -3,6 +3,8 @@ import { redirect } from "next/navigation";
 import { getSubjects } from "@/lib/actions/subjects";
 import { EmptyState } from "@/components/EmptyState";
 
+export const dynamic = 'force-dynamic';
+
 export default async function AdminCourseContent() {
   // Fetch subjects to redirect to first one
   const subjectsResult = await getSubjects();

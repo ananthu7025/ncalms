@@ -8,6 +8,8 @@ import { CourseCard } from "@/components/CourseCard";
 import { CourseCardActions } from "@/components/admin/course-card-actions";
 import { CoursesGridSkeleton } from "@/components/skeletons/course-card-skeleton";
 
+export const dynamic = 'force-dynamic';
+
 async function CoursesListContent() {
   const result = await getSubjects();
   console.log(result.data);

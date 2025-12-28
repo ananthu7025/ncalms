@@ -11,6 +11,8 @@ import { getContentTypes } from '@/lib/actions/content-types';
 import { OffersTable } from '@/components/admin/offers/OffersTable';
 import { OfferDialog } from '@/components/admin/offers/OfferDialog';
 
+export const dynamic = 'force-dynamic';
+
 export default async function AdminOffersPage() {
   // Fetch data in parallel
   const [offersResult, statsResult, subjectsResult, contentTypesResult] = await Promise.all([

@@ -9,6 +9,8 @@ import { getEmailTemplates, getEmailTemplateStats } from '@/lib/actions/email-te
 import { EmailTemplatesTable } from '@/components/admin/email-templates/EmailTemplatesTable';
 import { EmailTemplateDialog } from '@/components/admin/email-templates/EmailTemplateDialog';
 
+export const dynamic = 'force-dynamic';
+
 export default async function AdminEmailTemplatesPage() {
   // Fetch data in parallel
   const [templatesResult, statsResult] = await Promise.all([

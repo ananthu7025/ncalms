@@ -8,6 +8,8 @@ import { getBlogPosts, getBlogStats } from '@/lib/actions/blog';
 import { BlogsTable } from '@/components/admin/blog/BlogsTable';
 import { BlogDialog } from '@/components/admin/blog/BlogDialog';
 
+export const dynamic = 'force-dynamic';
+
 export default async function AdminBlogPage() {
   // Fetch data in parallel
   const [postsResult, statsResult] = await Promise.all([

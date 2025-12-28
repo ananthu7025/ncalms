@@ -4,6 +4,8 @@ import { Calendar } from 'lucide-react';
 import { getSessionTypes, getAllBookings } from '@/lib/actions/sessions';
 import { SessionDialog, SessionTypesTable, BookingsTable } from '@/components/admin/sessions';
 
+export const dynamic = 'force-dynamic';
+
 export default async function AdminSessions() {
   // Fetch data in parallel on the server
   const [sessionsResult, bookingsResult] = await Promise.all([
