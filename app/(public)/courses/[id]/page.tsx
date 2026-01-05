@@ -8,6 +8,7 @@ import {
   getContentTypeIcon,
   getContentBundleDescription,
 } from "@/lib/content-type-utils";
+import CourseSyllabus from "@/components/public/CourseSyllabus";
 
 interface CourseDetailPageProps {
   params: Promise<{
@@ -43,6 +44,23 @@ const CourseDetailPage = async ({ params }: CourseDetailPageProps) => {
   const bundlePrice = subject.bundlePrice ? parseFloat(subject.bundlePrice) : 0;
   const embedUrl = subject.demoVideoUrl ? getEmbedUrl(subject.demoVideoUrl) : null;
 
+  // Parse syllabus topics from JSON
+  let syllabusTopics: string[] = [];
+  try {
+    if (subject.syllabusTopics) {
+      if (typeof subject.syllabusTopics === 'string') {
+        syllabusTopics = JSON.parse(subject.syllabusTopics);
+      } else if (Array.isArray(subject.syllabusTopics)) {
+        syllabusTopics = subject.syllabusTopics;
+      }
+    }
+  } catch (e) {
+    console.error("Failed to parse syllabus topics:", e);
+    syllabusTopics = [];
+  }
+
+  console.log("DEBUG PAGE: syllabusTopicsRaw:", subject.syllabusTopics);
+  console.log("DEBUG PAGE: syllabusTopicsParsed:", syllabusTopics);
   // Group contents by content type
   const contentsByType = contents.reduce((acc, item) => {
     const typeId = item.contentType?.id;
@@ -165,8 +183,8 @@ const CourseDetailPage = async ({ params }: CourseDetailPageProps) => {
                                   ct.name === "VIDEO"
                                     ? "/assets/img/icons/icon-purple-arrow-right.svg"
                                     : ct.name === "PDF"
-                                    ? "/assets/img/icons/icon-grey-book-3-line.svg"
-                                    : "/assets/img/icons/icon-grey-graduation-cap-line.svg"
+                                      ? "/assets/img/icons/icon-grey-book-3-line.svg"
+                                      : "/assets/img/icons/icon-grey-graduation-cap-line.svg"
                                 }
                                 alt={ct.name}
                                 width={20}
@@ -186,6 +204,13 @@ const CourseDetailPage = async ({ params }: CourseDetailPageProps) => {
                       ))}
                     </ul>
                   </div>
+
+                  {/* Syllabus Section */}
+                  <CourseSyllabus
+                    syllabusTopics={syllabusTopics}
+                    syllabusPdfUrl={subject.syllabusPdfUrl}
+                    additionalCoverage={subject.additionalCoverage}
+                  />
 
                   {/* Course Content Preview */}
                   <div className="mt-10">
@@ -460,7 +485,7 @@ const CourseDetailPage = async ({ params }: CourseDetailPageProps) => {
                               href="tel:+5323213333"
                               className="font-title text-lg text-colorBlackPearl hover:underline md:text-xl"
                             >
-                              +532 321 33 33
+                              +91 81232 83217
                             </a>
                           </div>
                         </li>
@@ -479,7 +504,7 @@ const CourseDetailPage = async ({ params }: CourseDetailPageProps) => {
                               href="mailto:yourmail@email.com"
                               className="font-title text-lg text-colorBlackPearl hover:underline md:text-xl"
                             >
-                              yourmail@email.com
+                              vidyahej999@gmail.com
                             </a>
                           </div>
                         </li>
@@ -495,7 +520,7 @@ const CourseDetailPage = async ({ params }: CourseDetailPageProps) => {
                           <div className="flex-1">
                             <span className="block">Our Location</span>
                             <address className="font-title text-xl not-italic text-colorBlackPearl">
-                              32/Jenin, London
+                              Bangalore, India
                             </address>
                           </div>
                         </li>

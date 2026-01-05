@@ -212,6 +212,9 @@ export async function createSubject(data: CreateSubjectInput) {
         bundlePrice: validatedData.bundlePrice || null,
         isBundleEnabled: validatedData.isBundleEnabled,
         isActive: validatedData.isActive,
+        syllabusPdfUrl: validatedData.syllabusPdfUrl || null,
+        syllabusTopics: validatedData.syllabusTopics || null,
+        additionalCoverage: validatedData.additionalCoverage || null,
       })
       .returning();
 
@@ -317,6 +320,9 @@ export async function updateSubject(data: UpdateSubjectInput) {
         bundlePrice: validatedData.bundlePrice || null,
         isBundleEnabled: validatedData.isBundleEnabled,
         isActive: validatedData.isActive,
+        syllabusPdfUrl: validatedData.syllabusPdfUrl || null,
+        syllabusTopics: validatedData.syllabusTopics || null,
+        additionalCoverage: validatedData.additionalCoverage || null,
         updatedAt: new Date(),
       })
       .where(eq(schema.subjects.id, validatedData.id))
@@ -604,6 +610,12 @@ export async function getSubjectByIdWithStats(id: string) {
         )
       )
       .orderBy(schema.subjectContents.sortOrder);
+
+    console.log("DEBUG: getSubjectByIdWithStats returning", {
+      id: result.subject.id,
+      topicsType: typeof result.subject.syllabusTopics,
+      topicsVal: result.subject.syllabusTopics
+    });
 
     return {
       success: true,

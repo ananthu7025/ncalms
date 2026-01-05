@@ -17,6 +17,7 @@ import { ArrowLeft, Save, Eye, Upload } from "lucide-react";
 import { getExamTypesByStream } from "@/lib/actions/exam-types";
 import InputText from "@/components/InputComponents/InputText";
 import { uploadSubjectImage } from "@/lib/actions/local-upload";
+import { getSyllabusUploadUrl } from "@/lib/actions/s3-upload";
 import InputSelect from "@/components/InputComponents/InputSelect";
 import InputSwitch from "@/components/InputComponents/InputSwitch";
 import { createSubject, updateSubject } from "@/lib/actions/subjects";
@@ -41,6 +42,7 @@ export function AddCourseClient({
   const [examTypes, setExamTypes] = useState<any[]>([]);
   const [loadingExamTypes, setLoadingExamTypes] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
+  const [syllabusFile, setSyllabusFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(
     initialData?.thumbnail || null
   );
@@ -58,6 +60,9 @@ export function AddCourseClient({
       isBundleEnabled: initialData?.isBundleEnabled || false,
       isActive: initialData?.isActive || true,
       thumbnail: initialData?.thumbnail || "",
+      syllabusPdfUrl: initialData?.syllabusPdfUrl || "",
+      syllabusTopics: initialData?.syllabusTopics ? (typeof initialData.syllabusTopics === 'string' ? JSON.parse(initialData.syllabusTopics).join("\n") : "") : "",
+      additionalCoverage: initialData?.additionalCoverage || "",
     },
   });
 
@@ -114,13 +119,52 @@ export function AddCourseClient({
         }
       }
 
+      let syllabusUrl = data.syllabusPdfUrl;
+
+      // Handle Syllabus Upload
+      if (syllabusFile) {
+        const uploadConfig = await getSyllabusUploadUrl(syllabusFile.name, syllabusFile.type);
+
+        if (uploadConfig.success && uploadConfig.uploadUrl && uploadConfig.publicUrl) {
+          // Upload directly to S3
+          const uploadResponse = await fetch(uploadConfig.uploadUrl, {
+            method: "PUT",
+            body: syllabusFile,
+            headers: {
+              "Content-Type": syllabusFile.type,
+            },
+          });
+
+          if (uploadResponse.ok) {
+            syllabusUrl = uploadConfig.publicUrl;
+            setValue("syllabusPdfUrl", syllabusUrl);
+          } else {
+            toaster.error("Failed to upload syllabus PDF to S3");
+            setIsLoading(false);
+            return;
+          }
+        } else {
+          toaster.error(uploadConfig.error || "Failed to get upload URL");
+          setIsLoading(false);
+          return;
+        }
+      }
+
       let result;
       // Overwrite isActive based on the button clicked
+      // Convert syllabusTopics from newline-separated string to JSON array
+      const syllabusTopicsArray = data.syllabusTopics
+        ? data.syllabusTopics.split('\n').map(topic => topic.trim()).filter(Boolean)
+        : [];
+
       const finalData = {
         ...data,
         thumbnail: thumbnailUrl,
         isActive: publish,
         examTypeId: data.examTypeId === "" ? null : data.examTypeId,
+        syllabusTopics: syllabusTopicsArray.length > 0 ? JSON.stringify(syllabusTopicsArray) : null,
+        syllabusPdfUrl: syllabusUrl || null,
+        additionalCoverage: data.additionalCoverage || null,
       };
 
       if (isEditing && courseId) {
@@ -139,8 +183,8 @@ export function AddCourseClient({
           isEditing
             ? "Course updated successfully"
             : publish
-            ? "Course is now live"
-            : "Course saved as draft"
+              ? "Course is now live"
+              : "Course saved as draft"
         );
         router.push("/admin/courses");
         router.refresh();
@@ -319,6 +363,86 @@ export function AddCourseClient({
                   label="Demo Video URL (Optional)"
                   placeholder="https://example.com/video.mp4"
                 />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Syllabus Information</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+
+              <div className="space-y-2">
+                <Label htmlFor="syllabus">Syllabus PDF</Label>
+
+                {/* Current File Display */}
+                {watch("syllabusPdfUrl") && !syllabusFile && (
+                  <div className="flex items-center gap-2 p-2 border rounded-md bg-accent/10 mb-2">
+                    <span className="text-sm truncate flex-1">{watch("syllabusPdfUrl")}</span>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 text-destructive hover:text-destructive"
+                      onClick={() => setValue("syllabusPdfUrl", "")}
+                    >
+                      Remove
+                    </Button>
+                  </div>
+                )}
+
+                {/* File Input */}
+                <Input
+                  id="syllabus"
+                  type="file"
+                  accept="application/pdf"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      if (file.type !== "application/pdf") {
+                        toaster.error("Please select a PDF file");
+                        e.target.value = ""; // Reset
+                        return;
+                      }
+                      setSyllabusFile(file);
+                      // Clear existing URL if any, or maybe better to keep it until save? 
+                      // Let's keep existing URL in form state until successful upload, 
+                      // effectively the file sits "on deck".
+                    }
+                  }}
+                />
+                <p className="text-xs text-muted-foreground">
+                  {syllabusFile
+                    ? `Selected: ${syllabusFile.name}`
+                    : "Upload a new PDF to replace the current one (if any)"}
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <InputTextarea
+                  hookForm={hookForm}
+                  field="syllabusTopics"
+                  label="Syllabus Topics (Optional)"
+                  placeholder="Enter one topic per line&#10;Topic 1&#10;Topic 2&#10;Topic 3"
+                  rows={8}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Enter each syllabus topic on a new line
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <InputTextarea
+                  hookForm={hookForm}
+                  field="additionalCoverage"
+                  label="Additionally We Cover (Optional)"
+                  placeholder="Additional topics and areas covered beyond the main syllabus..."
+                  rows={4}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Describe any additional topics or areas covered in this course
+                </p>
               </div>
             </CardContent>
           </Card>

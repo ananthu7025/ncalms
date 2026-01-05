@@ -1,5 +1,7 @@
 // Database reset script - Clears all data then reseeds
 import * as dotenv from "dotenv";
+import { fileURLToPath } from "url";
+
 dotenv.config({ path: ".env.local" });
 
 import { db, schema } from "./lib/db/index";
@@ -63,7 +65,7 @@ async function resetDatabase() {
   }
 }
 
-if (require.main === module) {
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
   resetDatabase()
     .then(() => process.exit(0))
     .catch(() => process.exit(1));

@@ -57,6 +57,9 @@ export const createSubjectSchema = z.object({
   bundlePrice: z.string().regex(/^\d+(\.\d{1,2})?$/, "Invalid price format").optional().nullable(),
   isBundleEnabled: z.boolean().default(false),
   isActive: z.boolean().default(true),
+  syllabusPdfUrl: z.string().url("Invalid URL").max(500, "URL too long").optional().nullable(),
+  syllabusTopics: z.string().optional().nullable(),
+  additionalCoverage: z.string().optional().nullable(),
 });
 
 export const updateSubjectSchema = z.object({
@@ -70,6 +73,9 @@ export const updateSubjectSchema = z.object({
   bundlePrice: z.string().regex(/^\d+(\.\d{1,2})?$/, "Invalid price format").optional().nullable(),
   isBundleEnabled: z.boolean(),
   isActive: z.boolean(),
+  syllabusPdfUrl: z.string().url("Invalid URL").max(500, "URL too long").optional().nullable(),
+  syllabusTopics: z.string().optional().nullable(),
+  additionalCoverage: z.string().optional().nullable(),
 });
 
 // ===========================

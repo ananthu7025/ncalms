@@ -10,6 +10,7 @@ import TestimonialSection from "@/components/public/Testimonial";
 import FeaturesSection from "@/components/public/FeaturesSection";
 import PrivateTutoring from "@/components/public/PrivateTutoring";
 import BlogSection from "@/components/public/BlogSection";
+import AboutInstructors from "@/components/public/AboutInstructors";
 
 export const metadata: Metadata = {
   title: 'NCA Made Easy - Best Online Platform for NCA Courses',
@@ -44,6 +45,7 @@ export default function HomePage() {
     <>
       <HeroSection />
       <WelcomeSection />
+      <AboutInstructors />
       <Categories />
       <FeaturesSection />
       <FeaturedCourse />

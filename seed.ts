@@ -1,6 +1,8 @@
 // Database seed script
 // IMPORTANT: Load environment variables FIRST before any other imports
 import * as dotenv from "dotenv";
+import { fileURLToPath } from "url";
+
 dotenv.config({ path: ".env.local" });
 
 // Now import database after env vars are loaded
@@ -106,8 +108,15 @@ async function seed() {
         { name: "VIDEO", description: "Video content" },
         { name: "PDF", description: "PDF learning docs" },
         { name: "Question Bank", description: "Mock tests & question banks" },
+        { name: "IRACs", description: "Essay Answer Structures" },
       ])
       .onConflictDoNothing();
+
+    const contentTypes = await db.select().from(schema.contentTypes);
+    const videoType = contentTypes.find(ct => ct.name === "VIDEO");
+    const pdfType = contentTypes.find(ct => ct.name === "PDF");
+    const questionBankType = contentTypes.find(ct => ct.name === "Question Bank");
+    const iracsType = contentTypes.find(ct => ct.name === "IRACs");
 
     console.log("Content types ready");
 
@@ -126,96 +135,336 @@ async function seed() {
         thumbnail: "/images/subjects/professional-responsibility.jpg",
         demoVideoUrl: "https://youtu.be/fiaTIN6g5fI?si=ggrx2u6HZYnd0P6i",
         isActive: true,
-        bundle_price: "200.00",
+        bundle_price: "300.00",
         is_bundle_enabled: true,
+        syllabusTopics: JSON.stringify([
+          "A. The Legal Profession",
+          "1. Professions and Professionalism",
+          "2. Regulation of Lawyers and Regulation of the Legal Profession",
+          "B. Ethics, Lawyering and Professional Regulation",
+          "1. The Lawyer-Client Relationship",
+          "2. The Preservation of Client Confidences",
+          "3. Conflicts of Interest",
+          "4. The Adversary System and Lawyers as Advocates",
+          "C. Some Specific Practice Areas",
+          "1. Ethics and Dispute Resolution: Counselling and Negotiation",
+          "2. Ethics and the Practice of Criminal Law",
+          "3. Government Lawyers",
+          "4. Lawyers in Organizational Settings",
+          "D. Access to Justice"
+        ]),
+        additionalCoverage: `• Detailed Study of the Model Code of Professional Conduct, 2024
+• Detailed Study of Syllabus Articles & Case Laws (latest NCA updates)
+• IRAC & Essay Writing Techniques
+• NCA Sample Papers with Answers
+• Practice Papers & Mock Exams`
       },
+
       {
         streamId: ncaStream.id,
         examTypeId: null,
         title: "Canadian Administrative Law",
-        description: "Navigate government decision-making and regulatory frameworks.",
+        description: "Government decision-making, judicial review, and regulatory frameworks.",
         thumbnail: "/images/subjects/administrative-law.jpg",
         demoVideoUrl: "https://youtu.be/UImrau29cu8?si=TgaknMmLZp3lMbl7",
         isActive: true,
-        bundle_price: "200.00",
+        bundle_price: "300.00",
         is_bundle_enabled: true,
+        syllabusTopics: JSON.stringify([
+          "1. Sources of Administrative Law",
+          "2. Procedural Fairness",
+          "3. Legitimate Expectations",
+          "4. Duty to Consult Indigenous Peoples",
+          "5. Charter & Bill of Rights in Admin Law",
+          "6. Standard of Review – Vavilov Framework",
+          "7. Judicial Review Procedure",
+          "8. Remedies"
+        ]),
+        additionalCoverage: `• Latest NCA Case Laws
+• Answer Writing for Problem Questions
+• Sample & Mock Exams`
       },
+
       {
         streamId: ncaStream.id,
         examTypeId: null,
         title: "Canadian Constitutional Law",
-        description: "Master the foundations of Canada's constitutional framework and charter rights.",
+        description: "Foundations of Canada's Constitution and Charter rights.",
         thumbnail: "/images/subjects/constitutional-law.jpg",
         demoVideoUrl: "https://youtu.be/_9ye3TCzVp8?si=jpZRW6AN5cvZL4_Q",
         isActive: true,
-        bundle_price: "200.00",
+        bundle_price: "300.00",
         is_bundle_enabled: true,
+        syllabusTopics: JSON.stringify([
+          "1. Sources of the Constitution",
+          "2. Federalism",
+          "3. Division of Powers",
+          "4. Judicial Review",
+          "5. Aboriginal & Treaty Rights",
+          "6. Charter Interpretation",
+          "7. Fundamental Freedoms",
+          "8. Equality Rights",
+          "9. Limitations & Remedies"
+        ]),
+        additionalCoverage: `• Updated Charter Case Laws
+• Essay Writing Frameworks
+• Sample & Practice Papers`
       },
+
       {
         streamId: ncaStream.id,
         examTypeId: null,
         title: "Canadian Criminal Law",
-        description: "Comprehensive coverage of criminal procedures, offenses, and defenses.",
+        description: "Criminal offences, procedure, and defences.",
         thumbnail: "/images/subjects/criminal-law.jpg",
         demoVideoUrl: "https://youtu.be/dz3ik3XzR54?si=u9m5QdBG06c3CUha",
         isActive: true,
-        bundle_price: "200.00",
+        bundle_price: "300.00",
         is_bundle_enabled: true,
+        syllabusTopics: JSON.stringify([
+          "1. Sources of Criminal Law",
+          "2. Actus Reus",
+          "3. Mens Rea",
+          "4. Regulatory Offences",
+          "5. Parties to an Offence",
+          "6. Attempts",
+          "7. Defences",
+          "8. Police Powers",
+          "9. Bail & Disclosure",
+          "10. Trial Process",
+          "11. Sentencing",
+          "12. Appeals"
+        ]),
+        additionalCoverage: `• Annotated Criminal Code Usage
+• Case Law Analysis
+• Mock Exams & Answer Keys`
       },
+
       {
         streamId: ncaStream.id,
         examTypeId: null,
         title: "Foundations of Canadian Law",
-        description: "Essential legal principles and the Canadian legal system overview.",
+        description: "Overview of legal theory, institutions, and Canadian legal system.",
         thumbnail: "/images/subjects/foundations-law.jpg",
         demoVideoUrl: "https://youtu.be/GDF2gFC-zlM?si=8Ucll1YmTeMHSrl4",
         isActive: true,
-        bundle_price: "200.00",
+        bundle_price: "300.00",
         is_bundle_enabled: true,
+        syllabusTopics: JSON.stringify([
+          "1. Legal Theories",
+          "2. Indigenous Peoples and Law",
+          "3. Sources of Law",
+          "4. Constitutional Principles",
+          "5. Parliament",
+          "6. Executive",
+          "7. Judiciary",
+          "8. Statutory Interpretation",
+          "9. Judicial Review"
+        ]),
+        additionalCoverage: `• Concise Notes
+• Essay Structuring
+• Sample Papers`
       },
+
       {
         streamId: ncaStream.id,
         examTypeId: null,
-        title: "Legal Research and Writing",
-        description: "Professional research assistance and writing guidance.",
-        thumbnail: "/images/subjects/legal-research.jpg",
-        demoVideoUrl: "https://youtu.be/4Bsc2uI_LsM?si=DN6UooasGRCDvqMI",
+        title: "Property Law",
+        description: "Canadian land law, estates, and proprietary interests.",
+        thumbnail: "/images/subjects/property-law.png",
+        demoVideoUrl: null,
         isActive: true,
-        bundle_price: "200.00",
+        bundle_price: "300.00",
         is_bundle_enabled: true,
+        syllabusTopics: JSON.stringify([
+          "1. Nature of Property",
+          "2. Possession",
+          "3. Estates",
+          "4. Aboriginal Title",
+          "5. Trusts & Equity",
+          "6. Future Interests",
+          "7. Leases & Licences",
+          "8. Co-ownership",
+          "9. Easements & Covenants",
+          "10. Registration & Priorities"
+        ]),
+        additionalCoverage: `• Case Law Summaries
+• Problem Question Techniques
+• Practice Exams`
       },
-      // Ontario Bar Subjects
+
+      {
+        streamId: ncaStream.id,
+        examTypeId: null,
+        title: "Torts",
+        description: "Civil wrongs and remedies under Canadian law.",
+        thumbnail: "/images/subjects/torts.png",
+        demoVideoUrl: null,
+        isActive: true,
+        bundle_price: "300.00",
+        is_bundle_enabled: true,
+        syllabusTopics: JSON.stringify([
+          "1. Intentional Torts",
+          "2. Negligence",
+          "3. Duty of Care",
+          "4. Causation",
+          "5. Defences",
+          "6. Occupiers’ Liability",
+          "7. Product Liability",
+          "8. Defamation",
+          "9. Economic Torts"
+        ]),
+        additionalCoverage: `• IRAC Application
+• Leading Case Laws
+• Mock & Practice Papers`
+      },
+
+      {
+        streamId: ncaStream.id,
+        examTypeId: null,
+        title: "Business Organization",
+        description: "Partnerships, corporations, governance and remedies.",
+        thumbnail: "/images/subjects/business-organization.png",
+        demoVideoUrl: null,
+        isActive: true,
+        bundle_price: "300.00",
+        is_bundle_enabled: true,
+        syllabusTopics: JSON.stringify([
+          "1. Forms of Business",
+          "2. Partnerships",
+          "3. Incorporation",
+          "4. Corporate Personality",
+          "5. Shares & Shareholders",
+          "6. Directors & Officers",
+          "7. Corporate Changes",
+          "8. Duties & Liabilities",
+          "9. Shareholder Remedies"
+        ]),
+        additionalCoverage: `• Corporate Case Laws
+• Essay & Problem Answers
+• Mock Exams`
+      },
+
+      {
+        streamId: ncaStream.id,
+        examTypeId: null,
+        title: "Contracts",
+        description: "Contract formation, performance, breach, and remedies.",
+        thumbnail: "/images/subjects/contracts.png",
+        demoVideoUrl: null,
+        isActive: true,
+        bundle_price: "300.00",
+        is_bundle_enabled: true,
+        syllabusTopics: JSON.stringify([
+          "1. Formation",
+          "2. Offer & Acceptance",
+          "3. Consideration",
+          "4. Intention",
+          "5. Privity",
+          "6. Terms",
+          "7. Misrepresentation",
+          "8. Breach",
+          "9. Remedies",
+          "10. Discharge"
+        ]),
+        additionalCoverage: `• Leading Contract Cases
+• Answer Writing Frameworks
+• Sample & Practice Papers`
+      },
+      // ============================================
+      // Ontario Bar Subjects - Solicitor
+      // ============================================
       {
         streamId: ontarioStream.id,
-        examTypeId: null,
-        title: "Ontario Bar General Overview",
-        description: "Non-exam specific subject covering general bar requirements",
-        thumbnail: "/images/subjects/ontario-bar-general.jpg",
-        demoVideoUrl: "https://youtu.be/6LD30ChPsSs?si=qPE9QPc_Y1OzK22B",
+        examTypeId: solicitorExam?.id ?? null,
+        title: "Business Law",
+        description: "Ontario Bar Solicitor Examination - Business Law",
+        thumbnail: "/images/subjects/ontario-business-law.png",
         isActive: true,
-        bundle_price: "250.00",
+        bundle_price: "150.00",
         is_bundle_enabled: true,
       },
       {
         streamId: ontarioStream.id,
         examTypeId: solicitorExam?.id ?? null,
-        title: "Solicitor — Civil Litigation",
-        description: "Complete preparation for the Solicitor track civil litigation exam",
-        thumbnail: "/images/subjects/solicitor-civil.jpg",
-        demoVideoUrl: "https://youtu.be/Y23dN3JZrcE?si=6b0OxmUwnN96mmjM",
+        title: "Estate Planning",
+        description: "Ontario Bar Solicitor Examination - Estate Planning",
+        thumbnail: "/images/subjects/ontario-estate-planning.png",
         isActive: true,
-        bundle_price: "200.00",
+        bundle_price: "150.00",
+        is_bundle_enabled: true,
+      },
+      {
+        streamId: ontarioStream.id,
+        examTypeId: solicitorExam?.id ?? null,
+        title: "Real Estate Law",
+        description: "Ontario Bar Solicitor Examination - Real Estate Law",
+        thumbnail: "/images/subjects/ontario-real-estate.png",
+        isActive: true,
+        bundle_price: "150.00",
+        is_bundle_enabled: true,
+      },
+      {
+        streamId: ontarioStream.id,
+        examTypeId: solicitorExam?.id ?? null,
+        title: "Professional Responsibility (Solicitor)",
+        description: "Ontario Bar Solicitor Examination - Professional Responsibility",
+        thumbnail: "/images/subjects/ontario-prof-resp-solicitor.png",
+        isActive: true,
+        bundle_price: "150.00",
+        is_bundle_enabled: true,
+      },
+      // ============================================
+      // Ontario Bar Subjects - Barrister
+      // ============================================
+      {
+        streamId: ontarioStream.id,
+        examTypeId: barristerExam?.id ?? null,
+        title: "Civil Litigation",
+        description: "Ontario Bar Barrister Examination - Civil Litigation",
+        thumbnail: "/images/subjects/ontario-civil-litigation.png",
+        isActive: true,
+        bundle_price: "150.00",
         is_bundle_enabled: true,
       },
       {
         streamId: ontarioStream.id,
         examTypeId: barristerExam?.id ?? null,
-        title: "Barrister — Criminal Law",
-        description: "Complete preparation for the Barrister track criminal law exam",
-        thumbnail: "/images/subjects/barrister-criminal.jpg",
-        demoVideoUrl: "https://youtu.be/Eo9hZz3oizk?si=nJhee6pk5-u9h2Ip",
+        title: "Criminal Law (Barrister)",
+        description: "Ontario Bar Barrister Examination - Criminal Law",
+        thumbnail: "/images/subjects/ontario-criminal-law.png",
         isActive: true,
-        bundle_price: "250.00",
+        bundle_price: "150.00",
+        is_bundle_enabled: true,
+      },
+      {
+        streamId: ontarioStream.id,
+        examTypeId: barristerExam?.id ?? null,
+        title: "Family Law",
+        description: "Ontario Bar Barrister Examination - Family Law",
+        thumbnail: "/images/subjects/ontario-family-law.png",
+        isActive: true,
+        bundle_price: "150.00",
+        is_bundle_enabled: true,
+      },
+      {
+        streamId: ontarioStream.id,
+        examTypeId: barristerExam?.id ?? null,
+        title: "Public Law",
+        description: "Ontario Bar Barrister Examination - Public Law",
+        thumbnail: "/images/subjects/ontario-public-law.png",
+        isActive: true,
+        bundle_price: "150.00",
+        is_bundle_enabled: true,
+      },
+      {
+        streamId: ontarioStream.id,
+        examTypeId: barristerExam?.id ?? null,
+        title: "Professional Responsibility (Barrister)",
+        description: "Ontario Bar Barrister Examination - Professional Responsibility",
+        thumbnail: "/images/subjects/ontario-prof-resp-barrister.png",
+        isActive: true,
+        bundle_price: "150.00",
         is_bundle_enabled: true,
       },
     ];
@@ -226,6 +475,74 @@ async function seed() {
 
     const subjects = await db.select().from(schema.subjects);
     console.log("Subjects ready");
+
+    // ==========================
+    // Subject Contents (Content Items for Each Subject)
+    // ==========================
+    console.log("Creating subject content items...");
+
+    if (!videoType || !pdfType || !questionBankType || !iracsType) {
+      throw new Error("Content types not found after seeding");
+    }
+
+    // Create content items for each subject
+    const subjectContentsData = [];
+
+    for (const subject of subjects) {
+      // VIDEO content - $150
+      subjectContentsData.push({
+        subjectId: subject.id,
+        contentTypeId: videoType.id,
+        title: "Video Lectures",
+        description: `Complete video lecture series for ${subject.title}`,
+        fileUrl: null,
+        price: "150.00",
+        sortOrder: 1,
+        isActive: true,
+      });
+
+      // PDF content - $70
+      subjectContentsData.push({
+        subjectId: subject.id,
+        contentTypeId: pdfType.id,
+        title: "Notes",
+        description: `Comprehensive study notes for ${subject.title}`,
+        fileUrl: null,
+        price: "70.00",
+        sortOrder: 2,
+        isActive: true,
+      });
+
+      // Question Bank content - $80
+      subjectContentsData.push({
+        subjectId: subject.id,
+        contentTypeId: questionBankType.id,
+        title: "Q&A Set",
+        description: `Questions and Answers Set for ${subject.title}`,
+        fileUrl: null,
+        price: "80.00",
+        sortOrder: 3,
+        isActive: true,
+      });
+
+      // IRACs content - $80
+      subjectContentsData.push({
+        subjectId: subject.id,
+        contentTypeId: iracsType.id,
+        title: "IRACs / Essay Answer Structures",
+        description: `Essay Answer Structures for ${subject.title}`,
+        fileUrl: null,
+        price: "80.00",
+        sortOrder: 4,
+        isActive: true,
+      });
+    }
+
+    await db.insert(schema.subjectContents)
+      .values(subjectContentsData)
+      .onConflictDoNothing();
+
+    console.log(`Subject content items ready (${subjectContentsData.length} items created)`);
 
     console.log("\n🎉 Database seeded successfully!");
     console.log("\nTest users:");
@@ -352,7 +669,8 @@ async function seed() {
   }
 }
 
-if (require.main === module) {
+// Run seed if this file is executed directly
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
   seed()
     .then(() => process.exit(0))
     .catch(() => process.exit(1));

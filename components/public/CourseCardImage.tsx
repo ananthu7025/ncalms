@@ -37,11 +37,11 @@ export default function CourseCardImage({
 
   return (
     <>
-      <div className="absolute block h-[222px] w-[217px] overflow-hidden rounded-lg">
+      <div className="absolute block h-[222px] w-[227px] overflow-hidden rounded-lg">
         <Image
           src={thumbnailUrl}
           alt={courseTitle}
-          width={217}
+          width={227}
           height={222}
           className="h-full w-full object-cover transition-all duration-300 group-hover:scale-105"
         />

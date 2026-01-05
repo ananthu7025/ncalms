@@ -11,10 +11,10 @@ const PrivateTutoring = () => {
             <div className="mb-10 lg:mb-[60px]">
               <div className="mx-auto max-w-2xl text-center" data-aos="fade-up">
                 <span className="mb-5 block uppercase tracking-wider text-colorPurpleBlue">
-                  Private Tutoring
+                  NCA Services
                 </span>
                 <h2 className="font-title text-3xl font-bold text-colorBlackPearl lg:text-5xl">
-                  Personalised learning tailored to your needs
+                  We offer comprehensive support for your success
                 </h2>
               </div>
             </div>
@@ -24,46 +24,55 @@ const PrivateTutoring = () => {
               {/* Left Content */}
               <div className="order-2 lg:order-1" data-aos="fade-right">
 
-                {/* 1-1 Coaching Card */}
+                {/* NCA Services Card */}
                 <div className="rounded-2xl bg-gradient-to-br from-colorPurpleBlue/5 to-colorLightSeaGreen/5 p-8 lg:p-10">
                   <div className="mb-6 flex items-center gap-5">
                     <div className="inline-flex h-[70px] w-[70px] items-center justify-center rounded-[50%] bg-colorPurpleBlue/10">
                       <Image
                         src="/assets/img/icons/icon-red-tomato-graduation-cap-line.svg"
-                        alt="1-1 coaching"
+                        alt="nca services"
                         width={35}
                         height={35}
                       />
                     </div>
                     <h3 className="flex-1 font-title text-2xl font-bold text-colorBlackPearl lg:text-3xl">
-                      1-1 Coaching
+                      What We Offer
                     </h3>
                   </div>
 
                   <div className="space-y-5">
                     <p className="text-lg leading-relaxed text-gray-700">
                       At <span className="font-semibold text-colorPurpleBlue">NCA MADE EASY</span>, we
-                      understand that each student&apos;s journey is unique. To support your individual
-                      learning goals, we offer private tutoring on Demand.
+                      provide everything you need to succeed in your NCA exams with comprehensive study materials,
+                      expert guidance, and personalized support.
                     </p>
 
-                    <p className="text-lg leading-relaxed text-gray-700">
-                      You can book <span className="font-semibold">Private Tutoring</span> for a
-                      particular NCA Subject and get started with 1-1 Lectures, paper solving,
-                      doubt clearing etc., providing you an overall preparation to ace your NCA Exam.
-                    </p>
-
-                    {/* Features List */}
+                    {/* Services List */}
                     <ul className="mt-8 space-y-4">
                       {[
-                        "Personalized 1-1 lectures",
-                        "Custom paper solving sessions",
-                        "Dedicated doubt clearing",
-                        "Flexible scheduling",
-                        "Subject-specific focus"
-                      ].map((feature, idx) => (
-                        <li key={idx} className="flex items-center gap-3">
-                          <div className="flex h-6 w-6 items-center justify-center rounded-full bg-colorLightSeaGreen/20">
+                        {
+                          title: "Detailed Lecture Recording",
+                          desc: "Complete NCA updated Syllabus coverage and how to write answers"
+                        },
+                        {
+                          title: "Study Materials",
+                          desc: "Notes, Questions and Answers, IRACs, Essay Answer Structures"
+                        },
+                        {
+                          title: "1:1 Doubt Clearing",
+                          desc: "Personal sessions with prior booking"
+                        },
+                        {
+                          title: "Legal Research & Writing",
+                          desc: "Learn how to research Canadian law, write clear legal memos, and draft answers the way Canadian lawyers do — essential skills for NCA qualification, articling, and legal practice in Canada"
+                        },
+                        {
+                          title: "1:1 Call Options",
+                          desc: "Book personalized coaching sessions"
+                        }
+                      ].map((service, idx) => (
+                        <li key={idx} className="flex items-start gap-3">
+                          <div className="flex h-6 w-6 items-center justify-center rounded-full bg-colorLightSeaGreen/20 flex-shrink-0 mt-1">
                             <svg
                               className="h-4 w-4 text-colorLightSeaGreen"
                               fill="none"
@@ -78,16 +87,19 @@ const PrivateTutoring = () => {
                               />
                             </svg>
                           </div>
-                          <span className="text-base text-gray-700">{feature}</span>
+                          <div className="flex-1">
+                            <span className="font-semibold text-colorBlackPearl">{service.title}</span>
+                            <p className="text-sm text-gray-600 mt-1">{service.desc}</p>
+                          </div>
                         </li>
                       ))}
                     </ul>
 
-                    {/* CTA Button */}
-                    <div className="mt-8 pt-6">
-                      <Link href="/book-a-call">
+                    {/* CTA Buttons */}
+                    <div className="mt-8 pt-6 flex flex-col sm:flex-row gap-4">
+                      <Link href="/courses">
                         <button className="group inline-flex items-center gap-3 rounded-lg bg-colorPurpleBlue px-8 py-4 font-semibold text-white transition-all duration-300 hover:bg-colorBlackPearl hover:shadow-lg">
-                          <span>Book Your Session</span>
+                          <span>Explore Courses</span>
                           <svg
                             className="h-5 w-5 transition-transform duration-300 group-hover:translate-x-1"
                             fill="none"
@@ -101,6 +113,11 @@ const PrivateTutoring = () => {
                               d="M13 7l5 5m0 0l-5 5m5-5H6"
                             />
                           </svg>
+                        </button>
+                      </Link>
+                      <Link href="/book-a-call">
+                        <button className="group inline-flex items-center gap-3 rounded-lg border-2 border-colorPurpleBlue px-8 py-4 font-semibold text-colorPurpleBlue transition-all duration-300 hover:bg-colorPurpleBlue hover:text-white hover:shadow-lg">
+                          <span>Book a Call</span>
                         </button>
                       </Link>
                     </div>

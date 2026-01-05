@@ -9,6 +9,7 @@ import WhyChooseUs from "@/components/public/WhyChooseSection";
 import TestimonialSection from "@/components/public/Testimonial";
 import WhyChooseUsContent from "@/components/public/WhyChooseUsContent";
 import BlogSection from "@/components/public/BlogSection";
+import AboutInstructors from "@/components/public/AboutInstructors";
 
 export const metadata: Metadata = {
   title: 'About Us - NCA Made Easy | Expert NCA Exam Preparation',
@@ -36,6 +37,7 @@ export default function AboutPage() {
         ]}
       />
       <WhyChooseUsContent />
+      <AboutInstructors />
       <Categories />
       <VideoSection />
       <WhyChooseUs/>

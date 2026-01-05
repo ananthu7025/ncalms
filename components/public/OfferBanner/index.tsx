@@ -6,7 +6,7 @@ import Link from "next/link";
 
 const OfferBanner = () => {
   return (
-    <div className="-mt-48">
+    <div className="mt-4">
       <div className="container">
         <div className="relative z-10 grid grid-cols-1 items-end overflow-hidden rounded-lg bg-colorPurpleBlue lg:grid-cols-[0.8fr_1fr] lg:gap-14" data-aos="fade-up">
           

@@ -67,43 +67,34 @@ const WelcomeSection = () => {
                 >
                   <div className="mb-6" data-aos="fade-up">
                     <span className="mb-5 block uppercase">
-                      Welcome to Our
+                      Welcome to NCA
                     </span>
-                    <h2>Online Learning Center</h2>
+                    <h2>Online Learning Centre</h2>
                   </div>
 
                   <div data-aos="fade-up" data-aos-delay="100">
                     <p>
-                      <strong>NCA Made Easy</strong> is the trusted choice for
-                      navigating the National Committee on Accreditation (NCA)
-                      exams successfully in Canada. We specialize in
-                      personalized mentorship and comprehensive study resources.
-                    </p>
-
-                    <p className="mt-4">
-                      Ms. <strong>Vidya Puthran</strong>, founder of NCA Made Easy,
-                      exemplifies our commitment to excellence. Having
-                      successfully passed all core NCA subjects on her first
-                      attempt, she brings unparalleled expertise in Canadian
-                      legal studies and a passion for mentoring aspiring lawyers.
+                      <strong>NCA MADE EASY</strong> is a specialised, exam-focused platform built exclusively for
+                      internationally trained lawyers navigating NCA and Ontario Licensing Candidates
+                      preparing for BAR exams in Canada.
                     </p>
 
                     <ul className="mt-6 flex flex-col gap-y-4 font-title text-colorBlackPearl" data-aos="fade-up" data-aos-delay="200">
                       <li className="flex items-center gap-2">
                         <Image src="/assets/img/icons/icon-purple-check.svg" alt="check" width={20} height={20} />
-                        First-attempt success on all core NCA subjects
+                        98% pass rate for NCA exams
                       </li>
                       <li className="flex items-center gap-2">
                         <Image src="/assets/img/icons/icon-purple-check.svg" alt="check" width={20} height={20} />
-                        Personalized mentorship from experts
+                        Expert instructors with proven track records
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <Image src="/assets/img/icons/icon-purple-check.svg" alt="check" width={20} height={20} />
+                        Exam-focused methodology
                       </li>
                       <li className="flex items-center gap-2">
                         <Image src="/assets/img/icons/icon-purple-check.svg" alt="check" width={20} height={20} />
                         Comprehensive study materials
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <Image src="/assets/img/icons/icon-purple-check.svg" alt="check" width={20} height={20} />
-                        24/7 doubt clearing support
                       </li>
                     </ul>
                   </div>
