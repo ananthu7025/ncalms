@@ -710,6 +710,13 @@ export async function getSubjectForLearner(subjectId: string, userId: string) {
     // Check if user has purchased the complete bundle
     const hasBundleAccess = contentTypes.every(ct => accessMap.has(ct.id));
 
+    // Get enrolled students count
+    const enrollments = await db
+      .select({ userId: schema.userAccess.userId })
+      .from(schema.userAccess)
+      .where(eq(schema.userAccess.subjectId, subjectId))
+      .groupBy(schema.userAccess.userId);
+
     return {
       success: true,
       data: {
@@ -719,6 +726,12 @@ export async function getSubjectForLearner(subjectId: string, userId: string) {
         contents,
         hasBundleAccess,
         accessMap,
+        stats: {
+          lessonsCount: contents.length,
+          studentsCount: enrollments.length,
+          reviews: 0, // Can be implemented later with a reviews table
+          rating: 5, // Default rating, can be calculated from reviews
+        },
       },
     };
   } catch (error) {

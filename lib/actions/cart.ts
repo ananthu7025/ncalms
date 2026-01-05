@@ -105,6 +105,13 @@ export async function addToCart(
         )
       );
 
+    if (existingCartItem.length > 0) {
+      return {
+        success: false,
+        message: "This item is already in your cart",
+      };
+    }
+
     // Add to cart
     await db.insert(cart).values({
       userId: session.user.id,
@@ -141,6 +148,44 @@ export async function removeFromCart(
       );
 
     revalidatePath("/learner/cart");
+    return { success: true, message: "Removed from cart" };
+  } catch (error) {
+    console.error("Error removing from cart:", error);
+    return { success: false, message: "Failed to remove from cart" };
+  }
+}
+
+/**
+ * Remove item from cart by subject and content type
+ */
+export async function removeFromCartByItem(
+  subjectId: string,
+  contentTypeId: string | null,
+  isBundle: boolean
+): Promise<{ success: boolean; message: string }> {
+  try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return { success: false, message: "Unauthorized" };
+    }
+
+    await db
+      .delete(cart)
+      .where(
+        and(
+          eq(cart.userId, session.user.id),
+          eq(cart.subjectId, subjectId),
+          isBundle
+            ? eq(cart.isBundle, true)
+            : and(
+                eq(cart.contentTypeId, contentTypeId!),
+                eq(cart.isBundle, false)
+              )
+        )
+      );
+
+    revalidatePath("/learner/cart");
+    revalidatePath("/learner/courses/[id]", "page");
     return { success: true, message: "Removed from cart" };
   } catch (error) {
     console.error("Error removing from cart:", error);

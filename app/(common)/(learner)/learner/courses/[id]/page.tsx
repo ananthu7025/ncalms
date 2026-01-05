@@ -9,8 +9,10 @@ import {
   ArrowLeft,
   Lock,
   Download,
+  ShoppingCart,
 } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { getSubjectForLearner } from "@/lib/actions/subjects";
 import auth from "@/auth";
 import { redirect } from "next/navigation";
@@ -47,10 +49,39 @@ export default async function CourseDetailsPage({ params }: { params: Promise<{ 
     );
   }
 
-  const { subject, stream, examType, contentTypes, contents, accessMap, hasBundleAccess } = result.data;
+  const { subject, stream, examType, contentTypes, contents, accessMap, hasBundleAccess, stats } = result.data;
   // Check if user has any access
   const hasAnyAccess = accessMap.size > 0;
-  console.log(contentTypes)
+
+  // Parse syllabus topics from JSON
+  let syllabusTopics: string[] = [];
+  try {
+    if (subject.syllabusTopics) {
+      if (typeof subject.syllabusTopics === 'string') {
+        syllabusTopics = JSON.parse(subject.syllabusTopics);
+      } else if (Array.isArray(subject.syllabusTopics)) {
+        syllabusTopics = subject.syllabusTopics;
+      }
+    }
+  } catch (e) {
+    console.error("Failed to parse syllabus topics:", e);
+    syllabusTopics = [];
+  }
+
+  // Default learning points (can be moved to database later)
+  const whatYouLearn = [
+    "Comprehensive coverage of all exam topics and concepts",
+    "Expert instruction from experienced legal professionals",
+    "Practice questions and mock exams to test your knowledge",
+    "Lifetime access to all course materials and updates",
+  ];
+
+  const whyChoose = [
+    "Study at your own pace with flexible online access",
+    "High-quality video lectures and detailed study materials",
+    "Proven track record of student success and satisfaction",
+    "Dedicated support from our team of instructors",
+  ];
 
   // Fetch cart items to check what's already added
   const cartItems = await getCartItems();
@@ -82,6 +113,16 @@ export default async function CourseDetailsPage({ params }: { params: Promise<{ 
       return sum + parseFloat(content.price || "0");
     }, 0);
   };
+
+  // Calculate total price of all individual content types
+  const totalIndividualPrices = contentTypes.reduce((sum, ct) => {
+    return sum + getContentTypePrice(ct.id);
+  }, 0);
+
+  // Get the actual bundle price - use database value if set and valid, otherwise use individual prices sum
+  const actualBundlePrice = subject.bundlePrice && parseFloat(subject.bundlePrice) > 0
+    ? parseFloat(subject.bundlePrice)
+    : totalIndividualPrices;
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -127,111 +168,245 @@ export default async function CourseDetailsPage({ params }: { params: Promise<{ 
             </div>
           </div>
 
-          {/* Tabs */}
-          <Tabs defaultValue={contentTypes.find(ct => accessMap.has(ct.id))?.name.toLowerCase() || "videos"}>
-            <TabsList className={`grid grid-cols-${contentTypes.length} max-w-md`}>
-              {contentTypes.map((ct) => {
-                const Icon = getContentTypeIcon(ct.name);
-                return (
-                  <TabsTrigger key={ct.id} value={ct.name.toLowerCase()}>
-                    <Icon className="w-4 h-4 mr-2" />
-                    {ct.name}
-                  </TabsTrigger>
-                );
-              })}
-            </TabsList>
+          {/* Main Grid Layout */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Left Column - Main Content */}
+            <div className="lg:col-span-2 space-y-6">
+              {/* Tabs */}
+              <Tabs defaultValue={contentTypes.find(ct => accessMap.has(ct.id))?.name.toLowerCase() || "videos"}>
+                <TabsList className={`grid grid-cols-${contentTypes.length} max-w-md`}>
+                  {contentTypes.map((ct) => {
+                    const Icon = getContentTypeIcon(ct.name);
+                    return (
+                      <TabsTrigger key={ct.id} value={ct.name.toLowerCase()}>
+                        <Icon className="w-4 h-4 mr-2" />
+                        {ct.name}
+                      </TabsTrigger>
+                    );
+                  })}
+                </TabsList>
 
-            {/* Dynamic Content Tabs */}
-            {contentTypes.map((ct) => {
-              const hasAccess = accessMap.has(ct.id);
-              const typeContents = contentsByType[ct.id] || [];
+                {/* Dynamic Content Tabs */}
+                {contentTypes.map((ct) => {
+                  const hasAccess = accessMap.has(ct.id);
+                  const typeContents = contentsByType[ct.id] || []
 
-              return (
-                <TabsContent key={ct.id} value={ct.name.toLowerCase()} className="mt-6">
-                  {hasAccess ? (
-                    <div className="space-y-6">
-                      <div className="flex justify-between items-center">
-                        <h2 className="text-xl font-semibold">{ct.name} Content</h2>
-                        <span className="text-sm text-muted-foreground">
-                          {typeContents.length} items
-                        </span>
-                      </div>
+                  return (
+                    <TabsContent key={ct.id} value={ct.name.toLowerCase()} className="mt-6">
+                      {hasAccess ? (
+                        <div className="space-y-6">
+                          <div className="flex justify-between items-center">
+                            <h2 className="text-xl font-semibold">{ct.name} Content</h2>
+                            <span className="text-sm text-muted-foreground">
+                              {typeContents.length} items
+                            </span>
+                          </div>
 
-                      {typeContents.length > 0 ? (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          {typeContents.map((content) => (
-                            <Card key={content.id} className="hover:shadow-lg transition">
-                              <CardContent className="p-4 flex items-center gap-4">
-                                {(() => {
-                                  const Icon = getContentTypeIcon(ct.name);
-                                  const colors = getContentTypeColor(ct.name);
-                                  return (
-                                    <div className={`w-12 h-12 rounded-lg ${colors.bg} flex items-center justify-center`}>
-                                      <Icon className={`w-6 h-6 ${colors.icon}`} />
+                          {typeContents.length > 0 ? (
+                            <div className="grid grid-cols-1 gap-4">
+                              {typeContents.map((content) => (
+                                <Card key={content.id} className="hover:shadow-lg transition">
+                                  <CardContent className="p-4 flex items-center gap-4">
+                                    {(() => {
+                                      const Icon = getContentTypeIcon(ct.name);
+                                      const colors = getContentTypeColor(ct.name);
+                                      return (
+                                        <div className={`w-12 h-12 rounded-lg ${colors.bg} flex items-center justify-center`}>
+                                          <Icon className={`w-6 h-6 ${colors.icon}`} />
+                                        </div>
+                                      );
+                                    })()}
+                                    <div className="flex-1">
+                                      <h3 className="font-medium">{content.title}</h3>
+                                      {content.description && (
+                                        <p className="text-sm text-muted-foreground line-clamp-2">
+                                          {content.description}
+                                        </p>
+                                      )}
+                                      {content.duration && (
+                                        <p className="text-sm text-muted-foreground">
+                                          {content.duration} min
+                                        </p>
+                                      )}
                                     </div>
-                                  );
-                                })()}
-                                <div className="flex-1">
-                                  <h3 className="font-medium">{content.title}</h3>
-                                  {content.description && (
-                                    <p className="text-sm text-muted-foreground line-clamp-2">
-                                      {content.description}
-                                    </p>
-                                  )}
-                                  {content.duration && (
-                                    <p className="text-sm text-muted-foreground">
-                                      {content.duration} min
-                                    </p>
-                                  )}
-                                </div>
-                                <div className="flex items-center gap-2">
-                                  {isDocumentContentType(ct.name) && content.fileUrl && (
-                                    <Button variant="ghost" size="icon" asChild>
-                                      <a href={content.fileUrl} target="_blank" rel="noopener noreferrer">
-                                        <Download className="w-4 h-4" />
-                                      </a>
-                                    </Button>
-                                  )}
-                                  {isVideoContentType(ct.name) && content.fileUrl && (
-                                    <VideoPlayerButton
-                                      videoUrl={content.fileUrl}
-                                      title={content.title}
-                                    />
-                                  )}
-                                </div>
-                              </CardContent>
+                                    <div className="flex items-center gap-2">
+                                      {isDocumentContentType(ct.name) && content.fileUrl && (
+                                        <Button variant="ghost" size="icon" asChild>
+                                          <a href={content.fileUrl} target="_blank" rel="noopener noreferrer">
+                                            <Download className="w-4 h-4" />
+                                          </a>
+                                        </Button>
+                                      )}
+                                      {isVideoContentType(ct.name) && content.fileUrl && (
+                                        <VideoPlayerButton
+                                          videoUrl={content.fileUrl}
+                                          title={content.title}
+                                        />
+                                      )}
+                                    </div>
+                                  </CardContent>
+                                </Card>
+                              ))}
+                            </div>
+                          ) : (
+                            <Card className="text-center py-12">
+                              <p className="text-muted-foreground">No content available yet for this section.</p>
                             </Card>
-                          ))}
+                          )}
                         </div>
                       ) : (
                         <Card className="text-center py-12">
-                          <p className="text-muted-foreground">No content available yet for this section.</p>
+                          <Lock className="mx-auto w-12 h-12 text-muted-foreground mb-4" />
+                          <h3 className="text-lg font-semibold mb-2">{ct.name} Bundle Not Purchased</h3>
+                          <p className="text-muted-foreground mb-4">
+                            Purchase the {ct.name} bundle to access this content.
+                          </p>
+                          <AddToCartButton
+                            subjectId={subject.id}
+                            contentTypeId={ct.id}
+                            isBundle={false}
+                            price={getContentTypePrice(ct.id)}
+                            buttonText={`Add ${ct.name} Bundle - $${getContentTypePrice(ct.id).toFixed(2)}`}
+                            variant="default"
+                            className="gradient-primary"
+                            initialIsAdded={isItemInCart(ct.id, false)}
+                          />
                         </Card>
                       )}
-                    </div>
-                  ) : (
-                    <Card className="text-center py-12">
-                      <Lock className="mx-auto w-12 h-12 text-muted-foreground mb-4" />
-                      <h3 className="text-lg font-semibold mb-2">{ct.name} Bundle Not Purchased</h3>
-                      <p className="text-muted-foreground mb-4">
-                        Purchase the {ct.name} bundle to access this content.
-                      </p>
-                      <AddToCartButton
-                        subjectId={subject.id}
-                        contentTypeId={ct.id}
-                        isBundle={false}
-                        price={getContentTypePrice(ct.id)}
-                        buttonText={`Add ${ct.name} Bundle - $${getContentTypePrice(ct.id).toFixed(2)}`}
-                        variant="default"
-                        className="gradient-primary"
-                        initialIsAdded={isItemInCart(ct.id, false)}
-                      />
-                    </Card>
-                  )}
-                </TabsContent>
-              );
-            })}
-          </Tabs>
+                    </TabsContent>
+                  );
+                })}
+              </Tabs>
+
+              {/* What You'll Learn Section */}
+              <Card>
+                <CardContent className="p-6">
+                  <h3 className="font-bold text-lg mb-4">What You'll Learn?</h3>
+                  <ul className="space-y-3">
+                    {whatYouLearn.map((item, index) => (
+                      <li key={index} className="flex items-center gap-3">
+                        <CheckCircle className="w-5 h-5 text-success flex-shrink-0" />
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
+          
+            </div>
+
+            {/* Right Column - Sidebar */}
+            <div className="lg:col-span-1 space-y-6">
+              {/* Course Information Sidebar */}
+              <Card>
+                <CardContent className="p-6">
+                  <h3 className="font-semibold text-lg mb-4">Course Information:</h3>
+                  <ul className="divide-y divide-border">
+                    <li className="flex items-center justify-between gap-x-5 py-3 first-of-type:pt-0 last-of-type:pb-0">
+                      <span className="font-semibold text-muted-foreground">Category:</span>
+                      <span className="font-normal">{stream?.name || "General"}</span>
+                    </li>
+                    {examType && (
+                      <li className="flex items-center justify-between gap-x-5 py-3 first-of-type:pt-0 last-of-type:pb-0">
+                        <span className="font-semibold text-muted-foreground">Exam Type:</span>
+                        <span className="font-normal">{examType.name}</span>
+                      </li>
+                    )}
+                    <li className="flex items-center justify-between gap-x-5 py-3 first-of-type:pt-0 last-of-type:pb-0">
+                      <span className="font-semibold text-muted-foreground">Lessons:</span>
+                      <span className="font-normal">{stats.lessonsCount}</span>
+                    </li>
+                    <li className="flex items-center justify-between gap-x-5 py-3 first-of-type:pt-0 last-of-type:pb-0">
+                      <span className="font-semibold text-muted-foreground">Students Enrolled:</span>
+                      <span className="font-normal">{stats.studentsCount}</span>
+                    </li>
+                    <li className="flex items-center justify-between gap-x-5 py-3 first-of-type:pt-0 last-of-type:pb-0">
+                      <span className="font-semibold text-muted-foreground">Rating:</span>
+                      <span className="font-normal inline-flex items-center gap-1">
+                        {[...Array(5)].map((_, i) => (
+                          <Image
+                            key={i}
+                            src={i < stats.rating ? "/assets/img/icons/icon-yellow-star.svg" : "/assets/img/icons/icon-yellow-star-blank.svg"}
+                            alt="star"
+                            width={16}
+                            height={15}
+                          />
+                        ))}
+                        <span className="ml-2">({stats.reviews} reviews)</span>
+                      </span>
+                    </li>
+                    <li className="flex items-center justify-between gap-x-5 py-3 first-of-type:pt-0 last-of-type:pb-0">
+                      <span className="font-semibold text-muted-foreground">Access:</span>
+                      <span className="font-normal">Lifetime</span>
+                    </li>
+                  </ul>
+                </CardContent>
+              </Card>
+
+              {/* Contact Us Sidebar */}
+              <Card>
+                <CardContent className="p-6">
+                  <h3 className="font-semibold text-lg mb-4">Contact Us</h3>
+                  <ul className="flex flex-col gap-y-3">
+                    <li className="inline-flex gap-x-4">
+                      <div className="h-7 w-auto">
+                        <Image
+                          src="/assets/img/icons/icon-purple-phone-ring.svg"
+                          alt="icon-purple-phone-ring"
+                          width={28}
+                          height={28}
+                        />
+                      </div>
+                      <div className="flex-1">
+                        <span className="block text-sm text-muted-foreground">24/7 Support</span>
+                        <a
+                          href="tel:+918123283217"
+                          className="font-semibold text-foreground hover:underline"
+                        >
+                          +91 81232 83217
+                        </a>
+                      </div>
+                    </li>
+                    <li className="inline-flex gap-x-4">
+                      <div className="h-7 w-auto">
+                        <Image
+                          src="/assets/img/icons/icon-purple-mail-open.svg"
+                          alt="icon-purple-mail-open"
+                          width={28}
+                          height={28}
+                        />
+                      </div>
+                      <div className="flex-1">
+                        <span className="block text-sm text-muted-foreground">Send Message</span>
+                        <a
+                          href="mailto:vidyahej999@gmail.com"
+                          className="font-semibold text-foreground hover:underline"
+                        >
+                          vidyahej999@gmail.com
+                        </a>
+                      </div>
+                    </li>
+                    <li className="inline-flex gap-x-4">
+                      <div className="h-7 w-auto">
+                        <Image
+                          src="/assets/img/icons/icon-purple-location.svg"
+                          alt="icon-purple-location"
+                          width={28}
+                          height={28}
+                        />
+                      </div>
+                      <div className="flex-1">
+                        <span className="block text-sm text-muted-foreground">Our Location</span>
+                        <address className="font-semibold not-italic text-foreground">
+                          Bangalore, India
+                        </address>
+                      </div>
+                    </li>
+                  </ul>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
         </>
       ) : (
         <>
@@ -269,31 +444,92 @@ export default async function CourseDetailsPage({ params }: { params: Promise<{ 
                 )}
               </div>
 
-              {/* What You'll Get */}
+              {/* Syllabus Section */}
               <Card>
                 <CardContent className="p-6">
-                  <h3 className="font-bold text-lg mb-4">What You'll Get</h3>
-                  <div className="space-y-3">
-                    {contentTypes.map((ct) => (
-                      <div key={ct.id} className="flex items-center gap-3">
-                        <CheckCircle className="w-5 h-5 text-success flex-shrink-0" />
-                        <div className="flex-1">
-                          <p className="font-medium">{ct.name} Content</p>
-                          {ct.description && (
-                            <p className="text-sm text-muted-foreground">{ct.description}</p>
-                          )}
-                        </div>
-                      </div>
-                    ))}
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="font-bold text-lg">Course Syllabus</h3>
+                    {subject.syllabusPdfUrl && (
+                      <Button variant="outline" size="sm" asChild>
+                        <a
+                          href={subject.syllabusPdfUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-2"
+                        >
+                          <Download className="w-4 h-4" />
+                          Download PDF
+                        </a>
+                      </Button>
+                    )}
                   </div>
+
+                  {syllabusTopics.length === 0 && !subject.additionalCoverage ? (
+                    <p className="text-muted-foreground text-center py-6">
+                      Detailed syllabus information will be available soon.
+                    </p>
+                  ) : (
+                    <div className="space-y-4">
+                      {syllabusTopics.length > 0 && (
+                        <div>
+                          <h4 className="font-semibold mb-3">Topics Covered:</h4>
+                          <div className="max-h-96 overflow-y-auto pr-2">
+                            <ul className="space-y-2">
+                              {syllabusTopics.slice(0, 10).map((topic, index) => (
+                                <li key={index} className="flex items-start gap-3">
+                                  <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary mt-0.5">
+                                    {index + 1}
+                                  </span>
+                                  <span className="flex-1 text-sm">{topic}</span>
+                                </li>
+                              ))}
+                            </ul>
+                            {syllabusTopics.length > 10 && (
+                              <p className="text-sm text-muted-foreground mt-3 italic">
+                                ... and {syllabusTopics.length - 10} more topics. Download the PDF for the complete syllabus.
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      {subject.additionalCoverage && (
+                        <div className="border-t pt-4">
+                          <h4 className="font-semibold mb-3 flex items-center gap-2">
+                            <CheckCircle className="w-5 h-5 text-success" />
+                            Additionally, We Cover:
+                          </h4>
+                          <div className="whitespace-pre-line text-sm text-muted-foreground">
+                            {subject.additionalCoverage}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Why Choose This Course */}
+              <Card>
+                <CardContent className="p-6">
+                  <h3 className="font-bold text-lg mb-4">Why choose this course?</h3>
+                  <ul className="space-y-3">
+                    {whyChoose.map((item, index) => (
+                      <li key={index} className="flex items-center gap-3">
+                        <CheckCircle className="w-5 h-5 text-success flex-shrink-0" />
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
                 </CardContent>
               </Card>
             </div>
 
             {/* Pricing Card */}
-            <div className="lg:col-span-1 space-y-4">
+            <div className="lg:col-span-1">
+              <div className="sticky top-6 space-y-4">
               {subject.isBundleEnabled && subject.bundlePrice && (
-                <Card className="border-2 border-primary sticky top-6 overflow-hidden">
+                <Card className="border-2 border-primary overflow-hidden">
                   {/* Best Value Badge */}
                   <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-4 py-2 text-center">
                     <span className="font-semibold text-sm">⚡ Best Value - Save Money!</span>
@@ -315,16 +551,14 @@ export default async function CourseDetailsPage({ params }: { params: Promise<{ 
 
                     {/* Pricing */}
                     <div className="flex items-baseline gap-3">
-                      <span className="text-4xl font-bold text-blue-600">${subject.bundlePrice}</span>
+                      <span className="text-4xl font-bold text-blue-600">${actualBundlePrice.toFixed(2)}</span>
                       {(() => {
-                        const totalIndividual = contentTypes.reduce((sum, ct) => sum + getContentTypePrice(ct.id), 0);
-                        const bundlePrice = parseFloat(subject.bundlePrice);
-                        const savings = totalIndividual - bundlePrice;
-                        const discountPercent = totalIndividual > 0 ? Math.round((savings / totalIndividual) * 100) : 0;
+                        const savings = totalIndividualPrices - actualBundlePrice;
+                        const discountPercent = totalIndividualPrices > 0 ? Math.round((savings / totalIndividualPrices) * 100) : 0;
 
-                        return totalIndividual > bundlePrice ? (
+                        return totalIndividualPrices > actualBundlePrice ? (
                           <>
-                            <span className="text-lg text-muted-foreground line-through">${totalIndividual.toFixed(2)}</span>
+                            <span className="text-lg text-muted-foreground line-through">${totalIndividualPrices.toFixed(2)}</span>
                             <Badge className="bg-green-500 text-white hover:bg-green-600">
                               {discountPercent}% OFF
                             </Badge>
@@ -354,19 +588,36 @@ export default async function CourseDetailsPage({ params }: { params: Promise<{ 
                       subjectId={subject.id}
                       contentTypeId={null}
                       isBundle={true}
-                      price={parseFloat(subject.bundlePrice || "0")}
+                      price={actualBundlePrice}
                       buttonText="Add Complete Bundle"
                       size="lg"
                       fullWidth={true}
                       className="gradient-primary text-base font-semibold"
                       initialIsAdded={isItemInCart(null, true)}
                     />
+
+                    {/* Go to Cart Button - Shows when any item is in cart */}
+                    {cartItems.some(item => item.subjectId === subject.id) && (
+                      <div className="pt-3 border-t">
+                        <Button
+                          asChild
+                          variant="outline"
+                          size="lg"
+                          className="w-full"
+                        >
+                          <Link href="/learner/cart" className="flex items-center justify-center gap-2">
+                            <ShoppingCart className="w-5 h-5" />
+                            Go to Cart ({cartItems.filter(item => item.subjectId === subject.id).length} {cartItems.filter(item => item.subjectId === subject.id).length === 1 ? 'item' : 'items'})
+                          </Link>
+                        </Button>
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               )}
 
               {/* Individual Purchase Options */}
-              <Card className="sticky top-6">
+              <Card>
                 <CardContent className="p-6 space-y-4">
                   <h3 className="font-semibold text-lg">
                     {subject.isBundleEnabled && subject.bundlePrice
@@ -403,8 +654,26 @@ export default async function CourseDetailsPage({ params }: { params: Promise<{ 
                       );
                     })}
                   </div>
+
+                  {/* Go to Cart Button - Shows when any item is in cart */}
+                  {cartItems.some(item => item.subjectId === subject.id) && (
+                    <div className="pt-3 border-t">
+                      <Button
+                        asChild
+                        variant="default"
+                        size="lg"
+                        className="w-full gradient-primary"
+                      >
+                        <Link href="/learner/cart" className="flex items-center justify-center gap-2">
+                          <ShoppingCart className="w-5 h-5" />
+                          Go to Cart ({cartItems.filter(item => item.subjectId === subject.id).length} {cartItems.filter(item => item.subjectId === subject.id).length === 1 ? 'item' : 'items'})
+                        </Link>
+                      </Button>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
+              </div>
             </div>
           </div>
         </>

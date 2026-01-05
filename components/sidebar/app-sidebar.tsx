@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { GraduationCap, Menu } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -8,6 +8,7 @@ import { SidebarNavItem } from "./nav-item";
 import { UserFooter } from "./user-footer";
 import { learnerNavItems, adminNavItems } from "./config";
 import { Button } from "@/components/ui/button";
+import { getCartItemCount } from "@/lib/actions/cart";
 
 interface AppSidebarProps {
     user: {
@@ -23,6 +24,40 @@ interface AppSidebarProps {
 
 export function AppSidebar({ user, isCollapsed, toggleSidebar, isMobile }: AppSidebarProps) {
     const userRole = user?.role;
+    const [cartCount, setCartCount] = useState<number>(0);
+
+    useEffect(() => {
+        // Only fetch cart count for learners
+        if (userRole === "USER") {
+            const fetchCartCount = async () => {
+                try {
+                    const count = await getCartItemCount();
+                    setCartCount(count);
+                } catch (error) {
+                    console.error("Failed to fetch cart count:", error);
+                }
+            };
+
+            fetchCartCount();
+
+            // Refresh cart count every 10 seconds
+            const interval = setInterval(fetchCartCount, 10000);
+
+            // Also refresh when page becomes visible
+            const handleVisibilityChange = () => {
+                if (document.visibilityState === 'visible') {
+                    fetchCartCount();
+                }
+            };
+
+            document.addEventListener('visibilitychange', handleVisibilityChange);
+
+            return () => {
+                clearInterval(interval);
+                document.removeEventListener('visibilitychange', handleVisibilityChange);
+            };
+        }
+    }, [userRole]);
 
     return (
         <aside
@@ -71,6 +106,7 @@ export function AppSidebar({ user, isCollapsed, toggleSidebar, isMobile }: AppSi
                                 title={item.title}
                                 icon={<item.icon className="w-5 h-5" />}
                                 isCollapsed={isCollapsed}
+                                badge={item.href === "/learner/cart" ? cartCount : undefined}
                             />
                         ))}
                     </>

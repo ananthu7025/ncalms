@@ -10,7 +10,8 @@ export async function createCheckoutSession(
     userId: string;
     cartItemIds: string[];
     [key: string]: string | string[];
-  }
+  },
+  baseUrl?: string
 ): Promise<Stripe.Checkout.Session> {
   // Build metadata object, converting arrays to JSON strings
   const stripeMetadata: Record<string, string> = {};
@@ -23,12 +24,28 @@ export async function createCheckoutSession(
     }
   }
 
+  // Get the base URL from parameter, env variable, or throw error
+  const appUrl = baseUrl || process.env.NEXT_PUBLIC_APP_URL;
+
+  if (!appUrl || appUrl === 'undefined' || appUrl.trim() === '') {
+    throw new Error(
+      'Base URL is required for checkout. Please ensure NEXT_PUBLIC_APP_URL is set in your environment variables or pass baseUrl parameter.'
+    );
+  }
+
+  // Validate URL format
+  try {
+    new URL(appUrl);
+  } catch (error) {
+    throw new Error(`Invalid base URL: ${appUrl}. Must be a valid URL (e.g., https://example.com)`);
+  }
+
   const session = await stripe.checkout.sessions.create({
     mode: "payment",
     payment_method_types: ["card"],
     line_items: lineItems,
-    success_url: `${process.env.NEXT_PUBLIC_APP_URL}/learner/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/learner/cart`,
+    success_url: `${appUrl}/learner/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
+    cancel_url: `${appUrl}/learner/cart`,
     metadata: stripeMetadata,
     allow_promotion_codes: true,
     billing_address_collection: "required",

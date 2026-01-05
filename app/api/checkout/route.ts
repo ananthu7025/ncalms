@@ -174,8 +174,22 @@ export async function POST(request: NextRequest) {
       metadata.discountAmount = totalDiscount.toFixed(2);
     }
 
+    // Get base URL from environment or request headers
+    let baseUrl = process.env.NEXT_PUBLIC_APP_URL;
+
+    // If NEXT_PUBLIC_APP_URL is not set or invalid, construct from request headers
+    if (!baseUrl || baseUrl === 'undefined' || baseUrl.trim() === '') {
+      const host = request.headers.get('host');
+      const protocol = request.headers.get('x-forwarded-proto') ||
+                      (host?.includes('localhost') ? 'http' : 'https');
+
+      if (host) {
+        baseUrl = `${protocol}://${host}`;
+      }
+    }
+
     // Create Stripe checkout session
-    const checkoutSession = await createCheckoutSession(lineItems, metadata);
+    const checkoutSession = await createCheckoutSession(lineItems, metadata, baseUrl);
 
     return NextResponse.json({
       sessionId: checkoutSession.id,
