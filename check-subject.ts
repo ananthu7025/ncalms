@@ -20,20 +20,20 @@ async function check() {
     } else {
         const s = result[0];
 
-        let logContent = `Subject Found:\nTitle: ${s.title}\nSyllabus Topics (Type): ${typeof s.syllabusTopics}\n`;
-        logContent += `Syllabus Topics (Raw Legacy): ${s.syllabusTopics}\n`;
+        let logContent = `Subject Found:\nTitle: ${s.title}\nObjectives (Type): ${typeof s.objectives}\n`;
+        logContent += `Objectives (Raw): ${s.objectives}\n`;
 
         // Try parsing
-        if (s.syllabusTopics) {
+        if (s.objectives) {
             try {
-                const parsed = JSON.parse(s.syllabusTopics);
+                const parsed = JSON.parse(s.objectives);
                 logContent += `JSON Parse Success: ${JSON.stringify(parsed, null, 2)}`;
             } catch (e: any) {
                 logContent += `JSON Parse Error: ${e.message}\n`;
-                logContent += `Parse failed on string: >>${s.syllabusTopics}<<`;
+                logContent += `Parse failed on string: >>${s.objectives}<<`;
             }
         } else {
-            logContent += "Syllabus topics is null/undefined";
+            logContent += "Objectives is null/undefined";
         }
 
         fs.writeFileSync('debug_log.txt', logContent);
