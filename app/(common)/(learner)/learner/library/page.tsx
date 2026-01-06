@@ -206,10 +206,7 @@ export default function MyLibrary() {
       {/* Courses Grid */}
       <div className="grid grid-cols-1 gap-6">
         {filteredCourses.map((course) => {
-          const progress = calculateProgress(course);
-          // Get available content types for this course
           const courseContentTypes = course.contentAccess.map(access => access.contentTypeName);
-
           return (
             <Card
               key={course.id}
@@ -265,7 +262,7 @@ export default function MyLibrary() {
 
                   {/* Tabs for Content Types */}
                   <Tabs defaultValue={courseContentTypes[0]?.toLowerCase() || "content"} className="mt-4">
-                    <TabsList className={`grid grid-cols-${courseContentTypes.length}`}>
+                    <TabsList className="grid w-full" style={{ gridTemplateColumns: `repeat(${courseContentTypes.length}, minmax(0, 1fr))` }}>
                       {courseContentTypes.map((contentType) => {
                         const Icon = getContentTypeIcon(contentType);
                         return (
@@ -287,7 +284,6 @@ export default function MyLibrary() {
                       const colors = getContentTypeColor(contentType);
                       const isVideo = isVideoContentType(contentType);
                       const isDocument = isDocumentContentType(contentType);
-
                       return (
                         <TabsContent key={contentType} value={contentType.toLowerCase()} className="mt-3 space-y-2">
                           {typeContents.length > 0 ? (
@@ -316,46 +312,58 @@ export default function MyLibrary() {
                                     )}
                                   </div>
                                 </div>
-                                {content.fileUrl && (
-                                  <>
-                                    {isVideo && (
-                                      <Button
-                                        size="sm"
-                                        variant="ghost"
-                                        onClick={() =>
-                                          setVideoModal({
-                                            isOpen: true,
-                                            url: content.fileUrl!,
-                                            title: content.title,
-                                          })
-                                        }
-                                      >
-                                        <span className="text-sm">Watch</span>
-                                        <Icon className="w-3 h-3 ml-1" />
-                                      </Button>
-                                    )}
-                                    {isDocument && (
-                                      <Button
-                                        size="sm"
-                                        variant="ghost"
-                                        onClick={() => window.open(content.fileUrl!, "_blank")}
-                                      >
-                                        <span className="text-sm">Open</span>
-                                        <ExternalLink className="w-3 h-3 ml-1" />
-                                      </Button>
-                                    )}
-                                    {!isVideo && !isDocument && (
-                                      <Button
-                                        size="sm"
-                                        variant="ghost"
-                                        onClick={() => window.open(content.fileUrl!, "_blank")}
-                                      >
-                                        <span className="text-sm">View</span>
-                                        <ArrowRight className="w-3 h-3 ml-1" />
-                                      </Button>
-                                    )}
-                                  </>
-                                )}
+{content.fileUrl && (() => {
+                                  // Parse fileUrl - it's stored as JSON string in DB
+                                  let url = "";
+                                  try {
+                                    const parsed = JSON.parse(content.fileUrl);
+                                    url = Array.isArray(parsed) ? parsed[0] : parsed;
+                                  } catch {
+                                    // If parsing fails, use as-is
+                                    url = content.fileUrl;
+                                  }
+
+                                  return (
+                                    <>
+                                      {isVideo && (
+                                        <Button
+                                          size="sm"
+                                          variant="ghost"
+                                          onClick={() =>
+                                            setVideoModal({
+                                              isOpen: true,
+                                              url: url,
+                                              title: content.title,
+                                            })
+                                          }
+                                        >
+                                          <span className="text-sm">Watch</span>
+                                          <Icon className="w-3 h-3 ml-1" />
+                                        </Button>
+                                      )}
+                                      {isDocument && (
+                                        <Button
+                                          size="sm"
+                                          variant="ghost"
+                                          onClick={() => window.open(url, "_blank")}
+                                        >
+                                          <span className="text-sm">Open</span>
+                                          <ExternalLink className="w-3 h-3 ml-1" />
+                                        </Button>
+                                      )}
+                                      {!isVideo && !isDocument && (
+                                        <Button
+                                          size="sm"
+                                          variant="ghost"
+                                          onClick={() => window.open(url, "_blank")}
+                                        >
+                                          <span className="text-sm">View</span>
+                                          <ArrowRight className="w-3 h-3 ml-1" />
+                                        </Button>
+                                      )}
+                                    </>
+                                  );
+                                })()}
                               </div>
                             ))
                           ) : (
