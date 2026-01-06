@@ -24,6 +24,7 @@ import { createSubject, updateSubject } from "@/lib/actions/subjects";
 import InputTextarea from "@/components/InputComponents/InputTextarea";
 import { courseSchema, CourseFormValues } from "@/lib/validations/course";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ContentTypesCard } from "@/components/admin/ContentTypesCard";
 
 interface AddCourseFormProps {
   initialData?: any;
@@ -533,17 +534,7 @@ export function AddCourseClient({
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Course Content</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground mb-4">
-                After creating the course, manage content from the Content
-                Management page.
-              </p>
-            </CardContent>
-          </Card>
+          <ContentTypesCard />
         </div>
       </div>
     </div>
