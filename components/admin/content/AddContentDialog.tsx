@@ -42,7 +42,6 @@ const contentSchema = z.object({
   contentTypeId: z.string().min(1, "Content type is required"),
   fileUrl: z.union([z.string(), z.array(z.string())]).optional(),
   duration: z.string(),
-  price: z.string().min(1, "Price is required"),
   sortOrder: z.number(),
   isActive: z.boolean(),
 });
@@ -72,7 +71,6 @@ export function AddContentDialog({
       contentTypeId: "",
       fileUrl: "",
       duration: "",
-      price: "0",
       sortOrder: 0,
       isActive: true,
     },
@@ -177,14 +175,10 @@ export function AddContentDialog({
         ? JSON.stringify(data.fileUrl)
         : data.fileUrl;
 
-      // Ensure price is a valid string number
-      const priceValue = data.price && data.price.trim() !== "" ? data.price : "0";
-
       const result = await createSubjectContent({
         subjectId: selectedSubjectId,
         ...data,
         fileUrl: fileUrlData,
-        price: priceValue,
         duration: data.duration ? parseInt(data.duration) : null,
       });
 
@@ -263,25 +257,14 @@ const isPdfContent =
             rows={3}
           />
 
-          <div className="grid grid-cols-2 gap-4">
-            <InputSelect
-              hookForm={hookForm}
-              field="contentTypeId"
-              label="Content Type"
-              labelMandatory
-              options={contentTypeOptions}
-              placeholder="Select type"
-            />
-
-            <InputText
-              hookForm={hookForm}
-              field="price"
-              label="Price ($)"
-              labelMandatory
-              placeholder="19.99"
-              type="text"
-            />
-          </div>
+          <InputSelect
+            hookForm={hookForm}
+            field="contentTypeId"
+            label="Content Type"
+            labelMandatory
+            options={contentTypeOptions}
+            placeholder="Select type"
+          />
 
           <div className="grid grid-cols-2 gap-4">
             <InputText

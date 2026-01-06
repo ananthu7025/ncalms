@@ -92,7 +92,6 @@ export const createSubjectContentSchema = z.object({
   description: z.string().optional().nullable(),
   fileUrl: z.string().optional().nullable(), // Accept JSON string or single URL
   duration: z.number().int().positive().optional().nullable(),
-  price: z.string().regex(/^\d+(\.\d{1,2})?$/, "Invalid price format").default("0"),
   sortOrder: z.number().int().default(0),
   isActive: z.boolean().default(true),
 });
@@ -105,7 +104,6 @@ export const updateSubjectContentSchema = z.object({
   description: z.string().optional().nullable(),
   fileUrl: z.string().optional().nullable(), // Accept JSON string or single URL
   duration: z.number().int().positive().optional().nullable(),
-  price: z.string().regex(/^\d+(\.\d{1,2})?$/, "Invalid price format"),
   sortOrder: z.number().int(),
   isActive: z.boolean(),
 });

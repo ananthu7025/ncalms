@@ -40,7 +40,7 @@ const CourseDetailPage = async ({ params }: CourseDetailPageProps) => {
     notFound();
   }
 
-  const { subject, stream, examType, stats, contentTypes, contents } = result.data;
+  const { subject, stream, examType, stats, contentTypes, contents, pricing } = result.data;
   const bundlePrice = subject.bundlePrice ? parseFloat(subject.bundlePrice) : 0;
   const embedUrl = subject.demoVideoUrl ? getEmbedUrl(subject.demoVideoUrl) : null;
 
@@ -73,12 +73,14 @@ const CourseDetailPage = async ({ params }: CourseDetailPageProps) => {
     return acc;
   }, {} as Record<string, typeof contents[0]['content'][]>);
 
-  // Calculate total price for each content type by summing individual content prices
+  // Create pricing map for quick lookup
+  const pricingMap = new Map(
+    pricing.map((p) => [p.contentTypeId, parseFloat(p.price || "0")])
+  );
+
+  // Get price for a content type from the pricing table
   const getContentTypePrice = (contentTypeId: string): number => {
-    const typeContents = contentsByType[contentTypeId] || [];
-    return typeContents.reduce((sum, content) => {
-      return sum + parseFloat(content.price || "0");
-    }, 0);
+    return pricingMap.get(contentTypeId) || 0;
   };
 
   // Calculate total price if buying individually vs bundle

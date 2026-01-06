@@ -37,7 +37,9 @@
       "Bash(del \"components\\sidebar\\index.tsx\")",
       "Bash(del:*)",
       "Bash(test:*)",
-      "Bash(timeout 5 npx drizzle-kit:*)"
+      "Bash(timeout 5 npx drizzle-kit:*)",
+      "Bash(npm run db:reset:*)",
+      "Bash(tsx apply-migration.ts:*)"
     ],
     "deny": [],
     "ask": []

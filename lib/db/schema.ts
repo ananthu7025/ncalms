@@ -127,6 +127,32 @@ export const contentTypes = pgTable("content_types", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+// Subject content type pricing table - defines prices for each content type per subject
+export const subjectContentTypePricing = pgTable(
+  "subject_content_type_pricing",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    subjectId: uuid("subject_id")
+      .notNull()
+      .references(() => subjects.id, { onDelete: "cascade" }),
+    contentTypeId: uuid("content_type_id")
+      .notNull()
+      .references(() => contentTypes.id, { onDelete: "cascade" }),
+    price: decimal("price", { precision: 10, scale: 2 }).notNull().default("0"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => ({
+    subjectIdIdx: index("subject_content_type_pricing_subject_id_idx").on(table.subjectId),
+    contentTypeIdIdx: index("subject_content_type_pricing_content_type_id_idx").on(table.contentTypeId),
+    // Ensure unique pricing per subject per content type
+    uniquePricing: unique("unique_subject_content_type_pricing").on(
+      table.subjectId,
+      table.contentTypeId
+    ),
+  })
+);
+
 // Subject contents table - stores actual course content (PDFs, Videos, Question Bank) for subjects
 export const subjectContents = pgTable(
   "subject_contents",
@@ -142,7 +168,6 @@ export const subjectContents = pgTable(
     description: text("description"),
     fileUrl: text("file_url"), // Stores JSON array of file URLs
     duration: integer("duration"), // Duration in minutes for videos
-    price: decimal("price", { precision: 10, scale: 2 }).notNull().default("0"),
     sortOrder: integer("sort_order").default(0).notNull(),
     isActive: boolean("is_active").default(true).notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -357,6 +382,7 @@ export const subjectsRelations = relations(subjects, ({ one, many }) => ({
   userAccess: many(userAccess),
   cart: many(cart),
   offers: many(offers),
+  subjectContentTypePricing: many(subjectContentTypePricing),
 }));
 
 export const contentTypesRelations = relations(contentTypes, ({ many }) => ({
@@ -365,6 +391,18 @@ export const contentTypesRelations = relations(contentTypes, ({ many }) => ({
   purchases: many(purchases),
   cart: many(cart),
   offers: many(offers),
+  subjectContentTypePricing: many(subjectContentTypePricing),
+}));
+
+export const subjectContentTypePricingRelations = relations(subjectContentTypePricing, ({ one }) => ({
+  subject: one(subjects, {
+    fields: [subjectContentTypePricing.subjectId],
+    references: [subjects.id],
+  }),
+  contentType: one(contentTypes, {
+    fields: [subjectContentTypePricing.contentTypeId],
+    references: [contentTypes.id],
+  }),
 }));
 
 export const subjectContentsRelations = relations(subjectContents, ({ one }) => ({
@@ -612,3 +650,6 @@ export type NewSupportTicketMessage = typeof supportTicketMessages.$inferInsert;
 
 export type BlogPost = typeof blogPosts.$inferSelect;
 export type NewBlogPost = typeof blogPosts.$inferInsert;
+
+export type SubjectContentTypePricing = typeof subjectContentTypePricing.$inferSelect;
+export type NewSubjectContentTypePricing = typeof subjectContentTypePricing.$inferInsert;

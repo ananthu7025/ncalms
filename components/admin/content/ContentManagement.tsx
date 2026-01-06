@@ -35,7 +35,6 @@ interface Content {
   content: {
     id: string;
     title: string;
-    price: string;
     duration: number | null;
     isActive: boolean;
     fileUrl: string | null;
@@ -267,7 +266,7 @@ export function ContentManagement({
                             {item.content.title}
                           </p>
                           <p className="text-sm text-muted-foreground">
-                            {item.contentType?.name} • ${item.content.price}
+                            {item.contentType?.name}
                             {item.content.duration &&
                               ` • ${item.content.duration} min`}
                             {item.content.fileUrl && getFileCount(item.content.fileUrl) > 0 && (

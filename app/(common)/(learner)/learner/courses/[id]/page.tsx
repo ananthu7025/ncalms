@@ -49,7 +49,7 @@ export default async function CourseDetailsPage({ params }: { params: Promise<{ 
     );
   }
 
-  const { subject, stream, examType, contentTypes, contents, accessMap, hasBundleAccess, stats } = result.data;
+  const { subject, stream, examType, contentTypes, contents, accessMap, hasBundleAccess, stats, pricing } = result.data;
   // Check if user has any access
   const hasAnyAccess = accessMap.size > 0;
 
@@ -98,12 +98,14 @@ export default async function CourseDetailsPage({ params }: { params: Promise<{ 
     return acc;
   }, {} as Record<string, typeof contents[0]['content'][]>);
 
-  // Calculate total price for each content type by summing individual content prices
+  // Create pricing map for quick lookup
+  const pricingMap = new Map(
+    pricing.map((p) => [p.contentTypeId, parseFloat(p.price || "0")])
+  );
+
+  // Get price for a content type from the pricing table
   const getContentTypePrice = (contentTypeId: string): number => {
-    const typeContents = contentsByType[contentTypeId] || [];
-    return typeContents.reduce((sum, content) => {
-      return sum + parseFloat(content.price || "0");
-    }, 0);
+    return pricingMap.get(contentTypeId) || 0;
   };
 
   // Calculate total price of all individual content types

@@ -464,50 +464,46 @@ async function seed() {
     const subjectContentsData = [];
 
     for (const subject of subjects) {
-      // VIDEO content - $150
+      // VIDEO content
       subjectContentsData.push({
         subjectId: subject.id,
         contentTypeId: videoType.id,
         title: "Video Lectures",
         description: `Complete video lecture series for ${subject.title}`,
         fileUrl: null,
-        price: "150.00",
         sortOrder: 1,
         isActive: true,
       });
 
-      // PDF content - $70
+      // PDF content
       subjectContentsData.push({
         subjectId: subject.id,
         contentTypeId: pdfType.id,
         title: "Notes",
         description: `Comprehensive study notes for ${subject.title}`,
         fileUrl: null,
-        price: "70.00",
         sortOrder: 2,
         isActive: true,
       });
 
-      // Question Bank content - $80
+      // Question Bank content
       subjectContentsData.push({
         subjectId: subject.id,
         contentTypeId: questionBankType.id,
         title: "Q&A Set",
         description: `Questions and Answers Set for ${subject.title}`,
         fileUrl: null,
-        price: "80.00",
         sortOrder: 3,
         isActive: true,
       });
 
-      // IRACs content - $80
+      // IRACs content
       subjectContentsData.push({
         subjectId: subject.id,
         contentTypeId: iracsType.id,
         title: "IRACs / Essay Answer Structures",
         description: `Essay Answer Structures for ${subject.title}`,
         fileUrl: null,
-        price: "80.00",
         sortOrder: 4,
         isActive: true,
       });
@@ -518,6 +514,49 @@ async function seed() {
       .onConflictDoNothing();
 
     console.log(`Subject content items ready (${subjectContentsData.length} items created)`);
+
+    // ==========================
+    // Subject Content Type Pricing
+    // ==========================
+    console.log("Creating subject content type pricing...");
+
+    const pricingData = [];
+
+    for (const subject of subjects) {
+      // VIDEO content - $150
+      pricingData.push({
+        subjectId: subject.id,
+        contentTypeId: videoType.id,
+        price: "150.00",
+      });
+
+      // PDF content - $70
+      pricingData.push({
+        subjectId: subject.id,
+        contentTypeId: pdfType.id,
+        price: "70.00",
+      });
+
+      // Question Bank content - $80
+      pricingData.push({
+        subjectId: subject.id,
+        contentTypeId: questionBankType.id,
+        price: "80.00",
+      });
+
+      // IRACs content - $80
+      pricingData.push({
+        subjectId: subject.id,
+        contentTypeId: iracsType.id,
+        price: "80.00",
+      });
+    }
+
+    await db.insert(schema.subjectContentTypePricing)
+      .values(pricingData)
+      .onConflictDoNothing();
+
+    console.log(`Subject content type pricing ready (${pricingData.length} pricing entries created)`);
 
     console.log("\n🎉 Database seeded successfully!");
     console.log("\nTest users:");

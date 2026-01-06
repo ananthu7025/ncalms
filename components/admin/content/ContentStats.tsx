@@ -10,7 +10,6 @@ interface Content {
   content: {
     id: string;
     title: string;
-    price: string;
     duration: number | null;
     isActive: boolean;
   };

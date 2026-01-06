@@ -599,7 +599,7 @@ export async function getSubjectByIdWithStats(id: string) {
       .from(schema.contentTypes)
       .orderBy(schema.contentTypes.name);
 
-    // Get contents with their prices grouped by content type for pricing calculation
+    // Get contents with their content types
     const contentsWithTypes = await db
       .select({
         content: schema.subjectContents,
@@ -614,6 +614,17 @@ export async function getSubjectByIdWithStats(id: string) {
         )
       )
       .orderBy(schema.subjectContents.sortOrder);
+
+    // Get pricing for all content types for this subject
+    const pricing = await db
+      .select({
+        contentTypeId: schema.subjectContentTypePricing.contentTypeId,
+        price: schema.subjectContentTypePricing.price,
+        contentTypeName: schema.contentTypes.name,
+      })
+      .from(schema.subjectContentTypePricing)
+      .leftJoin(schema.contentTypes, eq(schema.subjectContentTypePricing.contentTypeId, schema.contentTypes.id))
+      .where(eq(schema.subjectContentTypePricing.subjectId, id));
 
     console.log("DEBUG: getSubjectByIdWithStats returning", {
       id: result.subject.id,
@@ -633,6 +644,7 @@ export async function getSubjectByIdWithStats(id: string) {
         },
         contentTypes,
         contents: contentsWithTypes,
+        pricing, // Pricing for each content type
       },
     };
   } catch (error) {
@@ -721,6 +733,17 @@ export async function getSubjectForLearner(subjectId: string, userId: string) {
       .where(eq(schema.userAccess.subjectId, subjectId))
       .groupBy(schema.userAccess.userId);
 
+    // Get pricing for all content types for this subject
+    const pricing = await db
+      .select({
+        contentTypeId: schema.subjectContentTypePricing.contentTypeId,
+        price: schema.subjectContentTypePricing.price,
+        contentTypeName: schema.contentTypes.name,
+      })
+      .from(schema.subjectContentTypePricing)
+      .leftJoin(schema.contentTypes, eq(schema.subjectContentTypePricing.contentTypeId, schema.contentTypes.id))
+      .where(eq(schema.subjectContentTypePricing.subjectId, subjectId));
+
     return {
       success: true,
       data: {
@@ -730,6 +753,7 @@ export async function getSubjectForLearner(subjectId: string, userId: string) {
         contents,
         hasBundleAccess,
         accessMap,
+        pricing, // Pricing for each content type
         stats: {
           lessonsCount: contents.length,
           studentsCount: enrollments.length,

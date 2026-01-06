@@ -215,7 +215,6 @@ export async function createSubjectContent(data: CreateSubjectContentInput) {
         description: validatedData.description || null,
         fileUrl: validatedData.fileUrl || null,
         duration: validatedData.duration || null,
-        price: validatedData.price,
         sortOrder: validatedData.sortOrder,
         isActive: validatedData.isActive,
       })
@@ -311,7 +310,6 @@ export async function updateSubjectContent(data: UpdateSubjectContentInput) {
         description: validatedData.description || null,
         fileUrl: validatedData.fileUrl || null,
         duration: validatedData.duration || null,
-        price: validatedData.price,
         sortOrder: validatedData.sortOrder,
         isActive: validatedData.isActive,
         updatedAt: new Date(),

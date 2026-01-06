@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unescaped-entities */
 import { Suspense } from "react";
 import Link from "next/link";
 import { CheckCircle, AlertCircle } from "lucide-react";
