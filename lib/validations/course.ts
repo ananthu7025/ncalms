@@ -12,6 +12,8 @@ export const courseSchema = yup.object().shape({
         otherwise: (schema) => schema.optional(),
     }),
     isBundleEnabled: yup.boolean().default(false),
+    isFeatured: yup.boolean().default(false),
+    isMandatory: yup.boolean().default(false),
     isActive: yup.boolean().default(true),
     thumbnail: yup.string().optional(),
     syllabusPdfUrl: yup.string().transform((curr, orig) => orig === "" ? null : curr).url("Must be a valid URL").nullable().optional(),

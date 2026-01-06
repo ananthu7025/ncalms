@@ -19,6 +19,8 @@ interface CourseCardProps {
   examTypeName?: string | null;
   bundlePrice?: string | null;
   isBundleEnabled?: boolean;
+  isFeatured?: boolean;
+  isMandatory?: boolean;
   isActive?: boolean;
   href: string;
   showInactiveBadge?: boolean;
@@ -34,6 +36,8 @@ export function CourseCard({
   examTypeName,
   bundlePrice,
   isBundleEnabled,
+  isFeatured = false,
+  isMandatory = false,
   isActive = true,
   href,
   showInactiveBadge = false,
@@ -101,11 +105,23 @@ export function CourseCard({
             )}
 
             {/* Status Badges */}
-            {showInactiveBadge && !isActive && (
-              <Badge className="absolute top-3 left-3 bg-gray-800 text-white shadow-md">
-                Inactive
-              </Badge>
-            )}
+            <div className="absolute top-3 left-3 flex gap-2">
+              {showInactiveBadge && !isActive && (
+                <Badge className="bg-gray-800 text-white shadow-md">
+                  Inactive
+                </Badge>
+              )}
+              {isFeatured && (
+                <Badge className="bg-yellow-500 hover:bg-yellow-600 text-white shadow-md font-semibold">
+                  Featured
+                </Badge>
+              )}
+              {isMandatory && (
+                <Badge className="bg-red-500 hover:bg-red-600 text-white shadow-md font-semibold">
+                  Mandatory
+                </Badge>
+              )}
+            </div>
 
             {isBundleEnabled && bundlePrice && (
               <Badge className="absolute top-3 right-3 bg-teal-500 hover:bg-teal-600 text-white shadow-md font-semibold">

@@ -11,6 +11,8 @@ interface CourseCardImageProps {
   courseId: string;
   streamName: string;
   videoUrl?: string | null;
+  isFeatured?: boolean;
+  isMandatory?: boolean;
 }
 
 export default function CourseCardImage({
@@ -19,6 +21,8 @@ export default function CourseCardImage({
   courseId,
   streamName,
   videoUrl,
+  isFeatured = false,
+  isMandatory = false,
 }: CourseCardImageProps) {
   const [isVideoOpen, setIsVideoOpen] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
@@ -46,13 +50,25 @@ export default function CourseCardImage({
           className="h-full w-full object-cover transition-all duration-300 group-hover:scale-105"
         />
 
-        {/* Stream Badge */}
-        <Link
-          href={`/courses/${courseId}`}
-          className="absolute left-3 top-3 inline-block rounded-[40px] bg-colorBrightGold px-3.5 py-1.5 text-sm leading-none text-colorBlackPearl hover:bg-colorBlackPearl hover:text-colorBrightGold z-10"
-        >
-          {streamName}
-        </Link>
+        {/* Badges */}
+        <div className="absolute left-3 top-3 flex gap-2 z-10">
+          <Link
+            href={`/courses/${courseId}`}
+            className="inline-block rounded-[40px] bg-colorBrightGold px-3.5 py-1.5 text-sm leading-none text-colorBlackPearl hover:bg-colorBlackPearl hover:text-colorBrightGold"
+          >
+            {streamName}
+          </Link>
+          {isFeatured && (
+            <span className="inline-block rounded-[40px] bg-yellow-500 px-3.5 py-1.5 text-sm leading-none text-white font-semibold">
+              Featured
+            </span>
+          )}
+          {isMandatory && (
+            <span className="inline-block rounded-[40px] bg-red-500 px-3.5 py-1.5 text-sm leading-none text-white font-semibold">
+              Mandatory
+            </span>
+          )}
+        </div>
 
         {/* Play Button Overlay - Only show if video exists */}
         {videoUrl && (

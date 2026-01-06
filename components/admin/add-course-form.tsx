@@ -58,6 +58,8 @@ export function AddCourseClient({
       demoVideoUrl: initialData?.demoVideoUrl || "",
       bundlePrice: initialData?.bundlePrice || "",
       isBundleEnabled: initialData?.isBundleEnabled || false,
+      isFeatured: initialData?.isFeatured || false,
+      isMandatory: initialData?.isMandatory || false,
       isActive: initialData?.isActive || true,
       thumbnail: initialData?.thumbnail || "",
       syllabusPdfUrl: initialData?.syllabusPdfUrl || "",
@@ -74,6 +76,8 @@ export function AddCourseClient({
   } = hookForm;
   const streamId = watch("streamId");
   const isBundleEnabled = watch("isBundleEnabled");
+  const isFeatured = watch("isFeatured");
+  const isMandatory = watch("isMandatory");
   const isActive = watch("isActive");
 
   // Fetch exam types when stream changes
@@ -397,6 +401,7 @@ export function AddCourseClient({
                   id="syllabus"
                   type="file"
                   accept="application/pdf"
+                  style={{cursor:"pointer"}}
                   onChange={(e) => {
                     const file = e.target.files?.[0];
                     if (file) {
@@ -412,7 +417,7 @@ export function AddCourseClient({
                     }
                   }}
                 />
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-muted-foreground" style={{cursor:"pointer"}}>
                   {syllabusFile
                     ? `Selected: ${syllabusFile.name}`
                     : "Upload a new PDF to replace the current one (if any)"}
@@ -484,16 +489,46 @@ export function AddCourseClient({
             <CardContent className="space-y-4">
               <InputSwitch
                 hookForm={hookForm}
-                field="isActive"
-                label="Published"
-                description="Make course visible"
+                field="isFeatured"
+                label="Featured"
+                description="Mark as featured course"
               />
 
               <div className="pt-4 border-t border-border">
+                <InputSwitch
+                  hookForm={hookForm}
+                  field="isMandatory"
+                  label="Mandatory"
+                  description="Mark as mandatory course"
+                />
+              </div>
+
+              <div className="pt-4 border-t border-border">
+                <InputSwitch
+                  hookForm={hookForm}
+                  field="isActive"
+                  label="Published"
+                  description="Make course visible"
+                />
+              </div>
+
+              <div className="pt-4 border-t border-border">
                 <p className="text-sm font-medium mb-2">Current Status</p>
-                <Badge variant={isActive ? "default" : "secondary"}>
-                  {isActive ? "Published" : "Draft"}
-                </Badge>
+                <div className="flex flex-wrap gap-2">
+                  <Badge variant={isActive ? "default" : "secondary"}>
+                    {isActive ? "Published" : "Draft"}
+                  </Badge>
+                  {isFeatured && (
+                    <Badge variant="default" className="bg-yellow-500 hover:bg-yellow-600">
+                      Featured
+                    </Badge>
+                  )}
+                  {isMandatory && (
+                    <Badge variant="default" className="bg-red-500 hover:bg-red-600">
+                      Mandatory
+                    </Badge>
+                  )}
+                </div>
               </div>
             </CardContent>
           </Card>

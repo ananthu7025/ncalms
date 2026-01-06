@@ -18,6 +18,8 @@ type SubjectWithRelations = {
     demoVideoUrl: string | null;
     bundlePrice: string | null;
     isBundleEnabled: boolean;
+    isFeatured: boolean;
+    isMandatory: boolean;
   };
   stream: { name: string } | null;
   examType: { name: string } | null;
@@ -180,6 +182,8 @@ export default function AllCoursesPage() {
               examTypeName={item.examType?.name}
               bundlePrice={item.subject.bundlePrice}
               isBundleEnabled={item.subject.isBundleEnabled}
+              isFeatured={item.subject.isFeatured}
+              isMandatory={item.subject.isMandatory}
               href={`/learner/courses/${item.subject.id}`}
             />
           ))}

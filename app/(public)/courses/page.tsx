@@ -112,6 +112,8 @@ const CoursePage = async ({ searchParams }: CoursePageProps) => {
                               courseId={subject.id}
                               streamName={stream?.name || "Course"}
                               videoUrl={embedUrl}
+                              isFeatured={subject.isFeatured}
+                              isMandatory={subject.isMandatory}
                             />
 
                             {/* Content */}

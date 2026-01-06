@@ -59,6 +59,8 @@ async function CoursesListContent() {
           examTypeName={subject.examType?.name}
           bundlePrice={subject.bundlePrice}
           isBundleEnabled={subject.isBundleEnabled}
+          isFeatured={subject.isFeatured}
+          isMandatory={subject.isMandatory}
           isActive={subject.isActive}
           href={`/admin/content/${subject.id}`}
           showInactiveBadge={true}

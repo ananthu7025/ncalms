@@ -106,6 +106,8 @@ export const subjects = pgTable(
       .references(() => examTypes.id, { onDelete: "restrict" }), // Optional: only for streams with exam types
     bundlePrice: decimal("bundle_price", { precision: 10, scale: 2 }), // Price for purchasing all content types together
     isBundleEnabled: boolean("is_bundle_enabled").default(false).notNull(), // Whether bundle purchase is available
+    isFeatured: boolean("is_featured").default(false).notNull(), // Whether course is featured
+    isMandatory: boolean("is_mandatory").default(false).notNull(), // Whether course is mandatory
     isActive: boolean("is_active").default(true).notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
