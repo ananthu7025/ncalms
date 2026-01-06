@@ -15,7 +15,7 @@ export const courseSchema = yup.object().shape({
     isActive: yup.boolean().default(true),
     thumbnail: yup.string().optional(),
     syllabusPdfUrl: yup.string().transform((curr, orig) => orig === "" ? null : curr).url("Must be a valid URL").nullable().optional(),
-    syllabusTopics: yup.string().optional(),
+    objectives: yup.string().optional(),
     additionalCoverage: yup.string().optional(),
 });
 

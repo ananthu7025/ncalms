@@ -213,7 +213,7 @@ export async function createSubject(data: CreateSubjectInput) {
         isBundleEnabled: validatedData.isBundleEnabled,
         isActive: validatedData.isActive,
         syllabusPdfUrl: validatedData.syllabusPdfUrl || null,
-        syllabusTopics: validatedData.syllabusTopics || null,
+        objectives: validatedData.objectives || null,
         additionalCoverage: validatedData.additionalCoverage || null,
       })
       .returning();
@@ -321,7 +321,7 @@ export async function updateSubject(data: UpdateSubjectInput) {
         isBundleEnabled: validatedData.isBundleEnabled,
         isActive: validatedData.isActive,
         syllabusPdfUrl: validatedData.syllabusPdfUrl || null,
-        syllabusTopics: validatedData.syllabusTopics || null,
+        objectives: validatedData.objectives || null,
         additionalCoverage: validatedData.additionalCoverage || null,
         updatedAt: new Date(),
       })
@@ -613,8 +613,8 @@ export async function getSubjectByIdWithStats(id: string) {
 
     console.log("DEBUG: getSubjectByIdWithStats returning", {
       id: result.subject.id,
-      topicsType: typeof result.subject.syllabusTopics,
-      topicsVal: result.subject.syllabusTopics
+      objectivesType: typeof result.subject.objectives,
+      objectivesVal: result.subject.objectives
     });
 
     return {

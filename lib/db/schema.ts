@@ -97,7 +97,7 @@ export const subjects = pgTable(
     thumbnail: varchar("thumbnail", { length: 500 }),
     demoVideoUrl: varchar("demo_video_url", { length: 500 }),
     syllabusPdfUrl: varchar("syllabus_pdf_url", { length: 500 }), // URL to syllabus PDF
-    syllabusTopics: text("syllabus_topics"), // JSON array of syllabus topics/contents
+    objectives: text("objectives"), // JSON array of course objectives
     additionalCoverage: text("additional_coverage"), // Additional topics covered beyond main syllabus
     streamId: uuid("stream_id")
       .notNull()

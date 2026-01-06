@@ -2,8 +2,8 @@
 
 import auth from "@/auth";
 import { db } from "@/lib/db";
-import { cart, subjects, contentTypes, userAccess, offers } from "@/lib/db/schema";
-import { eq, and, gte, lte } from "drizzle-orm";
+import { cart, subjects, contentTypes, userAccess, offers, subjectContents } from "@/lib/db/schema";
+import { eq, and } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
 export type CartItem = {
@@ -451,4 +451,221 @@ export async function getCartTotalWithDiscount(offerCode?: string): Promise<{
     discount,
     total: Math.max(0, subtotal - discount),
   };
+}
+
+export type BundleOpportunity = {
+  subjectId: string;
+  subjectTitle: string;
+  subjectThumbnail: string | null;
+  bundlePrice: number;
+  currentIndividualTotal: number;
+  savings: number;
+  cartItemIds: string[];
+  contentTypeIds: string[];
+  availableContentTypeIds: string[];
+};
+
+/**
+ * Detect if user has all individual content types in cart for any subject,
+ * making them eligible for the complete bundle instead
+ */
+export async function detectBundleOpportunities(): Promise<BundleOpportunity[]> {
+  try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return [];
+    }
+
+    // Get all cart items for the user (non-bundle items only)
+    const cartItems = await db
+      .select({
+        id: cart.id,
+        subjectId: cart.subjectId,
+        contentTypeId: cart.contentTypeId,
+        price: cart.price,
+        subjectTitle: subjects.title,
+        subjectThumbnail: subjects.thumbnail,
+        bundlePrice: subjects.bundlePrice,
+        isBundleEnabled: subjects.isBundleEnabled,
+      })
+      .from(cart)
+      .innerJoin(subjects, eq(cart.subjectId, subjects.id))
+      .where(
+        and(
+          eq(cart.userId, session.user.id),
+          eq(cart.isBundle, false)
+        )
+      );
+
+    if (cartItems.length === 0) {
+      return [];
+    }
+
+    // Get unique subject IDs from cart
+    const subjectIds = [...new Set(cartItems.map(item => item.subjectId))];
+
+    // Get all available content types for these subjects in one query
+    const allAvailableContents = await db
+      .select({
+        subjectId: subjectContents.subjectId,
+        contentTypeId: subjectContents.contentTypeId,
+      })
+      .from(subjectContents)
+      .where(
+        and(
+          eq(subjectContents.isActive, true)
+        )
+      );
+
+    // Group by subject
+    const contentTypesBySubject = new Map<string, Set<string>>();
+    for (const content of allAvailableContents) {
+      if (!contentTypesBySubject.has(content.subjectId)) {
+        contentTypesBySubject.set(content.subjectId, new Set());
+      }
+      contentTypesBySubject.get(content.subjectId)!.add(content.contentTypeId);
+    }
+
+    // Group cart items by subject
+    const itemsBySubject = new Map<string, typeof cartItems>();
+    for (const item of cartItems) {
+      if (!itemsBySubject.has(item.subjectId)) {
+        itemsBySubject.set(item.subjectId, []);
+      }
+      itemsBySubject.get(item.subjectId)!.push(item);
+    }
+
+    const opportunities: BundleOpportunity[] = [];
+
+    // Check each subject for bundle opportunities
+    for (const [subjectId, items] of itemsBySubject.entries()) {
+      const firstItem = items[0];
+
+      // Skip if bundle not enabled or no bundle price
+      if (!firstItem.isBundleEnabled || !firstItem.bundlePrice) {
+        continue;
+      }
+
+      const availableContentTypeIds = Array.from(contentTypesBySubject.get(subjectId) || []);
+
+      if (availableContentTypeIds.length === 0) continue;
+
+      // Get content type IDs in cart for this subject
+      const cartContentTypeIds = items
+        .filter(item => item.contentTypeId)
+        .map(item => item.contentTypeId!);
+
+      // Check if user has all available content types in cart
+      const hasAllContentTypes = availableContentTypeIds.every(ctId =>
+        cartContentTypeIds.includes(ctId)
+      );
+
+      if (!hasAllContentTypes) continue;
+
+      const bundlePrice = parseFloat(firstItem.bundlePrice);
+      const currentTotal = items.reduce((sum, item) => sum + parseFloat(item.price || "0"), 0);
+      const savings = currentTotal - bundlePrice;
+
+      // Only suggest if there are actual savings
+      if (savings > 0) {
+        opportunities.push({
+          subjectId,
+          subjectTitle: firstItem.subjectTitle || "Unknown Subject",
+          subjectThumbnail: firstItem.subjectThumbnail,
+          bundlePrice,
+          currentIndividualTotal: currentTotal,
+          savings,
+          cartItemIds: items.map(item => item.id),
+          contentTypeIds: cartContentTypeIds,
+          availableContentTypeIds,
+        });
+      }
+    }
+
+    return opportunities;
+  } catch (error) {
+    console.error("Error detecting bundle opportunities:", error);
+    return [];
+  }
+}
+
+/**
+ * Swap individual content type items with the complete bundle
+ */
+export async function swapWithBundle(
+  subjectId: string
+): Promise<{ success: boolean; message: string }> {
+  try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return { success: false, message: "Unauthorized" };
+    }
+
+    // Get subject details
+    const [subject] = await db
+      .select({
+        id: subjects.id,
+        title: subjects.title,
+        bundlePrice: subjects.bundlePrice,
+        isBundleEnabled: subjects.isBundleEnabled,
+      })
+      .from(subjects)
+      .where(eq(subjects.id, subjectId))
+      .limit(1);
+
+    if (!subject || !subject.isBundleEnabled || !subject.bundlePrice) {
+      return {
+        success: false,
+        message: "Bundle is not available for this subject",
+      };
+    }
+
+    // Check if user already has bundle in cart
+    const existingBundle = await db
+      .select()
+      .from(cart)
+      .where(
+        and(
+          eq(cart.userId, session.user.id),
+          eq(cart.subjectId, subjectId),
+          eq(cart.isBundle, true)
+        )
+      );
+
+    if (existingBundle.length > 0) {
+      return {
+        success: false,
+        message: "Bundle is already in your cart",
+      };
+    }
+
+    // Remove all individual items for this subject
+    await db
+      .delete(cart)
+      .where(
+        and(
+          eq(cart.userId, session.user.id),
+          eq(cart.subjectId, subjectId),
+          eq(cart.isBundle, false)
+        )
+      );
+
+    // Add bundle to cart
+    await db.insert(cart).values({
+      userId: session.user.id,
+      subjectId,
+      contentTypeId: null,
+      isBundle: true,
+      price: subject.bundlePrice,
+    });
+
+    revalidatePath("/learner/cart");
+    return {
+      success: true,
+      message: `Switched to ${subject.title} complete bundle! You're saving money.`,
+    };
+  } catch (error) {
+    console.error("Error swapping with bundle:", error);
+    return { success: false, message: "Failed to swap with bundle" };
+  }
 }

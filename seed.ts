@@ -137,21 +137,16 @@ async function seed() {
         isActive: true,
         bundle_price: "300.00",
         is_bundle_enabled: true,
-        syllabusTopics: JSON.stringify([
-          "A. The Legal Profession",
-          "1. Professions and Professionalism",
-          "2. Regulation of Lawyers and Regulation of the Legal Profession",
-          "B. Ethics, Lawyering and Professional Regulation",
-          "1. The Lawyer-Client Relationship",
-          "2. The Preservation of Client Confidences",
-          "3. Conflicts of Interest",
-          "4. The Adversary System and Lawyers as Advocates",
-          "C. Some Specific Practice Areas",
-          "1. Ethics and Dispute Resolution: Counselling and Negotiation",
-          "2. Ethics and the Practice of Criminal Law",
-          "3. Government Lawyers",
-          "4. Lawyers in Organizational Settings",
-          "D. Access to Justice"
+        objectives: JSON.stringify([
+          "Understand the role, regulation, and ethical framework of the Canadian legal profession",
+          "Become familiar with the Federation's Model Code of Professional Conduct",
+          "Identify lawyers' professional duties to clients, the court, and the public",
+          "Analyse ethical issues arising in different legal practice settings",
+          "Apply professional conduct rules to fact-based scenarios",
+          "Resolve conflicts between zealous advocacy and ethical obligations",
+          "Develop professional judgment in dealing with ethical problems",
+          "Think critically about the challenges and responsibilities of legal practice",
+          "Prepare candidates to answer NCA ethics questions using Canadian standards"
         ]),
         additionalCoverage: `• Detailed Study of the Model Code of Professional Conduct, 2024
 • Detailed Study of Syllabus Articles & Case Laws (latest NCA updates)
@@ -170,15 +165,16 @@ async function seed() {
         isActive: true,
         bundle_price: "300.00",
         is_bundle_enabled: true,
-        syllabusTopics: JSON.stringify([
-          "1. Sources of Administrative Law",
-          "2. Procedural Fairness",
-          "3. Legitimate Expectations",
-          "4. Duty to Consult Indigenous Peoples",
-          "5. Charter & Bill of Rights in Admin Law",
-          "6. Standard of Review – Vavilov Framework",
-          "7. Judicial Review Procedure",
-          "8. Remedies"
+        objectives: JSON.stringify([
+          "Understand the foundations and purpose of Canadian administrative law",
+          "Analyse the powers and limits of administrative decision-makers under statute",
+          "Interpret and apply statutory provisions governing administrative action",
+          "Understand standards of review and principles of judicial review",
+          "Apply procedural fairness and natural justice to factual scenarios",
+          "Identify administrative law issues in problem-based questions",
+          "Relate legal principles to complex factual situations",
+          "Reason toward legally supported outcomes and remedies",
+          "Prepare candidates to answer NCA administrative law exams at Canadian lawyer standards"
         ]),
         additionalCoverage: `• Latest NCA Case Laws
 • Answer Writing for Problem Questions
@@ -195,16 +191,16 @@ async function seed() {
         isActive: true,
         bundle_price: "300.00",
         is_bundle_enabled: true,
-        syllabusTopics: JSON.stringify([
-          "1. Sources of the Constitution",
-          "2. Federalism",
-          "3. Division of Powers",
-          "4. Judicial Review",
-          "5. Aboriginal & Treaty Rights",
-          "6. Charter Interpretation",
-          "7. Fundamental Freedoms",
-          "8. Equality Rights",
-          "9. Limitations & Remedies"
+        objectives: JSON.stringify([
+          "Understand the structure, sources, and supremacy of the Canadian Constitution",
+          "Analyse the federal system and the division of powers between Parliament and the provinces",
+          "Apply key legislative powers, including POGG, trade and commerce, criminal law, and property and civil rights",
+          "Use constitutional doctrines such as pith and substance, paramountcy, and interjurisdictional immunity",
+          "Understand Aboriginal and treaty rights under section 35, including the duty to consult",
+          "Interpret and apply the Canadian Charter of Rights and Freedoms",
+          "Analyse Charter rights including freedom of expression, religion, equality, and section 7",
+          "Apply section 1 limits and constitutional remedies under sections 24 and 52",
+          "Develop the ability to solve constitutional law problems using Canadian case law and exam methodology"
         ]),
         additionalCoverage: `• Updated Charter Case Laws
 • Essay Writing Frameworks
@@ -221,19 +217,16 @@ async function seed() {
         isActive: true,
         bundle_price: "300.00",
         is_bundle_enabled: true,
-        syllabusTopics: JSON.stringify([
-          "1. Sources of Criminal Law",
-          "2. Actus Reus",
-          "3. Mens Rea",
-          "4. Regulatory Offences",
-          "5. Parties to an Offence",
-          "6. Attempts",
-          "7. Defences",
-          "8. Police Powers",
-          "9. Bail & Disclosure",
-          "10. Trial Process",
-          "11. Sentencing",
-          "12. Appeals"
+        objectives: JSON.stringify([
+          "Understand the structure and purpose of Canadian criminal law and the Criminal Code",
+          "Identify and apply the elements of criminal offences, including actus reus and mens rea",
+          "Analyse leading Canadian criminal law cases and statutory provisions",
+          "Distinguish between different categories of offences and standards of fault",
+          "Apply criminal law principles to fact-based problem questions",
+          "Identify legal issues and select the correct rules of law under the Criminal Code",
+          "Explain how criminal law rules operate in real-world factual scenarios",
+          "Develop the ability to reason, analyse, and reach legally supported conclusions",
+          "Prepare candidates to answer NCA criminal law exam questions at Canadian lawyer standards"
         ]),
         additionalCoverage: `• Annotated Criminal Code Usage
 • Case Law Analysis
@@ -250,16 +243,16 @@ async function seed() {
         isActive: true,
         bundle_price: "300.00",
         is_bundle_enabled: true,
-        syllabusTopics: JSON.stringify([
-          "1. Legal Theories",
-          "2. Indigenous Peoples and Law",
-          "3. Sources of Law",
-          "4. Constitutional Principles",
-          "5. Parliament",
-          "6. Executive",
-          "7. Judiciary",
-          "8. Statutory Interpretation",
-          "9. Judicial Review"
+        objectives: JSON.stringify([
+          "Provide NCA applicants with an introduction to and an overview of Canada's legal system and the role of law in Canadian society",
+          "Review various legal theories as they apply to Canadian law",
+          "Introduce the overarching legal framework within which the particular areas of law studied in other courses operate",
+          "Acquaint applicants with the various sources of Canadian law",
+          "Compare the different branches of Canadian government and to analyse the relationships between and among them",
+          "Provide applicants with an understanding of the Canadian treaty-making process and the implementation of international law into domestic law",
+          "Provide applicants with an understanding of the special relationship Aboriginal Peoples have with the Canadian State",
+          "Enable applicants to critically assess the impact of the Canadian legal system upon Aboriginal and other minority communities",
+          "Provide applicants with an understanding of the nature and function of judicial review and of the basic approaches to statutory interpretation"
         ]),
         additionalCoverage: `• Concise Notes
 • Essay Structuring
@@ -276,17 +269,12 @@ async function seed() {
         isActive: true,
         bundle_price: "300.00",
         is_bundle_enabled: true,
-        syllabusTopics: JSON.stringify([
-          "1. Nature of Property",
-          "2. Possession",
-          "3. Estates",
-          "4. Aboriginal Title",
-          "5. Trusts & Equity",
-          "6. Future Interests",
-          "7. Leases & Licences",
-          "8. Co-ownership",
-          "9. Easements & Covenants",
-          "10. Registration & Priorities"
+        objectives: JSON.stringify([
+          "Understand the legal and constitutional foundations of Canadian property law",
+          "Identify and classify different types of proprietary and possessory interests in property",
+          "Apply property law doctrines to resolve disputes between competing claimants",
+          "Determine priority of rights using common law, equity, and registration systems",
+          "Critically assess property law rules in light of fairness, certainty, and public policy"
         ]),
         additionalCoverage: `• Case Law Summaries
 • Problem Question Techniques
@@ -303,16 +291,12 @@ async function seed() {
         isActive: true,
         bundle_price: "300.00",
         is_bundle_enabled: true,
-        syllabusTopics: JSON.stringify([
-          "1. Intentional Torts",
-          "2. Negligence",
-          "3. Duty of Care",
-          "4. Causation",
-          "5. Defences",
-          "6. Occupiers’ Liability",
-          "7. Product Liability",
-          "8. Defamation",
-          "9. Economic Torts"
+        objectives: JSON.stringify([
+          "Understand and recall the substantive rules governing the major torts in Canadian law",
+          "Identify tort issues and the applicable legal principles in complex fact patterns",
+          "Apply tort doctrines to analyse liability, defences, causation, and damages in problem questions",
+          "Understand the theoretical bases of tort law, including corrective justice, deterrence, and loss allocation",
+          "Critically evaluate tort law outcomes and doctrines using legal theory and policy considerations"
         ]),
         additionalCoverage: `• IRAC Application
 • Leading Case Laws
@@ -329,16 +313,12 @@ async function seed() {
         isActive: true,
         bundle_price: "300.00",
         is_bundle_enabled: true,
-        syllabusTopics: JSON.stringify([
-          "1. Forms of Business",
-          "2. Partnerships",
-          "3. Incorporation",
-          "4. Corporate Personality",
-          "5. Shares & Shareholders",
-          "6. Directors & Officers",
-          "7. Corporate Changes",
-          "8. Duties & Liabilities",
-          "9. Shareholder Remedies"
+        objectives: JSON.stringify([
+          "Understand the legal characteristics and formation of sole proprietorships, partnerships, and corporations",
+          "Explain the rights, duties, and liabilities of owners, partners, directors, and officers",
+          "Analyze how business organizations incur obligations to creditors and third parties",
+          "Apply corporate governance and fiduciary duty principles to disputes involving management and shareholders",
+          "Use statutory and common-law rules to resolve fact-based problems involving business organizations"
         ]),
         additionalCoverage: `• Corporate Case Laws
 • Essay & Problem Answers
@@ -355,17 +335,12 @@ async function seed() {
         isActive: true,
         bundle_price: "300.00",
         is_bundle_enabled: true,
-        syllabusTopics: JSON.stringify([
-          "1. Formation",
-          "2. Offer & Acceptance",
-          "3. Consideration",
-          "4. Intention",
-          "5. Privity",
-          "6. Terms",
-          "7. Misrepresentation",
-          "8. Breach",
-          "9. Remedies",
-          "10. Discharge"
+        objectives: JSON.stringify([
+          "Understand the core doctrines governing contract formation, performance, breach, and remedies in Canadian law",
+          "Identify legally significant issues arising from contractual fact patterns",
+          "Apply contract law principles to determine whether enforceable agreements exist and whether they have been breached",
+          "Analyze remedies and defences to resolve commercial and private law disputes",
+          "Critically evaluate contractual arguments and outcomes using doctrine, policy, and precedent"
         ]),
         additionalCoverage: `• Leading Contract Cases
 • Answer Writing Frameworks

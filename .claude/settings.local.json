@@ -36,7 +36,8 @@
       "Bash(del \"components\\skeletons\\public-course-card-skeleton.tsx\")",
       "Bash(del \"components\\sidebar\\index.tsx\")",
       "Bash(del:*)",
-      "Bash(test:*)"
+      "Bash(test:*)",
+      "Bash(timeout 5 npx drizzle-kit:*)"
     ],
     "deny": [],
     "ask": []

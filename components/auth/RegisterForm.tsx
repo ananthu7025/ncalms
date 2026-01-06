@@ -89,8 +89,7 @@ export function RegisterForm() {
               });
 
               setTimeout(() => {
-                router.push(`/learner/cart?${enrollParams.toString()}`);
-                router.refresh();
+                window.location.href = `/learner/cart?${enrollParams.toString()}`;
               }, 1000);
             } else {
               setTimeout(() => {

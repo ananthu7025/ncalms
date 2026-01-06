@@ -3,16 +3,18 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ShoppingCart, ArrowLeft, Package } from "lucide-react";
 import Link from "next/link";
-import { getCartItems, getCartTotal } from "@/lib/actions/cart";
+import { getCartItems, getCartTotal, detectBundleOpportunities } from "@/lib/actions/cart";
 import { CartItemCard } from "@/components/learner/cart-item-card";
 import { EmptyState } from "@/components/EmptyState";
 import { CartSummary } from "@/components/learner/cart-summary";
 import { AutoEnrollHandler } from "@/components/learner/AutoEnrollHandler";
+import { BundleSuggestion } from "@/components/learner/bundle-suggestion";
 import { Suspense } from "react";
 
 export default async function CartPage() {
   const cartItems = await getCartItems();
   const total = await getCartTotal();
+  const bundleOpportunities = await detectBundleOpportunities();
 
   if (cartItems.length === 0) {
     return (
@@ -61,6 +63,9 @@ export default async function CartPage() {
           {cartItems.length} {cartItems.length === 1 ? "item" : "items"}
         </Badge>
       </div>
+
+      {/* Bundle Suggestions */}
+      <BundleSuggestion opportunities={bundleOpportunities} />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Cart Items */}

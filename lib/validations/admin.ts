@@ -58,7 +58,7 @@ export const createSubjectSchema = z.object({
   isBundleEnabled: z.boolean().default(false),
   isActive: z.boolean().default(true),
   syllabusPdfUrl: z.string().url("Invalid URL").max(500, "URL too long").optional().nullable(),
-  syllabusTopics: z.string().optional().nullable(),
+  objectives: z.string().optional().nullable(),
   additionalCoverage: z.string().optional().nullable(),
 });
 
@@ -74,7 +74,7 @@ export const updateSubjectSchema = z.object({
   isBundleEnabled: z.boolean(),
   isActive: z.boolean(),
   syllabusPdfUrl: z.string().url("Invalid URL").max(500, "URL too long").optional().nullable(),
-  syllabusTopics: z.string().optional().nullable(),
+  objectives: z.string().optional().nullable(),
   additionalCoverage: z.string().optional().nullable(),
 });
 

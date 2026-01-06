@@ -4,11 +4,14 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
+import { LayoutDashboard } from "lucide-react";
 
 const HeaderPublic = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const router = useRouter();
+  const { data: session } = useSession();
 
   const menuItems = [
     { label: "Home", href: "/" },
@@ -100,16 +103,30 @@ const HeaderPublic = () => {
 
               {/* Auth Buttons */}
               <div className="flex items-center gap-x-2.5">
-                <Link href="/register">
-                  <button className="hidden h-10 rounded-[50Px] bg-colorBrightGold px-6 text-sm font-medium text-colorBlackPearl hover:shadow sm:inline-block">
-                    Register
-                  </button>
-                </Link>
-                <Link href="/login">
-                  <button className="h-10 rounded-[50Px] bg-gradient-to-t from-[#D7E1D8] to-white px-6 text-sm font-medium text-colorBlackPearl hover:shadow">
-                    Log In
-                  </button>
-                </Link>
+                {session?.user ? (
+                  <Link href="/learner/dashboard">
+                    <button
+                      className="flex h-10 items-center gap-x-2 rounded-[50Px] bg-colorBrightGold px-6 text-sm font-medium text-colorBlackPearl hover:shadow"
+                      aria-label="Dashboard"
+                    >
+                      <LayoutDashboard size={18} />
+                      <span className="hidden sm:inline-block">Dashboard</span>
+                    </button>
+                  </Link>
+                ) : (
+                  <>
+                    <Link href="/register">
+                      <button className="hidden h-10 rounded-[50Px] bg-colorBrightGold px-6 text-sm font-medium text-colorBlackPearl hover:shadow sm:inline-block">
+                        Register
+                      </button>
+                    </Link>
+                    <Link href="/login">
+                      <button className="h-10 rounded-[50Px] bg-colorBrightGold px-6 text-sm font-medium text-colorBlackPearl hover:shadow">
+                        Log In
+                      </button>
+                    </Link>
+                  </>
+                )}
                 {/* Mobile Menu */}
                 <div className="site-header inline-block lg:hidden">
                   <button
@@ -187,11 +204,27 @@ const HeaderPublic = () => {
                 </ul>
               </nav>
               <div className="mt-6 space-y-2">
-                <Link href="/register" onClick={toggleMobileMenu}>
-                  <button className="w-full rounded-[50px] bg-colorBrightGold px-6 py-2.5 text-sm font-medium text-colorBlackPearl hover:shadow">
-                    Register
-                  </button>
-                </Link>
+                {session?.user ? (
+                  <Link href="/learner/dashboard" onClick={toggleMobileMenu}>
+                    <button className="flex w-full items-center justify-center gap-x-2 rounded-[50px] bg-colorBrightGold px-6 py-2.5 text-sm font-medium text-colorBlackPearl hover:shadow">
+                      <LayoutDashboard size={18} />
+                      Dashboard
+                    </button>
+                  </Link>
+                ) : (
+                  <>
+                    <Link href="/register" onClick={toggleMobileMenu}>
+                      <button className="w-full rounded-[50px] bg-colorBrightGold px-6 py-2.5 text-sm font-medium text-colorBlackPearl hover:shadow">
+                        Register
+                      </button>
+                    </Link>
+                    <Link href="/login" onClick={toggleMobileMenu}>
+                      <button className="w-full rounded-[50px] bg-colorBrightGold px-6 py-2.5 text-sm font-medium text-colorBlackPearl hover:shadow">
+                        Log In
+                      </button>
+                    </Link>
+                  </>
+                )}
               </div>
             </div>
           </div>

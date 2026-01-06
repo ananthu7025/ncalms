@@ -61,7 +61,7 @@ export function AddCourseClient({
       isActive: initialData?.isActive || true,
       thumbnail: initialData?.thumbnail || "",
       syllabusPdfUrl: initialData?.syllabusPdfUrl || "",
-      syllabusTopics: initialData?.syllabusTopics ? (typeof initialData.syllabusTopics === 'string' ? JSON.parse(initialData.syllabusTopics).join("\n") : "") : "",
+      objectives: initialData?.objectives ? (typeof initialData.objectives === 'string' ? JSON.parse(initialData.objectives).join("\n") : "") : "",
       additionalCoverage: initialData?.additionalCoverage || "",
     },
   });
@@ -152,9 +152,9 @@ export function AddCourseClient({
 
       let result;
       // Overwrite isActive based on the button clicked
-      // Convert syllabusTopics from newline-separated string to JSON array
-      const syllabusTopicsArray = data.syllabusTopics
-        ? data.syllabusTopics.split('\n').map(topic => topic.trim()).filter(Boolean)
+      // Convert objectives from newline-separated string to JSON array
+      const objectivesArray = data.objectives
+        ? data.objectives.split('\n').map((objective: string) => objective.trim()).filter(Boolean)
         : [];
 
       const finalData = {
@@ -162,7 +162,7 @@ export function AddCourseClient({
         thumbnail: thumbnailUrl,
         isActive: publish,
         examTypeId: data.examTypeId === "" ? null : data.examTypeId,
-        syllabusTopics: syllabusTopicsArray.length > 0 ? JSON.stringify(syllabusTopicsArray) : null,
+        objectives: objectivesArray.length > 0 ? JSON.stringify(objectivesArray) : null,
         syllabusPdfUrl: syllabusUrl || null,
         additionalCoverage: data.additionalCoverage || null,
       };
@@ -369,7 +369,7 @@ export function AddCourseClient({
 
           <Card>
             <CardHeader>
-              <CardTitle>Syllabus Information</CardTitle>
+              <CardTitle>Course Details</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
 
@@ -422,13 +422,13 @@ export function AddCourseClient({
               <div className="space-y-2">
                 <InputTextarea
                   hookForm={hookForm}
-                  field="syllabusTopics"
-                  label="Syllabus Topics (Optional)"
-                  placeholder="Enter one topic per line&#10;Topic 1&#10;Topic 2&#10;Topic 3"
+                  field="objectives"
+                  label="Course Objectives (Optional)"
+                  placeholder="Enter one objective per line&#10;Understand core concepts&#10;Master practical applications&#10;Prepare for certification"
                   rows={8}
                 />
                 <p className="text-xs text-muted-foreground">
-                  Enter each syllabus topic on a new line
+                  Enter each course objective on a new line
                 </p>
               </div>
 

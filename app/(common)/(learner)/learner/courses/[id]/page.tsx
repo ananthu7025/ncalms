@@ -53,28 +53,20 @@ export default async function CourseDetailsPage({ params }: { params: Promise<{ 
   // Check if user has any access
   const hasAnyAccess = accessMap.size > 0;
 
-  // Parse syllabus topics from JSON
-  let syllabusTopics: string[] = [];
+  // Parse objectives from JSON
+  let objectives: string[] = [];
   try {
-    if (subject.syllabusTopics) {
-      if (typeof subject.syllabusTopics === 'string') {
-        syllabusTopics = JSON.parse(subject.syllabusTopics);
-      } else if (Array.isArray(subject.syllabusTopics)) {
-        syllabusTopics = subject.syllabusTopics;
+    if (subject.objectives) {
+      if (typeof subject.objectives === 'string') {
+        objectives = JSON.parse(subject.objectives);
+      } else if (Array.isArray(subject.objectives)) {
+        objectives = subject.objectives;
       }
     }
   } catch (e) {
-    console.error("Failed to parse syllabus topics:", e);
-    syllabusTopics = [];
+    console.error("Failed to parse objectives:", e);
+    objectives = [];
   }
-
-  // Default learning points (can be moved to database later)
-  const whatYouLearn = [
-    "Comprehensive coverage of all exam topics and concepts",
-    "Expert instruction from experienced legal professionals",
-    "Practice questions and mock exams to test your knowledge",
-    "Lifetime access to all course materials and updates",
-  ];
 
   const whyChoose = [
     "Study at your own pace with flexible online access",
@@ -277,22 +269,6 @@ export default async function CourseDetailsPage({ params }: { params: Promise<{ 
                   );
                 })}
               </Tabs>
-
-              {/* What You'll Learn Section */}
-              <Card>
-                <CardContent className="p-6">
-                  <h3 className="font-bold text-lg mb-4">What You'll Learn?</h3>
-                  <ul className="space-y-3">
-                    {whatYouLearn.map((item, index) => (
-                      <li key={index} className="flex items-center gap-3">
-                        <CheckCircle className="w-5 h-5 text-success flex-shrink-0" />
-                        <span>{item}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </CardContent>
-              </Card>
-          
             </div>
 
             {/* Right Column - Sidebar */}
@@ -464,29 +440,29 @@ export default async function CourseDetailsPage({ params }: { params: Promise<{ 
                     )}
                   </div>
 
-                  {syllabusTopics.length === 0 && !subject.additionalCoverage ? (
+                  {objectives.length === 0 && !subject.additionalCoverage ? (
                     <p className="text-muted-foreground text-center py-6">
-                      Detailed syllabus information will be available soon.
+                      Course objectives will be available soon.
                     </p>
                   ) : (
                     <div className="space-y-4">
-                      {syllabusTopics.length > 0 && (
+                      {objectives.length > 0 && (
                         <div>
-                          <h4 className="font-semibold mb-3">Topics Covered:</h4>
+                          <h4 className="font-semibold mb-3">What You'll Learn:</h4>
                           <div className="max-h-96 overflow-y-auto pr-2">
                             <ul className="space-y-2">
-                              {syllabusTopics.slice(0, 10).map((topic, index) => (
+                              {objectives.slice(0, 10).map((objective, index) => (
                                 <li key={index} className="flex items-start gap-3">
                                   <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary mt-0.5">
                                     {index + 1}
                                   </span>
-                                  <span className="flex-1 text-sm">{topic}</span>
+                                  <span className="flex-1 text-sm">{objective}</span>
                                 </li>
                               ))}
                             </ul>
-                            {syllabusTopics.length > 10 && (
+                            {objectives.length > 10 && (
                               <p className="text-sm text-muted-foreground mt-3 italic">
-                                ... and {syllabusTopics.length - 10} more topics. Download the PDF for the complete syllabus.
+                                ... and {objectives.length - 10} more objectives. Download the PDF for complete details.
                               </p>
                             )}
                           </div>

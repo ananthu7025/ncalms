@@ -44,23 +44,23 @@ const CourseDetailPage = async ({ params }: CourseDetailPageProps) => {
   const bundlePrice = subject.bundlePrice ? parseFloat(subject.bundlePrice) : 0;
   const embedUrl = subject.demoVideoUrl ? getEmbedUrl(subject.demoVideoUrl) : null;
 
-  // Parse syllabus topics from JSON
-  let syllabusTopics: string[] = [];
+  // Parse objectives from JSON
+  let objectives: string[] = [];
   try {
-    if (subject.syllabusTopics) {
-      if (typeof subject.syllabusTopics === 'string') {
-        syllabusTopics = JSON.parse(subject.syllabusTopics);
-      } else if (Array.isArray(subject.syllabusTopics)) {
-        syllabusTopics = subject.syllabusTopics;
+    if (subject.objectives) {
+      if (typeof subject.objectives === 'string') {
+        objectives = JSON.parse(subject.objectives);
+      } else if (Array.isArray(subject.objectives)) {
+        objectives = subject.objectives;
       }
     }
   } catch (e) {
-    console.error("Failed to parse syllabus topics:", e);
-    syllabusTopics = [];
+    console.error("Failed to parse objectives:", e);
+    objectives = [];
   }
 
-  console.log("DEBUG PAGE: syllabusTopicsRaw:", subject.syllabusTopics);
-  console.log("DEBUG PAGE: syllabusTopicsParsed:", syllabusTopics);
+  console.log("DEBUG PAGE: objectivesRaw:", subject.objectives);
+  console.log("DEBUG PAGE: objectivesParsed:", objectives);
   // Group contents by content type
   const contentsByType = contents.reduce((acc, item) => {
     const typeId = item.contentType?.id;
@@ -87,12 +87,7 @@ const CourseDetailPage = async ({ params }: CourseDetailPageProps) => {
   const discountPercent = totalIndividualPrice > 0 ? Math.round((savings / totalIndividualPrice) * 100) : 0;
 
   // Default learning points (can be moved to database later)
-  const whatYouLearn = [
-    "Comprehensive coverage of all exam topics and concepts",
-    "Expert instruction from experienced legal professionals",
-    "Practice questions and mock exams to test your knowledge",
-    "Lifetime access to all course materials and updates",
-  ];
+
 
   const whyChoose = [
     "Study at your own pace with flexible online access",
@@ -196,18 +191,10 @@ const CourseDetailPage = async ({ params }: CourseDetailPageProps) => {
                         </div>
                       </div>
                     )}
-
-                    <h5>What You&apos;ll Learn?</h5>
-                    <ul className="mb-10 mt-6 flex list-inside list-image-[url(/assets/img/icons/icon-purple-check.svg)] flex-col gap-y-4 font-title text-colorBlackPearl">
-                      {whatYouLearn.map((item, index) => (
-                        <li key={index}>{item}</li>
-                      ))}
-                    </ul>
                   </div>
-
-                  {/* Syllabus Section */}
+                  {/* Course Objectives Section */}
                   <CourseSyllabus
-                    syllabusTopics={syllabusTopics}
+                    objectives={objectives}
                     syllabusPdfUrl={subject.syllabusPdfUrl}
                     additionalCoverage={subject.additionalCoverage}
                   />
@@ -435,23 +422,6 @@ const CourseDetailPage = async ({ params }: CourseDetailPageProps) => {
                           </span>
                           <span className="font-normal">
                             {stats.studentsCount}
-                          </span>
-                        </li>
-                        <li className="flex items-center justify-between gap-x-5 py-4 first-of-type:pt-0 last-of-type:pb-0">
-                          <span className="font-semibold text-[#4E5450]">
-                            Rating:
-                          </span>
-                          <span className="font-normal inline-flex items-center gap-1">
-                            {[...Array(5)].map((_, i) => (
-                              <Image
-                                key={i}
-                                src={i < stats.rating ? "/assets/img/icons/icon-yellow-star.svg" : "/assets/img/icons/icon-yellow-star-blank.svg"}
-                                alt="star"
-                                width={16}
-                                height={15}
-                              />
-                            ))}
-                            <span className="ml-2">({stats.reviews} reviews)</span>
                           </span>
                         </li>
                         <li className="flex items-center justify-between gap-x-5 py-4 first-of-type:pt-0 last-of-type:pb-0">

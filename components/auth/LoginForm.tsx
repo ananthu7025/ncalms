@@ -54,9 +54,11 @@ export function LoginForm() {
       const result = await loginUser(data.email, data.password);
 
       if (result.success) {
-        // Redirect based on role
+        // Determine redirect URL based on role
+        let redirectUrl = "/learner/dashboard";
+
         if (result.role === "ADMIN") {
-          router.push("/admin/dashboard");
+          redirectUrl = "/admin/dashboard";
         } else {
           if (enrollCourse) {
             const enrollParams = new URLSearchParams({
@@ -66,18 +68,18 @@ export function LoginForm() {
               isBundle: isBundle.toString(),
               price: price.toString(),
             });
-            router.push(`/learner/cart?${enrollParams.toString()}`);
+            redirectUrl = `/learner/cart?${enrollParams.toString()}`;
           } else if (
             callbackUrl &&
             callbackUrl !== "/" &&
             callbackUrl !== "/login"
           ) {
-            router.push(callbackUrl);
-          } else {
-            router.push("/learner/dashboard");
+            redirectUrl = callbackUrl;
           }
         }
-        router.refresh();
+
+        // Use window.location.href for full page reload to ensure session is updated
+        window.location.href = redirectUrl;
       } else {
         setError(result.error || "Invalid email or password");
       }

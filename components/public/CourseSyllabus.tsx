@@ -3,13 +3,13 @@
 import { useState } from "react";
 
 interface CourseSyllabusProps {
-    syllabusTopics: string[];
+    objectives: string[];
     syllabusPdfUrl: string | null;
     additionalCoverage: string | null;
 }
 
 export default function CourseSyllabus({
-    syllabusTopics = [],
+    objectives = [],
     syllabusPdfUrl,
     additionalCoverage,
 }: CourseSyllabusProps) {
@@ -17,7 +17,7 @@ export default function CourseSyllabus({
 
     // Check if there's any content
     const hasAnyContent =
-        (syllabusTopics && syllabusTopics.length > 0) ||
+        (objectives && objectives.length > 0) ||
         syllabusPdfUrl ||
         additionalCoverage;
 
@@ -26,11 +26,11 @@ export default function CourseSyllabus({
     const CHARACTER_LIMIT = 300;
 
     // Calculate potential length to decide default state
-    const topicsLength = syllabusTopics.join(" ").length;
+    const objectivesLength = objectives.join(" ").length;
     const coverageLength = additionalCoverage?.length || 0;
-    const totalLength = topicsLength + coverageLength;
+    const totalLength = objectivesLength + coverageLength;
 
-    const hasManyItems = syllabusTopics.length > PREVIEW_ITEMS_LIMIT;
+    const hasManyItems = objectives.length > PREVIEW_ITEMS_LIMIT;
     const isContentLong = totalLength > CHARACTER_LIMIT;
 
     // Only collapse if we have substantial content
@@ -40,14 +40,14 @@ export default function CourseSyllabus({
     const showFullContent = !shouldCollapse || isExpanded;
 
     // Determine items to display
-    const displayedTopics = showFullContent
-        ? syllabusTopics
-        : syllabusTopics.slice(0, PREVIEW_ITEMS_LIMIT);
+    const displayedObjectives = showFullContent
+        ? objectives
+        : objectives.slice(0, PREVIEW_ITEMS_LIMIT);
 
     return (
         <div className="mt-10">
             <div className="mb-6 flex items-center justify-between">
-                <h5>Course Syllabus</h5>
+                <h5>Course Objectives</h5>
                 {syllabusPdfUrl && (
                     <a
                         href={syllabusPdfUrl}
@@ -76,30 +76,30 @@ export default function CourseSyllabus({
             {!hasAnyContent ? (
                 <div className="rounded-lg border border-[#E5E7EB] bg-white p-6 text-center">
                     <p className="text-colorBlackPearl/60">
-                        Detailed syllabus information will be available soon.
+                        Course objectives will be available soon.
                     </p>
                 </div>
             ) : (
                 <>
                     <div className="relative">
-                        {/* Syllabus Topics */}
-                        {displayedTopics.length > 0 && (
+                        {/* Course Objectives */}
+                        {displayedObjectives.length > 0 && (
                             <div className="mb-6 rounded-lg border border-[#E5E7EB] bg-white p-6">
-                                <h6 className="mb-4 text-lg font-bold">Topics Covered:</h6>
+                                <h6 className="mb-4 text-lg font-bold">What You'll Learn:</h6>
                                 <ul className="space-y-2">
-                                    {displayedTopics.map((topic, index) => (
+                                    {displayedObjectives.map((objective, index) => (
                                         <li key={index} className="flex items-start gap-3">
                                             <span className="mt-1 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-colorPurpleBlue/10 text-xs font-semibold text-colorPurpleBlue">
                                                 {index + 1}
                                             </span>
-                                            <span className="flex-1 text-colorBlackPearl">{topic}</span>
+                                            <span className="flex-1 text-colorBlackPearl">{objective}</span>
                                         </li>
                                     ))}
                                 </ul>
-                                {/* Visual fade effect if collapsed and has more topics hidden (and not just covering due to length) */}
+                                {/* Visual fade effect if collapsed and has more objectives hidden (and not just covering due to length) */}
                                 {!showFullContent && hasManyItems && (
                                     <div className="mt-2 text-sm text-gray-500 italic">
-                                        ... and {syllabusTopics.length - PREVIEW_ITEMS_LIMIT} more topics
+                                        ... and {objectives.length - PREVIEW_ITEMS_LIMIT} more objectives
                                     </div>
                                 )}
                             </div>
