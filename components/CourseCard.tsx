@@ -173,12 +173,9 @@ export function CourseCard({
                         <span className="text-2xl font-bold text-blue-600">
                           ${bundlePrice}
                         </span>
-                        <span className="text-sm text-gray-500 font-medium">Bundle</span>
                       </div>
                     ) : (
-                      <span className="text-sm text-gray-600 font-medium">
-                        Individual pricing
-                      </span>
+                      null
                     )}
                   </div>
                   <Button
