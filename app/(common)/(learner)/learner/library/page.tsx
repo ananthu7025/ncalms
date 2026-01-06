@@ -7,10 +7,17 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
   Search,
   ArrowRight,
   BookOpen,
   ExternalLink,
+  Filter,
+  X,
 } from "lucide-react";
 import {
   getLibraryCourses,
@@ -34,6 +41,7 @@ export default function MyLibrary() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterType, setFilterType] = useState<FilterType>("all");
+  const [showFilters, setShowFilters] = useState(false);
   const [videoModal, setVideoModal] = useState<{ isOpen: boolean; url: string; title: string }>({
     isOpen: false,
     url: "",
@@ -71,6 +79,19 @@ export default function MyLibrary() {
     });
     return Array.from(types);
   }, [courses]);
+
+  // Count active filters
+  const activeFiltersCount = useMemo(() => {
+    let count = 0;
+    if (filterType !== 'all') count++;
+    return count;
+  }, [filterType]);
+
+  // Clear all filters
+  const clearAllFilters = () => {
+    setFilterType('all');
+    setSearchQuery('');
+  };
 
   // Filter and search courses
   const filteredCourses = useMemo(() => {
@@ -162,7 +183,7 @@ export default function MyLibrary() {
       </div>
 
       {/* Search & Filter Buttons */}
-      <div className="flex flex-col md:flex-row gap-4">
+      <div className="flex gap-3">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
@@ -172,33 +193,90 @@ export default function MyLibrary() {
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
-
-        <div className="flex gap-2 flex-wrap">
-          <Button
-            size="sm"
-            variant={filterType === "all" ? "default" : "outline"}
-            onClick={() => setFilterType("all")}
-          >
-            All
-          </Button>
-          {uniqueContentTypes.map((contentType) => (
+        <Popover open={showFilters} onOpenChange={setShowFilters}>
+          <PopoverTrigger asChild>
             <Button
-              key={contentType}
-              size="sm"
-              variant={filterType.toLowerCase() === contentType.toLowerCase() ? "default" : "outline"}
-              onClick={() => setFilterType(contentType)}
+              variant={activeFiltersCount > 0 ? 'default' : 'outline'}
+              className={activeFiltersCount > 0 ? 'gradient-primary' : ''}
             >
-              {contentType}
+              <Filter className="w-4 h-4 mr-2" />
+              Filters
+              {activeFiltersCount > 0 && (
+                <Badge variant="secondary" className="ml-2 rounded-full h-5 w-5 p-0 flex items-center justify-center text-xs">
+                  {activeFiltersCount}
+                </Badge>
+              )}
             </Button>
-          ))}
-        </div>
+          </PopoverTrigger>
+          <PopoverContent className="w-80 p-0" align="end">
+            <div className="space-y-4 p-4">
+              {/* Header with Clear All */}
+              <div className="flex items-center justify-between pb-3 border-b">
+                <div className="flex items-center gap-2">
+                  <Filter className="w-4 h-4 text-muted-foreground" />
+                  <h3 className="font-semibold">Filters</h3>
+                  {activeFiltersCount > 0 && (
+                    <Badge variant="secondary" className="rounded-full">
+                      {activeFiltersCount}
+                    </Badge>
+                  )}
+                </div>
+                {activeFiltersCount > 0 && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={clearAllFilters}
+                    className="text-muted-foreground hover:text-foreground h-auto p-1"
+                  >
+                    <X className="w-4 h-4 mr-1" />
+                    Clear All
+                  </Button>
+                )}
+              </div>
+
+              {/* Content Type Filters */}
+              {uniqueContentTypes.length > 0 && (
+                <div className="space-y-2">
+                  <p className="text-sm font-medium text-muted-foreground">Content Types:</p>
+                  <div className="flex flex-wrap gap-2">
+                    <Button
+                      size="sm"
+                      variant={filterType === 'all' ? 'default' : 'outline'}
+                      className={filterType === 'all' ? 'rounded-full gradient-primary border-0' : 'rounded-full'}
+                      onClick={() => setFilterType('all')}
+                    >
+                      All
+                    </Button>
+                    {uniqueContentTypes.map((contentType) => {
+                      const Icon = getContentTypeIcon(contentType);
+                      return (
+                        <Button
+                          key={contentType}
+                          size="sm"
+                          variant={filterType.toLowerCase() === contentType.toLowerCase() ? 'default' : 'outline'}
+                          className={filterType.toLowerCase() === contentType.toLowerCase() ? 'rounded-full gradient-primary border-0' : 'rounded-full'}
+                          onClick={() => setFilterType(contentType)}
+                        >
+                          <Icon className="w-4 h-4 mr-1" />
+                          {contentType}
+                        </Button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+          </PopoverContent>
+        </Popover>
       </div>
 
       {/* No Results */}
       {filteredCourses.length === 0 && (
         <div className="text-center py-12">
           <p className="text-muted-foreground">
-            No courses found matching your search.
+            {searchQuery || filterType !== 'all'
+              ? 'No courses found matching your search or filters.'
+              : 'No courses in your library yet.'}
           </p>
         </div>
       )}

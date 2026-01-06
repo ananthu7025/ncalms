@@ -96,8 +96,8 @@ export function UsersFilters() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Roles</SelectItem>
-              <SelectItem value="learner">Learner</SelectItem>
-              <SelectItem value="admin">Admin</SelectItem>
+              <SelectItem value="USER">User</SelectItem>
+              <SelectItem value="ADMIN">Admin</SelectItem>
             </SelectContent>
           </Select>
 

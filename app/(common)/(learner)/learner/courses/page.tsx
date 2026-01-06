@@ -3,7 +3,13 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Search } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Search, Star, BookOpen, GraduationCap, X, Filter } from 'lucide-react';
 import { CourseCard } from '@/components/CourseCard';
 import { getActiveSubjects } from '@/lib/actions/subjects';
 import { EmptyState } from '@/components/EmptyState';
@@ -30,6 +36,10 @@ export default function AllCoursesPage() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [selectedExamType, setSelectedExamType] = useState<string>('all');
+  const [showMandatoryOnly, setShowMandatoryOnly] = useState(false);
+  const [showFeaturedOnly, setShowFeaturedOnly] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
 
   useEffect(() => {
     loadSubjects();
@@ -60,6 +70,36 @@ export default function AllCoursesPage() {
     return Array.from(uniqueCategories).sort();
   }, [subjects]);
 
+  // Extract unique exam types from subjects
+  const examTypes = useMemo(() => {
+    const uniqueExamTypes = new Set<string>();
+    subjects.forEach((item) => {
+      if (item.examType?.name) {
+        uniqueExamTypes.add(item.examType.name);
+      }
+    });
+    return Array.from(uniqueExamTypes).sort();
+  }, [subjects]);
+
+  // Count active filters
+  const activeFiltersCount = useMemo(() => {
+    let count = 0;
+    if (selectedCategory !== 'all') count++;
+    if (selectedExamType !== 'all') count++;
+    if (showMandatoryOnly) count++;
+    if (showFeaturedOnly) count++;
+    return count;
+  }, [selectedCategory, selectedExamType, showMandatoryOnly, showFeaturedOnly]);
+
+  // Clear all filters
+  const clearAllFilters = () => {
+    setSelectedCategory('all');
+    setSelectedExamType('all');
+    setShowMandatoryOnly(false);
+    setShowFeaturedOnly(false);
+    setSearchQuery('');
+  };
+
   // Filter subjects based on search and category
   const filteredSubjects = useMemo(() => {
     let filtered = subjects;
@@ -69,6 +109,23 @@ export default function AllCoursesPage() {
       filtered = filtered.filter(
         (item) => item.stream?.name === selectedCategory
       );
+    }
+
+    // Apply exam type filter
+    if (selectedExamType !== 'all') {
+      filtered = filtered.filter(
+        (item) => item.examType?.name === selectedExamType
+      );
+    }
+
+    // Apply mandatory filter
+    if (showMandatoryOnly) {
+      filtered = filtered.filter((item) => item.subject.isMandatory);
+    }
+
+    // Apply featured filter
+    if (showFeaturedOnly) {
+      filtered = filtered.filter((item) => item.subject.isFeatured);
     }
 
     // Apply search filter
@@ -84,7 +141,7 @@ export default function AllCoursesPage() {
     }
 
     return filtered;
-  }, [subjects, selectedCategory, searchQuery]);
+  }, [subjects, selectedCategory, selectedExamType, showMandatoryOnly, showFeaturedOnly, searchQuery]);
 
   if (loading) {
     return (
@@ -118,8 +175,8 @@ export default function AllCoursesPage() {
         </p>
       </div>
 
-      {/* Search */}
-      <div className="flex flex-col md:flex-row gap-4">
+      {/* Search and Filter Button */}
+      <div className="flex gap-3">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
@@ -129,40 +186,140 @@ export default function AllCoursesPage() {
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
-      </div>
-
-      {/* Category Pills - Dynamic */}
-      {categories.length > 0 && (
-        <div className="flex flex-wrap gap-2">
-          <Button
-            size="sm"
-            variant={selectedCategory === 'all' ? 'default' : 'outline'}
-            className={selectedCategory === 'all' ? 'rounded-full gradient-primary border-0' : 'rounded-full'}
-            onClick={() => setSelectedCategory('all')}
-          >
-            All
-          </Button>
-          {categories.map((category) => (
+        <Popover open={showFilters} onOpenChange={setShowFilters}>
+          <PopoverTrigger asChild>
             <Button
-              key={category}
-              size="sm"
-              variant={selectedCategory === category ? 'default' : 'outline'}
-              className={selectedCategory === category ? 'rounded-full gradient-primary border-0' : 'rounded-full'}
-              onClick={() => setSelectedCategory(category)}
+              variant={activeFiltersCount > 0 ? 'default' : 'outline'}
+              className={activeFiltersCount > 0 ? 'gradient-primary' : ''}
             >
-              {category}
+              <Filter className="w-4 h-4 mr-2" />
+              Filters
+              {activeFiltersCount > 0 && (
+                <Badge variant="secondary" className="ml-2 rounded-full h-5 w-5 p-0 flex items-center justify-center text-xs">
+                  {activeFiltersCount}
+                </Badge>
+              )}
             </Button>
-          ))}
-        </div>
-      )}
+          </PopoverTrigger>
+          <PopoverContent className="w-96 p-0" align="end">
+            <div className="space-y-4 p-4">
+              {/* Header with Clear All */}
+              <div className="flex items-center justify-between pb-3 border-b">
+                <div className="flex items-center gap-2">
+                  <Filter className="w-4 h-4 text-muted-foreground" />
+                  <h3 className="font-semibold">Filters</h3>
+                  {activeFiltersCount > 0 && (
+                    <Badge variant="secondary" className="rounded-full">
+                      {activeFiltersCount}
+                    </Badge>
+                  )}
+                </div>
+                {activeFiltersCount > 0 && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={clearAllFilters}
+                    className="text-muted-foreground hover:text-foreground h-auto p-1"
+                  >
+                    <X className="w-4 h-4 mr-1" />
+                    Clear All
+                  </Button>
+                )}
+              </div>
+
+              {/* Learning Streams */}
+              {categories.length > 0 && (
+                <div className="space-y-2">
+                  <p className="text-sm font-medium text-muted-foreground">Learning Streams:</p>
+                  <div className="flex flex-wrap gap-2">
+                    <Button
+                      size="sm"
+                      variant={selectedCategory === 'all' ? 'default' : 'outline'}
+                      className={selectedCategory === 'all' ? 'rounded-full gradient-primary border-0' : 'rounded-full'}
+                      onClick={() => setSelectedCategory('all')}
+                    >
+                      All
+                    </Button>
+                    {categories.map((category) => (
+                      <Button
+                        key={category}
+                        size="sm"
+                        variant={selectedCategory === category ? 'default' : 'outline'}
+                        className={selectedCategory === category ? 'rounded-full gradient-primary border-0' : 'rounded-full'}
+                        onClick={() => setSelectedCategory(category)}
+                      >
+                        {category}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Exam Types */}
+              {examTypes.length > 0 && (
+                <div className="space-y-2">
+                  <p className="text-sm font-medium text-muted-foreground">Exam Types:</p>
+                  <div className="flex flex-wrap gap-2">
+                    <Button
+                      size="sm"
+                      variant={selectedExamType === 'all' ? 'default' : 'outline'}
+                      className={selectedExamType === 'all' ? 'rounded-full gradient-primary border-0' : 'rounded-full'}
+                      onClick={() => setSelectedExamType('all')}
+                    >
+                      <GraduationCap className="w-4 h-4 mr-1" />
+                      All Exams
+                    </Button>
+                    {examTypes.map((examType) => (
+                      <Button
+                        key={examType}
+                        size="sm"
+                        variant={selectedExamType === examType ? 'default' : 'outline'}
+                        className={selectedExamType === examType ? 'rounded-full gradient-primary border-0' : 'rounded-full'}
+                        onClick={() => setSelectedExamType(examType)}
+                      >
+                        {examType}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Quick Filters */}
+              <div className="space-y-2">
+                <p className="text-sm font-medium text-muted-foreground">Quick Filters:</p>
+                <div className="flex flex-wrap gap-2">
+                  <Button
+                    size="sm"
+                    variant={showFeaturedOnly ? 'default' : 'outline'}
+                    className={showFeaturedOnly ? 'rounded-full gradient-primary border-0' : 'rounded-full'}
+                    onClick={() => setShowFeaturedOnly(!showFeaturedOnly)}
+                  >
+                    <Star className={`w-4 h-4 mr-1 ${showFeaturedOnly ? 'fill-current' : ''}`} />
+                    Featured
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant={showMandatoryOnly ? 'default' : 'outline'}
+                    className={showMandatoryOnly ? 'rounded-full gradient-primary border-0' : 'rounded-full'}
+                    onClick={() => setShowMandatoryOnly(!showMandatoryOnly)}
+                  >
+                    <BookOpen className="w-4 h-4 mr-1" />
+                    Mandatory
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </PopoverContent>
+        </Popover>
+      </div>
 
       {/* Courses Grid */}
       {filteredSubjects.length === 0 ? (
         <div className="py-12">
           <EmptyState
-            title={searchQuery || selectedCategory !== 'all' ? 'No courses found' : 'No courses available'}
+            title={searchQuery || selectedCategory !== 'all' || selectedExamType !== 'all' || showMandatoryOnly || showFeaturedOnly ? 'No courses found' : 'No courses available'}
             description={
-              searchQuery || selectedCategory !== 'all'
+              searchQuery || selectedCategory !== 'all' || selectedExamType !== 'all' || showMandatoryOnly || showFeaturedOnly
                 ? 'Try adjusting your search or filters'
                 : 'Check back soon for new courses!'
             }

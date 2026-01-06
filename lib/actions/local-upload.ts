@@ -1,7 +1,7 @@
 "use server";
 
-import { writeFile, mkdir } from "fs/promises";
-import { join } from "path";
+import { PutObjectCommand } from "@aws-sdk/client-s3";
+import { s3Client, S3_BUCKET_NAME, S3_BUCKET_URL } from "@/lib/s3/client";
 import { requireAdmin } from "@/lib/auth/helpers";
 import { v4 as uuidv4 } from "uuid";
 
@@ -33,22 +33,25 @@ export async function uploadSubjectImage(formData: FormData) {
         const extension = file.name.split(".").pop() || "jpg";
         const fileName = `${uuidv4()}.${extension}`;
 
-        // Define path: public/images/subjects/
-        const uploadDir = join(process.cwd(), "public", "images", "subjects");
+        // S3 key path
+        const key = `images/subjects/${fileName}`;
 
-        // Ensure directory exists
-        await mkdir(uploadDir, { recursive: true });
+        // Upload to S3
+        const command = new PutObjectCommand({
+            Bucket: S3_BUCKET_NAME,
+            Key: key,
+            Body: buffer,
+            ContentType: file.type,
+        });
 
-        const filePath = join(uploadDir, fileName);
+        await s3Client.send(command);
 
-        // Write file
-        await writeFile(filePath, buffer);
-
-        const publicUrl = `/images/subjects/${fileName}`;
+        // Construct public URL
+        const publicUrl = `${S3_BUCKET_URL}/${key}`;
 
         return { success: true, url: publicUrl };
     } catch (error) {
-        console.error("Local upload error:", error);
+        console.error("Subject image upload error:", error);
         return { success: false, error: "Failed to upload image" };
     }
 }
@@ -81,18 +84,21 @@ export async function uploadBlogImage(formData: FormData) {
         const extension = file.name.split(".").pop() || "jpg";
         const fileName = `${uuidv4()}.${extension}`;
 
-        // Define path: public/images/blog/
-        const uploadDir = join(process.cwd(), "public", "images", "blog");
+        // S3 key path
+        const key = `images/blog/${fileName}`;
 
-        // Ensure directory exists
-        await mkdir(uploadDir, { recursive: true });
+        // Upload to S3
+        const command = new PutObjectCommand({
+            Bucket: S3_BUCKET_NAME,
+            Key: key,
+            Body: buffer,
+            ContentType: file.type,
+        });
 
-        const filePath = join(uploadDir, fileName);
+        await s3Client.send(command);
 
-        // Write file
-        await writeFile(filePath, buffer);
-
-        const publicUrl = `/images/blog/${fileName}`;
+        // Construct public URL
+        const publicUrl = `${S3_BUCKET_URL}/${key}`;
 
         return { success: true, url: publicUrl };
     } catch (error) {

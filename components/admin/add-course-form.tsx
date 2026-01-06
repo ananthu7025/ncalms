@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { ArrowLeft, Save, Eye, Upload } from "lucide-react";
+import { ArrowLeft, Save, Eye, Upload, FolderOpen } from "lucide-react";
 import { getExamTypesByStream } from "@/lib/actions/exam-types";
 import InputText from "@/components/InputComponents/InputText";
 import { uploadSubjectImage } from "@/lib/actions/local-upload";
@@ -241,6 +241,17 @@ export function AddCourseClient({
             <Eye className="w-4 h-4 mr-2" />
             Publish
           </Button>
+          {isEditing && courseId && (
+            <Button
+              variant="secondary"
+              asChild
+            >
+              <Link href={`/admin/content/${courseId}`}>
+                <FolderOpen className="w-4 h-4 mr-2" />
+                Manage Content
+              </Link>
+            </Button>
+          )}
         </div>
       </div>
 

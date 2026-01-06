@@ -166,7 +166,14 @@ export default async function CourseDetailsPage({ params }: { params: Promise<{ 
             <div className="lg:col-span-2 space-y-6">
               {/* Tabs */}
               <Tabs defaultValue={contentTypes.find(ct => accessMap.has(ct.id))?.name.toLowerCase() || "videos"}>
-                <TabsList className={`grid grid-cols-${contentTypes.length} max-w-md`}>
+                <TabsList className={`grid max-w-md ${
+                  contentTypes.length === 1 ? 'grid-cols-1' :
+                  contentTypes.length === 2 ? 'grid-cols-2' :
+                  contentTypes.length === 3 ? 'grid-cols-3' :
+                  contentTypes.length === 4 ? 'grid-cols-4' :
+                  contentTypes.length === 5 ? 'grid-cols-5' :
+                  'grid-cols-6'
+                }`}>
                   {contentTypes.map((ct) => {
                     const Icon = getContentTypeIcon(ct.name);
                     return (
@@ -296,21 +303,7 @@ export default async function CourseDetailsPage({ params }: { params: Promise<{ 
                       <span className="font-semibold text-muted-foreground">Students Enrolled:</span>
                       <span className="font-normal">{stats.studentsCount}</span>
                     </li>
-                    <li className="flex items-center justify-between gap-x-5 py-3 first-of-type:pt-0 last-of-type:pb-0">
-                      <span className="font-semibold text-muted-foreground">Rating:</span>
-                      <span className="font-normal inline-flex items-center gap-1">
-                        {[...Array(5)].map((_, i) => (
-                          <Image
-                            key={i}
-                            src={i < stats.rating ? "/assets/img/icons/icon-yellow-star.svg" : "/assets/img/icons/icon-yellow-star-blank.svg"}
-                            alt="star"
-                            width={16}
-                            height={15}
-                          />
-                        ))}
-                        <span className="ml-2">({stats.reviews} reviews)</span>
-                      </span>
-                    </li>
+             
                     <li className="flex items-center justify-between gap-x-5 py-3 first-of-type:pt-0 last-of-type:pb-0">
                       <span className="font-semibold text-muted-foreground">Access:</span>
                       <span className="font-normal">Lifetime</span>
