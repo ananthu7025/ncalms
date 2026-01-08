@@ -1,8 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { redirect } from "next/navigation";
-import { getSubjects } from "@/lib/actions/subjects";
-import { getContentTypes } from "@/lib/actions/content-types";
-import { getSubjectContents } from "@/lib/actions/subject-contents";
+import { getSubjects, getSubjectByIdWithStats } from "@/lib/actions/subjects";
+
 import { SubjectSelector } from "@/components/admin/content/SubjectSelector";
 
 interface PageProps {
@@ -17,9 +16,11 @@ export default async function AdminCourseContentWithSubject({
   const { subjectId } = await params;
 
   // Fetch initial data on the server
-  const [subjectsResult, contentTypesResult] = await Promise.all([
+  // We use getSubjectByIdWithStats because it returns contentTypes filtered by "isIncluded" (pricing)
+  // and also returns the contents, so we don't need separate calls.
+  const [subjectsResult, subjectDetailsResult] = await Promise.all([
     getSubjects(),
-    getContentTypes(),
+    getSubjectByIdWithStats(subjectId),
   ]);
 
   const subjects =
@@ -28,25 +29,19 @@ export default async function AdminCourseContentWithSubject({
       : [];
 
   const contentTypes =
-    contentTypesResult.success && contentTypesResult.data
-      ? contentTypesResult.data
+    subjectDetailsResult.success && subjectDetailsResult.data
+      ? subjectDetailsResult.data.contentTypes
       : [];
 
-  // Validate that the subject exists
+  const initialContents =
+    subjectDetailsResult.success && subjectDetailsResult.data
+      ? subjectDetailsResult.data.contents
+      : [];
+
+  // Validate that the subject exists (using the list of all subjects)
   const subjectExists = subjects.some((s: any) => s.id === subjectId);
 
-  if (!subjectExists && subjects.length > 0) {
-    // If subject doesn't exist, redirect to first subject
-    redirect(`/admin/content/${subjects[0].id}`);
-  }
 
-  // Fetch contents for the specified subject
-  const contentsResult = subjectId
-    ? await getSubjectContents(subjectId)
-    : { success: false, data: [] };
-
-  const initialContents =
-    contentsResult.success && contentsResult.data ? contentsResult.data : [];
 
   return (
     <div className="space-y-6 animate-fade-in">

@@ -6,35 +6,48 @@
 import Link from "next/link";
 import toaster from "@/lib/toaster";
 import { useState, useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useFieldArray } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { ArrowLeft, Save, Eye, Upload, FolderOpen } from "lucide-react";
+import { ArrowLeft, Save, Eye, Upload, FolderOpen, Trash2, Loader2 } from "lucide-react";
 import { getExamTypesByStream } from "@/lib/actions/exam-types";
 import InputText from "@/components/InputComponents/InputText";
 import { uploadSubjectImage } from "@/lib/actions/local-upload";
 import { getSyllabusUploadUrl } from "@/lib/actions/s3-upload";
 import InputSelect from "@/components/InputComponents/InputSelect";
 import InputSwitch from "@/components/InputComponents/InputSwitch";
-import { createSubject, updateSubject } from "@/lib/actions/subjects";
+import { createSubject, updateSubject, deleteSubject } from "@/lib/actions/subjects";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import InputTextarea from "@/components/InputComponents/InputTextarea";
 import { courseSchema, CourseFormValues } from "@/lib/validations/course";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ContentTypesCard } from "@/components/admin/ContentTypesCard";
+import type { ContentType } from "@/lib/db/schema";
 
 interface AddCourseFormProps {
   initialData?: any;
   streams: any[];
+  contentTypes: ContentType[];
   courseId?: string;
 }
 
 export function AddCourseClient({
   initialData,
   streams,
+  contentTypes,
   courseId,
 }: AddCourseFormProps) {
   const router = useRouter();
@@ -48,6 +61,18 @@ export function AddCourseClient({
     initialData?.thumbnail || null
   );
   const [isLoading, setIsLoading] = useState(false);
+
+  // Prepare initial pricing state ensuring all content types are present
+  const initialPricing = contentTypes.map(ct => {
+    const existingPrice = initialData?.pricing?.find(
+      (p: any) => p.contentTypeId === ct.id
+    );
+    return {
+      contentTypeId: ct.id,
+      price: existingPrice ? existingPrice.price.toString() : "0",
+      isIncluded: !!existingPrice,
+    };
+  });
 
   const hookForm = useForm<CourseFormValues>({
     resolver: yupResolver(courseSchema) as any,
@@ -66,15 +91,23 @@ export function AddCourseClient({
       syllabusPdfUrl: initialData?.syllabusPdfUrl || "",
       objectives: initialData?.objectives ? (typeof initialData.objectives === 'string' ? JSON.parse(initialData.objectives).join("\n") : "") : "",
       additionalCoverage: initialData?.additionalCoverage || "",
+      pricing: initialPricing,
     },
   });
 
   const {
     watch,
     setValue,
+    control,
     handleSubmit,
     formState: { errors },
   } = hookForm;
+
+  const { fields: pricingFields } = useFieldArray({
+    control,
+    name: "pricing",
+  });
+
   const streamId = watch("streamId");
   const isBundleEnabled = watch("isBundleEnabled");
   const isFeatured = watch("isFeatured");
@@ -206,6 +239,30 @@ export function AddCourseClient({
     }
   };
 
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const handleDelete = async () => {
+    if (!courseId) return;
+    setIsDeleting(true);
+    try {
+      const result = await deleteSubject(courseId);
+
+      if (!result?.success) {
+        toaster.error(result?.error ?? "Failed to delete course");
+        return;
+      }
+      toaster.success("Course deleted successfully");
+      setIsDeleteOpen(false);
+      router.push("/admin/courses");
+      router.refresh();
+    } catch {
+      toaster.error("Something went wrong. Please try again.");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center gap-4">
@@ -251,6 +308,37 @@ export function AddCourseClient({
                 Manage Content
               </Link>
             </Button>
+          )}
+
+          {isEditing && courseId && (
+            <AlertDialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
+              <AlertDialogTrigger asChild>
+                <Button variant="destructive" size="icon" disabled={isLoading || isDeleting}>
+                  {isDeleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Delete course?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This action cannot be undone. The course will be permanently removed.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleDelete();
+                    }}
+                    disabled={isDeleting}
+                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  >
+                    {isDeleting ? "Deleting..." : "Delete"}
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           )}
         </div>
       </div>
@@ -413,7 +501,7 @@ export function AddCourseClient({
                   id="syllabus"
                   type="file"
                   accept="application/pdf"
-                  style={{cursor:"pointer"}}
+                  style={{ cursor: "pointer" }}
                   onChange={(e) => {
                     const file = e.target.files?.[0];
                     if (file) {
@@ -429,7 +517,7 @@ export function AddCourseClient({
                     }
                   }}
                 />
-                <p className="text-xs text-muted-foreground" style={{cursor:"pointer"}}>
+                <p className="text-xs text-muted-foreground" style={{ cursor: "pointer" }}>
                   {syllabusFile
                     ? `Selected: ${syllabusFile.name}`
                     : "Upload a new PDF to replace the current one (if any)"}
@@ -496,6 +584,53 @@ export function AddCourseClient({
 
           <Card>
             <CardHeader>
+              <CardTitle>Content Pricing</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {contentTypes.length === 0 ? (
+                <p className="text-sm text-muted-foreground">No content types defined.</p>
+              ) : (
+                pricingFields.map((field, index) => {
+                  const contentType = contentTypes.find(ct => ct.id === field.contentTypeId);
+                  if (!contentType) return null;
+                  return (
+                    <div key={field.id} className="space-y-3 p-3 border rounded-lg bg-accent/5">
+                      <div className="flex items-center justify-between">
+                        <Label className="font-medium">{contentType.name}</Label>
+                        <InputSwitch
+                          hookForm={hookForm}
+                          field={`pricing.${index}.isIncluded`}
+                          label=""
+                        />
+                      </div>
+
+                      {watch(`pricing.${index}.isIncluded`) && (
+                        <>
+                          <InputText
+                            hookForm={hookForm}
+                            field={`pricing.${index}.price`}
+                            label="Price ($)"
+                            placeholder="0.00"
+                          />
+                          <input
+                            type="hidden"
+                            {...hookForm.register(`pricing.${index}.contentTypeId`)}
+                            value={field.contentTypeId}
+                          />
+                        </>
+                      )}
+                    </div>
+                  );
+                })
+              )}
+              <p className="text-xs text-muted-foreground mt-2">
+                Set individual prices for each content type.
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
               <CardTitle>Status</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -544,8 +679,6 @@ export function AddCourseClient({
               </div>
             </CardContent>
           </Card>
-
-          <ContentTypesCard />
         </div>
       </div>
     </div>

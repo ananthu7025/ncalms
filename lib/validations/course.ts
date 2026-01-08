@@ -19,6 +19,13 @@ export const courseSchema = yup.object().shape({
     syllabusPdfUrl: yup.string().transform((curr, orig) => orig === "" ? null : curr).url("Must be a valid URL").nullable().optional(),
     objectives: yup.string().optional(),
     additionalCoverage: yup.string().optional(),
+    pricing: yup.array().of(
+        yup.object().shape({
+            contentTypeId: yup.string().required(),
+            price: yup.string().matches(/^\d+(\.\d{1,2})?$/, "Invalid price format").default("0"),
+            isIncluded: yup.boolean().default(true),
+        })
+    ).optional(),
 });
 
 export type CourseFormValues = yup.InferType<typeof courseSchema>;

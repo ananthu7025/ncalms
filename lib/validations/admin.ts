@@ -62,6 +62,11 @@ export const createSubjectSchema = z.object({
   syllabusPdfUrl: z.string().url("Invalid URL").max(500, "URL too long").optional().nullable(),
   objectives: z.string().optional().nullable(),
   additionalCoverage: z.string().optional().nullable(),
+  pricing: z.array(z.object({
+    contentTypeId: z.string().uuid("Invalid content type ID"),
+    price: z.string().regex(/^\d+(\.\d{1,2})?$/, "Invalid price format").default("0"),
+    isIncluded: z.boolean().default(true),
+  })).optional(),
 });
 
 export const updateSubjectSchema = z.object({
@@ -80,6 +85,11 @@ export const updateSubjectSchema = z.object({
   syllabusPdfUrl: z.string().url("Invalid URL").max(500, "URL too long").optional().nullable(),
   objectives: z.string().optional().nullable(),
   additionalCoverage: z.string().optional().nullable(),
+  pricing: z.array(z.object({
+    contentTypeId: z.string().uuid("Invalid content type ID"),
+    price: z.string().regex(/^\d+(\.\d{1,2})?$/, "Invalid price format").default("0"),
+    isIncluded: z.boolean().default(true),
+  })).optional(),
 });
 
 // ===========================

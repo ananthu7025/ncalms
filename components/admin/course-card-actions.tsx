@@ -69,52 +69,6 @@ export function CourseCardActions({
           Edit
         </Button>
       </Link>
-      <AlertDialog open={open} onOpenChange={setOpen}>
-        <AlertDialogTrigger asChild>
-          <Button
-            size="sm"
-            variant="destructive"
-            className="h-8"
-            aria-label={`Delete course ${courseTitle}`}
-            disabled={isPending}
-          >
-            {isPending ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : (
-              <>
-                <Trash2 className="w-4 h-4 mr-1.5" />
-                Delete
-              </>
-            )}
-          </Button>
-        </AlertDialogTrigger>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete course?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone. The course{" "}
-              <span className="font-medium text-foreground">
-                “{courseTitle}”
-              </span>{" "}
-              and all its associated content will be permanently removed.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={isPending}>Cancel</AlertDialogCancel>
-
-            <AlertDialogAction asChild>
-              <Button
-                variant="destructive"
-                onClick={handleDelete}
-                disabled={isPending}
-              >
-                {isPending ? "Deleting…" : "Delete"}
-              </Button>
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   );
 }

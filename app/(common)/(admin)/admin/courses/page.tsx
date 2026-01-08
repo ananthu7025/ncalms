@@ -62,7 +62,7 @@ async function CoursesListContent() {
           isFeatured={subject.isFeatured}
           isMandatory={subject.isMandatory}
           isActive={subject.isActive}
-          href={`/admin/content/${subject.id}`}
+          href={`/admin/add-course?courseId=${subject.id}`}
           showInactiveBadge={true}
           customActions={
             <CourseCardActions

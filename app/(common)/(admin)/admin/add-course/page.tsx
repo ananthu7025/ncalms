@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/EmptyState";
 import { getSubjectById } from "@/lib/actions/subjects";
 import { getLearningStreams } from "@/lib/actions/learning-streams";
+import { getContentTypes } from "@/lib/actions/content-types";
 import { AddCourseClient } from "@/components/admin/add-course-form";
 
 export const dynamic = "force-dynamic";
@@ -22,6 +23,13 @@ export default async function AdminAddCoursePage({
   const streams =
     streamsResult.success && streamsResult.data ? streamsResult.data : [];
 
+  // Fetch content types
+  const contentTypesResult = await getContentTypes();
+  const contentTypes =
+    contentTypesResult.success && contentTypesResult.data
+      ? contentTypesResult.data
+      : [];
+
   let initialData = null;
 
   // Fetch course if editing
@@ -40,13 +48,17 @@ export default async function AdminAddCoursePage({
         />
       );
     }
-    initialData = courseResult.data.subject;
+    initialData = {
+      ...courseResult.data.subject,
+      pricing: courseResult.data.pricing || [],
+    };
   }
 
   return (
     <AddCourseClient
       initialData={initialData}
       streams={streams}
+      contentTypes={contentTypes}
       courseId={courseId}
     />
   );

@@ -135,11 +135,21 @@ export async function getSubjectById(id: string) {
       .from(schema.subjectContents)
       .where(eq(schema.subjectContents.subjectId, id));
 
+    // Get pricing for all content types for this subject
+    const pricing = await db
+      .select({
+        contentTypeId: schema.subjectContentTypePricing.contentTypeId,
+        price: schema.subjectContentTypePricing.price,
+      })
+      .from(schema.subjectContentTypePricing)
+      .where(eq(schema.subjectContentTypePricing.subjectId, id));
+
     return {
       success: true,
       data: {
         ...result,
         contentsCount: contents.length,
+        pricing,
       },
     };
   } catch (error) {
@@ -214,11 +224,29 @@ export async function createSubject(data: CreateSubjectInput) {
         isFeatured: validatedData.isFeatured,
         isMandatory: validatedData.isMandatory,
         isActive: validatedData.isActive,
-        syllabusPdfUrl: validatedData.syllabusPdfUrl || null,
         objectives: validatedData.objectives || null,
         additionalCoverage: validatedData.additionalCoverage || null,
       })
       .returning();
+
+    // Handle pricing if provided
+    if (validatedData.pricing && validatedData.pricing.length > 0) {
+      for (const priceItem of validatedData.pricing) {
+        if (priceItem.isIncluded) {
+          await db
+            .insert(schema.subjectContentTypePricing)
+            .values({
+              subjectId: newSubject.id,
+              contentTypeId: priceItem.contentTypeId,
+              price: priceItem.price,
+            })
+            .onConflictDoUpdate({
+              target: [schema.subjectContentTypePricing.subjectId, schema.subjectContentTypePricing.contentTypeId],
+              set: { price: priceItem.price, updatedAt: new Date() }
+            });
+        }
+      }
+    }
 
     // Revalidate relevant pages
     revalidatePath("/admin/courses");
@@ -332,6 +360,35 @@ export async function updateSubject(data: UpdateSubjectInput) {
       .where(eq(schema.subjects.id, validatedData.id))
       .returning();
 
+    // Handle pricing if provided
+    if (validatedData.pricing && validatedData.pricing.length > 0) {
+      for (const priceItem of validatedData.pricing) {
+        if (priceItem.isIncluded) {
+          await db
+            .insert(schema.subjectContentTypePricing)
+            .values({
+              subjectId: validatedData.id,
+              contentTypeId: priceItem.contentTypeId,
+              price: priceItem.price,
+            })
+            .onConflictDoUpdate({
+              target: [schema.subjectContentTypePricing.subjectId, schema.subjectContentTypePricing.contentTypeId],
+              set: { price: priceItem.price, updatedAt: new Date() }
+            });
+        } else {
+          // If not included, remove any existing pricing
+          await db
+            .delete(schema.subjectContentTypePricing)
+            .where(
+              and(
+                eq(schema.subjectContentTypePricing.subjectId, validatedData.id),
+                eq(schema.subjectContentTypePricing.contentTypeId, priceItem.contentTypeId)
+              )
+            );
+        }
+      }
+    }
+
     // Revalidate relevant pages
     revalidatePath("/admin/courses");
     revalidatePath("/learner/courses");
@@ -382,17 +439,31 @@ export async function deleteSubject(id: string) {
       };
     }
 
-    // Check if subject has associated contents
-    const contents = await db
+    // Check if subject has been purchased
+    const purchases = await db
       .select()
-      .from(schema.subjectContents)
-      .where(eq(schema.subjectContents.subjectId, id))
+      .from(schema.purchases)
+      .where(eq(schema.purchases.subjectId, id))
       .limit(1);
 
-    if (contents.length > 0) {
+    if (purchases.length > 0) {
       return {
         success: false,
-        error: "Cannot delete subject with associated content. Please delete the content first.",
+        error: "Cannot delete subject that has been purchased.",
+      };
+    }
+
+    // Check if any users have access (legacy or manual grants)
+    const access = await db
+      .select()
+      .from(schema.userAccess)
+      .where(eq(schema.userAccess.subjectId, id))
+      .limit(1);
+
+    if (access.length > 0) {
+      return {
+        success: false,
+        error: "Cannot delete subject that has associated user access.",
       };
     }
 
@@ -593,11 +664,27 @@ export async function getSubjectByIdWithStats(id: string) {
       .where(eq(schema.userAccess.subjectId, id))
       .groupBy(schema.userAccess.userId);
 
+    // Get pricing for all content types for this subject
+    const pricing = await db
+      .select({
+        contentTypeId: schema.subjectContentTypePricing.contentTypeId,
+        price: schema.subjectContentTypePricing.price,
+        contentTypeName: schema.contentTypes.name,
+      })
+      .from(schema.subjectContentTypePricing)
+      .leftJoin(schema.contentTypes, eq(schema.subjectContentTypePricing.contentTypeId, schema.contentTypes.id))
+      .where(eq(schema.subjectContentTypePricing.subjectId, id));
+
     // Get all content types to show what's available
-    const contentTypes = await db
+    // FILTER: Only include content types that are "Enabled" (exist in pricing table)
+    const allContentTypes = await db
       .select()
       .from(schema.contentTypes)
       .orderBy(schema.contentTypes.name);
+
+    const contentTypes = allContentTypes.filter(ct =>
+      pricing.some(p => p.contentTypeId === ct.id)
+    );
 
     // Get contents with their content types
     const contentsWithTypes = await db
@@ -615,16 +702,7 @@ export async function getSubjectByIdWithStats(id: string) {
       )
       .orderBy(schema.subjectContents.sortOrder);
 
-    // Get pricing for all content types for this subject
-    const pricing = await db
-      .select({
-        contentTypeId: schema.subjectContentTypePricing.contentTypeId,
-        price: schema.subjectContentTypePricing.price,
-        contentTypeName: schema.contentTypes.name,
-      })
-      .from(schema.subjectContentTypePricing)
-      .leftJoin(schema.contentTypes, eq(schema.subjectContentTypePricing.contentTypeId, schema.contentTypes.id))
-      .where(eq(schema.subjectContentTypePricing.subjectId, id));
+
 
     console.log("DEBUG: getSubjectByIdWithStats returning", {
       id: result.subject.id,
@@ -642,9 +720,9 @@ export async function getSubjectByIdWithStats(id: string) {
           reviews: 0, // Can be implemented later with a reviews table
           rating: 5, // Default rating, can be calculated from reviews
         },
+        pricing, // Pricing for each content type
         contentTypes,
         contents: contentsWithTypes,
-        pricing, // Pricing for each content type
       },
     };
   } catch (error) {
@@ -723,9 +801,6 @@ export async function getSubjectForLearner(subjectId: string, userId: string) {
       userAccessRecords.map(record => [record.contentTypeId, true])
     );
 
-    // Check if user has purchased the complete bundle
-    const hasBundleAccess = contentTypes.every(ct => accessMap.has(ct.id));
-
     // Get enrolled students count
     const enrollments = await db
       .select({ userId: schema.userAccess.userId })
@@ -744,16 +819,25 @@ export async function getSubjectForLearner(subjectId: string, userId: string) {
       .leftJoin(schema.contentTypes, eq(schema.subjectContentTypePricing.contentTypeId, schema.contentTypes.id))
       .where(eq(schema.subjectContentTypePricing.subjectId, subjectId));
 
+    // Filter content types to only those enabled in pricing
+    const filteredContentTypes = contentTypes.filter(ct =>
+      pricing.some(p => p.contentTypeId === ct.id)
+    );
+
+    // Check if user has purchased the complete bundle (based on enabled content types)
+    const hasBundleAccess = filteredContentTypes.length > 0 && filteredContentTypes.every(ct => accessMap.has(ct.id));
+
     return {
       success: true,
       data: {
         ...result,
-        contentTypes,
+        contentTypes: filteredContentTypes,
         userAccess: userAccessRecords,
         contents,
         hasBundleAccess,
         accessMap,
         pricing, // Pricing for each content type
+
         stats: {
           lessonsCount: contents.length,
           studentsCount: enrollments.length,

@@ -36,5 +36,6 @@ export const adminNavItems = [
     { title: "Transactions", href: "/admin/transactions", icon: CreditCard },
     { title: "Users", href: "/admin/users", icon: Users },
     { title: "Email Templates", href: "/admin/email-templates", icon: Mail },
+    { title: "Content Types", href: "/admin/content-types", icon: Library },
     { title: "Support Inbox", href: "/admin/support", icon: MessageSquare },
 ];
