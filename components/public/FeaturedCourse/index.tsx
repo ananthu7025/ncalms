@@ -32,10 +32,23 @@ const FeaturedCourse = async () => {
           <div className="container">
 
             {/* Section Header */}
-            <div className="mb-10 lg:mb-[60px]">
-              <div className="mx-auto max-w-md text-center" data-aos="fade-up">
+            {/* Section Header */}
+            <div className="mb-10 flex flex-wrap items-center justify-between gap-8 lg:mb-[60px]">
+              <div className="max-w-xl" data-aos="fade-up">
                 <span className="mb-5 block uppercase">FEATURED COURSES</span>
                 <h2>NCA Core Subjects</h2>
+              </div>
+
+              <div className="inline-block" data-aos="fade-left" data-aos-delay="100">
+                <Link className="btn btn-primary is-icon group" href="/courses">
+                  Explore All
+                  <span className="btn-icon bg-white group-hover:right-0 group-hover:translate-x-full">
+                    <Image src="/assets/img/icons/icon-purple-arrow-right.svg" alt="arrow" width={13} height={12} />
+                  </span>
+                  <span className="btn-icon bg-white group-hover:left-[5px] group-hover:translate-x-0">
+                    <Image src="/assets/img/icons/icon-purple-arrow-right.svg" alt="arrow" width={13} height={12} />
+                  </span>
+                </Link>
               </div>
             </div>
 

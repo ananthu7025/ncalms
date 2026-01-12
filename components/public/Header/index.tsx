@@ -35,7 +35,9 @@ const HeaderPublic = () => {
   };
 
   return (
-    <div className="absolute left-0 top-0 z-20 w-full">
+    <div
+      style={{ backgroundColor: "#ffff" }}
+      className="absolute left-0 top-0 z-20 w-full">
       {/* Header Top Area */}
       <div className="bg-transparent py-4">
         <div className="container-expand">
@@ -146,7 +148,7 @@ const HeaderPublic = () => {
       {/* Header Bottom Area */}
       <header className="site-header bg-white shadow-[0_4px_30px_16px] shadow-[#070229]/5">
         <div className="container-expand">
-<div className="flex justify-center text-sm font-medium text-[#263238]">
+          <div className="flex justify-center text-sm font-medium text-[#263238]">
 
             {/* Navigation */}
             <nav className="menu-block">

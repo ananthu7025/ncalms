@@ -14,73 +14,60 @@ const Categories = () => {
           {/* Header */}
           <div className="mb-10 flex flex-wrap items-center justify-between gap-8 lg:mb-[60px]">
             <div className="max-w-xl" data-aos="fade-up">
-              <span className="mb-5 block uppercase">CUSTOMIZED SERVICES & RESOURCES</span>
-              <h2>Everything You Need to Excel in the NCA Exams</h2>
-              <p className="mt-3">
-                Looking for something just for you? We've got you covered.
-              </p>
+              <h2>We Offer</h2>
             </div>
 
             <div className="inline-block" data-aos="fade-left" data-aos-delay="100">
-              <Link className="btn btn-primary is-icon group" href="/contact">
-                Enquire Now
+              <Link
+                className="btn btn-primary is-icon group"
+                href="https://wa.me/1234567890" // Placeholder for WhatsApp link
+                target="_blank"
+              >
+                Contact via WhatsApp
                 <span className="btn-icon bg-white group-hover:right-0 group-hover:translate-x-full">
-                  <Image src="/assets/img/icons/icon-purple-arrow-right.svg" alt="arrow" width={13} height={12} />
+                  <Image src="/assets/img/icons/icon-white-chat-2.svg" alt="whatsapp" width={20} height={20} className="filter invert" />
                 </span>
                 <span className="btn-icon bg-white group-hover:left-[5px] group-hover:translate-x-0">
-                  <Image src="/assets/img/icons/icon-purple-arrow-right.svg" alt="arrow" width={13} height={12} />
+                  <Image src="/assets/img/icons/icon-white-chat-2.svg" alt="whatsapp" width={20} height={20} className="filter invert" />
                 </span>
               </Link>
             </div>
           </div>
 
-          {/* 6 Items */}
-          <ul className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3">
+          {/* 4 Items */}
+          <ul className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2">
             {[
               {
-                icon: "1",
-                name: "Legal Research Writing",
-                action: "Enquire Now",
-                bg: "#DE1EF9",
-              },
-              {
-                icon: "2",
-                name: "Doubt Clearing Session",
-                action: "Enquire Now",
-                bg: "#42AC98",
-              },
-              {
-                icon: "3",
-                name: "Live Mock Exam",
-                action: "Enquire Now",
-                bg: "#DF4343",
-              },
-              {
-                icon: "4",
-                name: "Recorded Lectures",
-                action: "Demo",
+                icon: "4", // Using existing icon numbers as placeholders, assuming they exist
+                name: "Detailed Lecture Recordings",
+                description: "Complete NCA updated syllabus coverage and how to write answers",
                 bg: "#543EE4",
               },
               {
-                icon: "5",
+                icon: "6",
                 name: "Study Materials",
-                action: "Sample",
+                description: "Notes, Questions and Answers, IRACs, Essay Answer Structures",
                 bg: "#543EE5",
               },
               {
-                icon: "6",
-                name: "Sample Question Papers With Answers",
-                action: "Sample",
-                bg: "#DF4343",
+                icon: "2",
+                name: "1:1 Doubt Clearing",
+                description: "Personal sessions with prior booking",
+                bg: "#42AC98",
+              },
+              {
+                icon: "1",
+                name: "Legal Research & Writing",
+                description: "Learn how to research Canadian law, write clear legal memos — connect via WhatsApp",
+                bg: "#DE1EF9",
               },
             ].map((item, idx) => (
               <li key={idx} data-aos="fade-up" data-aos-delay={idx * 100}>
-                <a
-                  className="flex items-center gap-6 rounded-[100px] bg-white p-[10px] transition-all duration-300 hover:shadow-lg"
-                  href="#"
+                <div
+                  className="flex h-full items-start gap-6 rounded-[20px] bg-white p-8 transition-all duration-300 hover:shadow-lg"
                 >
                   <div
-                    className="inline-flex h-[72px] w-[72px] items-center justify-center rounded-[50%]"
+                    className="inline-flex h-[72px] w-[72px] flex-shrink-0 items-center justify-center rounded-[50%]"
                     style={{ backgroundColor: `${item.bg}1A` }}
                   >
                     <Image
@@ -91,12 +78,12 @@ const Categories = () => {
                     />
                   </div>
                   <div className="flex-1">
-                    <span className="mb-1 block font-title text-xl font-bold text-colorBlackPearl">
+                    <span className="mb-2 block font-title text-xl font-bold text-colorBlackPearl">
                       {item.name}
                     </span>
-                    <span className="text-sm">{item.action}</span>
+                    <p className="text-base text-gray-600">{item.description}</p>
                   </div>
-                </a>
+                </div>
               </li>
             ))}
           </ul>

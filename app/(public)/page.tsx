@@ -46,11 +46,11 @@ export default function HomePage() {
       <HeroSection />
       <WelcomeSection />
       <AboutInstructors />
+      <FeaturedCourse />
       <Categories />
       <FeaturesSection />
-      <FeaturedCourse />
       <WhyChooseUs />
-         <div className="section-client-logo">
+      <div className="section-client-logo">
         <div className="bg-white">
           <div className="z-10 -mt-44">
             <div className="container">
@@ -89,7 +89,7 @@ export default function HomePage() {
         </div>
       </div>
       <PrivateTutoring />
-   
+
       <TestimonialSection />
       <BlogSection />
     </>

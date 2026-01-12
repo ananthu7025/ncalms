@@ -7,7 +7,7 @@ const WhyChooseUs = () => {
         <div className="section-space-top pb-[286px]">
           <div className="container">
             <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-[minmax(0,0.9fr)_1fr] xxl:gap-28">
-              
+
               {/* Content */}
               <div
                 className="order-1 lg:order-2"
@@ -22,10 +22,7 @@ const WhyChooseUs = () => {
 
                 <div className="mt-7" data-aos="fade-up" data-aos-delay="100">
                   <p>
-                    Our mission is to empower aspiring Canadian lawyers with the
-                    knowledge, confidence, and structured guidance required to
-                    successfully clear the NCA examinations on their first
-                    attempt.
+                    We are dedicated to empowering aspiring lawyers to succeed in their Canadian legal journey through expert guidance and comprehensive resources.
                   </p>
 
                   <ul className="mt-10 flex flex-col gap-y-10">
@@ -46,9 +43,7 @@ const WhyChooseUs = () => {
                         </span>
                       </div>
                       <p>
-                        To deliver practical, exam-focused education that
-                        simplifies complex legal concepts and enables confident
-                        performance in NCA assessments.
+                        To empower aspiring Canadian lawyers with the knowledge, skills, and confidence to excel in their NCA and Ontario Bar examinations on their first attempt.
                       </p>
                     </li>
 
@@ -68,9 +63,7 @@ const WhyChooseUs = () => {
                         </span>
                       </div>
                       <p>
-                        Excellence, integrity, and personalized support — every
-                        student receives mentorship tailored to their unique
-                        learning journey.
+                        Excellence, integrity, and personalized support for every student. We believe in building lasting relationships and genuine success through dedicated mentorship.
                       </p>
                     </li>
 
@@ -102,7 +95,7 @@ const WhyChooseUs = () => {
                   </div>
                   <div>
                     <span className="block font-title text-[28px] font-bold leading-[1.73] text-[#DF4343]">
-                      95%
+                      98%
                     </span>
                     <span>Pass Rate</span>
                   </div>

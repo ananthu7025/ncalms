@@ -7,15 +7,15 @@ const WhyChooseUsContent = () => {
   const features = [
     {
       icon: "/assets/img/icons/content-icon-1.svg",
-      title: "Face-to-face Teaching",
+      title: "18 Subjects Offered",
       description:
-        "Experience personalized instruction with our expert tutors through one-on-one sessions.",
+        "Comprehensive coverage of all core and optional NCA subjects.",
     },
     {
       icon: "/assets/img/icons/content-icon-2.svg",
-      title: "24/7 Support Available",
+      title: "Personalized Mentorship",
       description:
-        "Get help whenever you need it with our round-the-clock support team.",
+        "Expert guidance to help you succeed on your first attempt.",
     },
   ];
 
@@ -28,15 +28,16 @@ const WhyChooseUsContent = () => {
             <div data-aos="fade-right">
               <div className="mb-10">
                 <span className="mb-5 block uppercase text-colorPurpleBlue">
-                  WHY CHOOSE US
+                  ABOUT US
                 </span>
                 <h2 className="font-title text-4xl font-bold text-colorBlackPearl lg:text-5xl">
-                  Transform Your Best Practice with Our Online Course
+                  NCA MADE EASY
                 </h2>
                 <p className="mt-6 text-lg">
-                  We provide comprehensive online courses designed to help you
-                  excel in your studies. Our expert instructors and proven
-                  teaching methods ensure you get the best learning experience.
+                  NCA MADE EASY is a specialised, exam-focused platform built exclusively for internationally trained lawyers navigating NCA and Ontario Licensing Candidates preparing for BAR exams in Canada.
+                </p>
+                <p className="mt-4 text-lg">
+                  We provide comprehensive study resources, expert guidance, and personalized mentorship to help you succeed on your first attempt.
                 </p>
               </div>
 
@@ -94,9 +95,9 @@ const WhyChooseUsContent = () => {
                   </div>
                   <div>
                     <span className="block font-title text-2xl font-bold text-[#DF4343]">
-                      69K+
+                      1000+
                     </span>
-                    <span className="text-sm">Satisfied Students</span>
+                    <span className="text-sm">Students Trained</span>
                   </div>
                 </div>
               </div>

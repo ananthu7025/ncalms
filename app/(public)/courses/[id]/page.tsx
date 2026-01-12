@@ -274,7 +274,7 @@ const CourseDetailPage = async ({ params }: CourseDetailPageProps) => {
                       <li className="rounded-lg border-2 border-colorPurpleBlue bg-white px-[30px] py-6 shadow-lg">
                         {/* Best Value Badge */}
                         <div className="-mx-[30px] -mt-6 mb-6 bg-gradient-to-r from-colorPurpleBlue to-blue-700 px-4 py-2 text-center">
-                          <span className="font-semibold text-sm text-white">⚡ Best Value - Save Money!</span>
+                          <span className="font-semibold text-sm ">⚡ Best Value - Save Money!</span>
                         </div>
 
                         {/* Bundle Header */}
