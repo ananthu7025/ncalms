@@ -10,6 +10,7 @@ import Preloader from '@/components/public/Preloader'
 import SmoothScroll from '@/components/public/SmoothScroll'
 import ScrollToTop from '@/components/public/ScrollToTop'
 import AOSInit from '@/components/public/AOSInit'
+import PurchaseAllHandler from '@/components/public/PurchaseAllHandler'
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 
@@ -27,6 +28,7 @@ export default function PublicLayoutClient({
   return (
     <>
       <ToastContainer position="bottom-right" autoClose={3000} />
+      <PurchaseAllHandler />
       <PublicStyleLoader onLoaded={handleStylesLoaded} />
       <AOSInit />
 

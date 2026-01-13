@@ -63,6 +63,22 @@ async function seed() {
     console.log("Test user ready");
 
     // ==========================
+    // Platform Settings
+    // ==========================
+    console.log("Creating platform settings...");
+    await db.insert(schema.platformSettings)
+      .values({
+        platformName: "NCA LMS",
+        displayName: "NCA Learning Management System",
+        paymentCurrency: "CAD",
+        timezone: "America/Toronto",
+        allSubjectsBundlePrice: "1500.00",
+        allSubjectsBundleEnabled: true,
+      })
+      .onConflictDoNothing();
+    console.log("Platform settings ready");
+
+    // ==========================
     // Learning Streams
     // ==========================
     console.log("Creating learning streams...");

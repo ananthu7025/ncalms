@@ -130,6 +130,145 @@ export async function addToCart(
 }
 
 /**
+ * Add all subjects as bundles to cart
+ * For "Purchase Now" - Buy All Subjects feature
+ */
+export async function addAllSubjectsToCart(): Promise<{
+  success: boolean;
+  message: string;
+  addedCount?: number;
+  skippedCount?: number;
+}> {
+  try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return { success: false, message: "Unauthorized" };
+    }
+
+    // Get all active subjects with bundle enabled
+    const allSubjects = await db
+      .select({
+        id: subjects.id,
+        title: subjects.title,
+        bundlePrice: subjects.bundlePrice,
+        isBundleEnabled: subjects.isBundleEnabled,
+      })
+      .from(subjects)
+      .where(and(
+        eq(subjects.isActive, true),
+        eq(subjects.isBundleEnabled, true)
+      ));
+
+    if (allSubjects.length === 0) {
+      return {
+        success: false,
+        message: "No subjects available for bundle purchase",
+      };
+    }
+
+    // Get existing cart items for this user
+    const existingCartItems = await db
+      .select({
+        subjectId: cart.subjectId,
+        isBundle: cart.isBundle,
+      })
+      .from(cart)
+      .where(eq(cart.userId, session.user.id));
+
+    // Get subjects user already has full access to (via userAccess)
+    const userAccessRecords = await db
+      .select({
+        subjectId: userAccess.subjectId,
+        contentTypeId: userAccess.contentTypeId,
+      })
+      .from(userAccess)
+      .where(eq(userAccess.userId, session.user.id));
+
+    // Group user access by subject to check if they have complete bundle access
+    const subjectsWithAccess = new Set<string>();
+    const accessBySubject = new Map<string, Set<string>>();
+
+    for (const access of userAccessRecords) {
+      if (!accessBySubject.has(access.subjectId)) {
+        accessBySubject.set(access.subjectId, new Set());
+      }
+      accessBySubject.get(access.subjectId)!.add(access.contentTypeId);
+    }
+
+    // Get all content types to determine complete access
+    const allContentTypes = await db.select().from(contentTypes);
+    const contentTypeIds = new Set(allContentTypes.map(ct => ct.id));
+
+    // Check which subjects have complete access
+    for (const [subjectId, accessSet] of accessBySubject.entries()) {
+      if (accessSet.size === contentTypeIds.size) {
+        subjectsWithAccess.add(subjectId);
+      }
+    }
+
+    let addedCount = 0;
+    let skippedCount = 0;
+
+    // Add each subject as a bundle to cart
+    for (const subject of allSubjects) {
+      // Skip if bundle price is not set
+      if (!subject.bundlePrice || parseFloat(subject.bundlePrice) <= 0) {
+        skippedCount++;
+        continue;
+      }
+
+      // Skip if user already has complete access
+      if (subjectsWithAccess.has(subject.id)) {
+        skippedCount++;
+        continue;
+      }
+
+      // Skip if already in cart as bundle
+      const alreadyInCart = existingCartItems.some(
+        (item) => item.subjectId === subject.id && item.isBundle
+      );
+
+      if (alreadyInCart) {
+        skippedCount++;
+        continue;
+      }
+
+      // Add to cart
+      await db.insert(cart).values({
+        userId: session.user.id,
+        subjectId: subject.id,
+        contentTypeId: null,
+        isBundle: true,
+        price: subject.bundlePrice,
+      });
+
+      addedCount++;
+    }
+
+    revalidatePath("/learner/cart");
+
+    if (addedCount === 0) {
+      return {
+        success: false,
+        message: "All subjects are already in your cart or you have access to them",
+        addedCount: 0,
+        skippedCount,
+      };
+    }
+
+    return {
+      success: true,
+      message: `Added ${addedCount} subject${addedCount > 1 ? 's' : ''} to cart`,
+      addedCount,
+      skippedCount,
+    };
+  } catch (error) {
+    console.error("Error adding all subjects to cart:", error);
+    return { success: false, message: "Failed to add subjects to cart" };
+  }
+}
+
+/**
  * Remove item from cart
  */
 export async function removeFromCart(

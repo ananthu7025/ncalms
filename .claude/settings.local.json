@@ -39,7 +39,8 @@
       "Bash(test:*)",
       "Bash(timeout 5 npx drizzle-kit:*)",
       "Bash(npm run db:reset:*)",
-      "Bash(tsx apply-migration.ts:*)"
+      "Bash(tsx apply-migration.ts:*)",
+      "Bash(npx tsx:*)"
     ],
     "deny": [],
     "ask": []

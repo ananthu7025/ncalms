@@ -1,10 +1,48 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Image from "next/image";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
+import { addAllSubjectsToCart } from "@/lib/actions/cart";
+import { toast } from "react-toastify";
 
 const OfferBanner = () => {
+  const router = useRouter();
+  const { data: session, status } = useSession();
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handlePurchaseNow = async () => {
+    // Check authentication
+    if (status === "unauthenticated") {
+      // Redirect to login with intent to purchase all subjects
+      router.push("/login?purchaseAll=true");
+      return;
+    }
+
+    if (status === "loading") {
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const result = await addAllSubjectsToCart();
+
+      if (result.success) {
+        toast.success(result.message);
+        router.push("/learner/cart");
+      } else {
+        toast.error(result.message);
+      }
+    } catch (error) {
+      console.error("Error adding all subjects to cart:", error);
+      toast.error("Failed to add subjects to cart");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="mt-4">
       <div className="container">
@@ -51,8 +89,12 @@ const OfferBanner = () => {
               </p>
 
               <div className="inline-block">
-                <Link className="btn btn-secondary is-icon group" href="/courses">
-                  Start Learning Today
+                <button
+                  onClick={handlePurchaseNow}
+                  disabled={isLoading || status === "loading"}
+                  className="btn btn-secondary is-icon group disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isLoading ? "Adding to Cart..." : "Purchase Now"}
                   <span className="btn-icon bg-colorBlackPearl group-hover:right-0 group-hover:translate-x-full">
                     <Image
                       src="/assets/img/icons/icon-golden-yellow-arrow-right.svg"
@@ -69,7 +111,7 @@ const OfferBanner = () => {
                       height={12}
                     />
                   </span>
-                </Link>
+                </button>
               </div>
             </div>
           </div>

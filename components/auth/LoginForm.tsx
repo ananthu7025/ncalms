@@ -34,6 +34,9 @@ export function LoginForm() {
   const isBundle = searchParams.get("isBundle") === "true";
   const price = parseFloat(searchParams.get("price") || "0");
 
+  // Check if user wants to purchase all subjects
+  const purchaseAll = searchParams.get("purchaseAll");
+
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
@@ -60,7 +63,10 @@ export function LoginForm() {
         if (result.role === "ADMIN") {
           redirectUrl = "/admin/dashboard";
         } else {
-          if (enrollCourse) {
+          if (purchaseAll === "true") {
+            // User wants to purchase all subjects - redirect to homepage with purchaseAll flag
+            redirectUrl = "/?purchaseAll=true";
+          } else if (enrollCourse) {
             const enrollParams = new URLSearchParams({
               autoEnroll: "true",
               subjectId: enrollCourse,
