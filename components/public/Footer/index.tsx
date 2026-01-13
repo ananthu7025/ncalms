@@ -13,7 +13,7 @@ const Footer = () => {
         <div className="section-space">
           <div className="container">
             <div className="grid grid-cols-1 flex-wrap justify-between gap-10 sm:grid-cols-2 lg:flex">
-              
+
               {/* Brand */}
               <div className="max-w-[298px]">
                 <Link href="/">
@@ -109,7 +109,7 @@ const Footer = () => {
                     className="w-full rounded-[50px] border border-[#EBEBEB] bg-white px-7 py-3.5 outline-none"
                     placeholder="Enter email"
                   />
-                  <button type="submit" className="btn btn-primary is-icon group mt-[10px]">
+                  <button type="submit" className="btn btn-secondary is-icon group is-icon group mt-[10px]">
                     Subscribe Now
                     <span className="btn-icon bg-white group-hover:right-0 group-hover:translate-x-full">
                       <Image src="/assets/img/icons/icon-purple-arrow-right.svg" alt="arrow" width={13} height={12} />

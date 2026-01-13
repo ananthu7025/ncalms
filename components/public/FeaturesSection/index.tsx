@@ -7,65 +7,97 @@ const FeaturesSection = () => {
       <div className="relative z-10 bg-colorBlackPearl">
         <div className="py-[60px] lg:py-[90px]">
           <div className="container">
-            <ul className="grid grid-cols-1 gap-10 md:grid-cols-2 lg:grid-cols-3">
-              
+            <ul className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-4">
+
               {/* Feature 1 */}
-              <li className="flex items-start gap-5" data-aos="fade-up" data-aos-delay="100">
-                <div className="inline-flex h-[60px] w-[60px] items-center justify-center rounded-[50%] bg-colorBrightGold/10">
+              <li className="flex items-start gap-4" data-aos="fade-up" data-aos-delay="100">
+                <div className="inline-flex h-[50px] w-[50px] items-center justify-center rounded-[50%] bg-colorBrightGold/10 flex-shrink-0">
                   <Image
                     src="/assets/img/icons/feature-icon-1.svg"
                     alt="feature-icon"
-                    width={30}
-                    height={30}
+                    width={24}
+                    height={24}
                   />
                 </div>
                 <div className="flex-1">
-                  <span className="mb-2 block font-title text-xl font-bold text-white">
-                    Detailed Lecture Recordings
+                  <span className="mb-2 block font-title text-lg font-bold text-white">
+                    Video Lectures
                   </span>
-                  <span className="text-white/80">
-                    Complete NCA syllabus material coverage with concept-focused explanations.
+                  <span className="text-white/80 text-sm">
+                    Complete syllabus coverage.
                   </span>
                 </div>
               </li>
 
               {/* Feature 2 */}
-              <li className="flex items-start gap-5" data-aos="fade-up" data-aos-delay="200">
-                <div className="inline-flex h-[60px] w-[60px] items-center justify-center rounded-[50%] bg-[#6FC081]/10">
+              <li className="flex items-start gap-4" data-aos="fade-up" data-aos-delay="200">
+                <div className="inline-flex h-[50px] w-[50px] items-center justify-center rounded-[50%] bg-[#6FC081]/10 flex-shrink-0">
                   <Image
                     src="/assets/img/icons/feature-icon-2.svg"
                     alt="feature-icon"
-                    width={30}
-                    height={30}
+                    width={24}
+                    height={24}
                   />
                 </div>
                 <div className="flex-1">
-                  <span className="mb-2 block font-title text-xl font-bold text-white">
+                  <span className="mb-2 block font-title text-lg font-bold text-white">
                     Study Materials
                   </span>
-                  <span className="text-white/80">
-                    Summary notes, exam-oriented sample questions and model answers.
+                  <span className="text-white/80 text-sm">
+                    Notes, questions & answers.
                   </span>
                 </div>
               </li>
 
               {/* Feature 3 */}
-              <li className="flex items-start gap-5" data-aos="fade-up" data-aos-delay="300">
-                <div className="inline-flex h-[60px] w-[60px] items-center justify-center rounded-[50%] bg-[#DF4343]/10">
+              <li className="flex items-start gap-4" data-aos="fade-up" data-aos-delay="300">
+                <div className="inline-flex h-[50px] w-[50px] items-center justify-center rounded-[50%] bg-[#DF4343]/10 flex-shrink-0">
                   <Image
                     src="/assets/img/icons/feature-icon-3.svg"
                     alt="feature-icon"
-                    width={30}
-                    height={30}
+                    width={24}
+                    height={24}
                   />
                 </div>
                 <div className="flex-1">
-                  <span className="mb-2 block font-title text-xl font-bold text-white">
-                    1:1 Doubt Clearing
+                  <span className="mb-2 block font-title text-lg font-bold text-white">
+                    Doubt Clearing
                   </span>
-                  <span className="text-white/80">
-                    Personalized one-on-one sessions with prior booking for focused guidance.
+                  <span className="text-white/80 text-sm">
+                    Personalized 1:1 sessions.
                   </span>
+                </div>
+              </li>
+
+              {/* Feature 4 - WhatsApp */}
+              <li className="flex items-start gap-4" data-aos="fade-up" data-aos-delay="400">
+                <div className="inline-flex h-[50px] w-[50px] items-center justify-center rounded-[50%] bg-[#25D366]/10 flex-shrink-0">
+                  <Image
+                    src="/assets/img/icons/icon-whatsapp.svg"
+                    alt="whatsapp-icon"
+                    width={24}
+                    height={24}
+                  />
+                </div>
+                <div className="flex-1">
+                  <span className="mb-2 block font-title text-lg font-bold text-white">
+                    WhatsApp Chat
+                  </span>
+                  <span className="mb-3 block text-white/80 text-sm">
+                    Instant support team access.
+                  </span>
+                  <a
+                    href="https://wa.me/19053412031"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 rounded-full bg-[#25D366] px-4 py-1.5 text-xs font-bold text-white transition-colors hover:bg-[#128C7E]"
+                  >
+                    <span>Message Us</span>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <line x1="5" y1="12" x2="19" y2="12"></line>
+                      <polyline points="12 5 19 12 12 19"></polyline>
+                    </svg>
+                  </a>
                 </div>
               </li>
 

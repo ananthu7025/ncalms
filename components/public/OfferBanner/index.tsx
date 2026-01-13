@@ -8,16 +8,16 @@ const OfferBanner = () => {
   return (
     <div className="mt-4">
       <div className="container">
-        <div className="relative z-10 grid grid-cols-1 items-end overflow-hidden rounded-lg bg-colorPurpleBlue lg:grid-cols-[0.8fr_1fr] lg:gap-14" data-aos="fade-up">
-          
+        <div className="relative z-10 grid grid-cols-1 items-center overflow-hidden rounded-lg bg-colorPurpleBlue lg:grid-cols-2 lg:gap-14" data-aos="fade-up">
+
           {/* Image */}
-          <div className="relative order-2 lg:order-1" data-aos="fade-right" data-aos-delay="100">
+          <div className="relative order-2 p-4 lg:order-1 lg:p-12" data-aos="fade-right" data-aos-delay="100">
             <Image
-              src="/assets/img/images/th-1/cta-img.png"
+              src="/assets/img/images/nca-bundle-offer.png"
               alt="NCA bundle"
               width={507}
               height={448}
-              className="static bottom-0 left-0 lg:absolute"
+              className="h-auto w-full"
             />
           </div>
 

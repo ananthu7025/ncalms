@@ -131,11 +131,11 @@ const AboutInstructors = () => {
               {/* Stats */}
               <div className="mt-8 flex items-center divide-x divide-gray-200 rounded-xl bg-gray-50 py-4">
                 <div className="flex-1 px-4 text-center">
-                  <div className="font-title text-3xl font-bold text-[#DF4343]">97%</div>
+                  <div className="font-title text-3xl font-bold text-[#4c6ae6]">97%</div>
                   <div className="text-sm font-medium text-gray-500">Pass Rate</div>
                 </div>
                 <div className="flex-1 px-4 text-center">
-                  <div className="font-title text-3xl font-bold text-[#DF4343]">10+</div>
+                  <div className="font-title text-3xl font-bold text-[#4c6ae6]">10+</div>
                   <div className="text-sm font-medium text-gray-500">Years Experience</div>
                 </div>
               </div>

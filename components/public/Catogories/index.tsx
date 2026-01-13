@@ -19,7 +19,7 @@ const Categories = () => {
 
             <div className="inline-block" data-aos="fade-left" data-aos-delay="100">
               <Link
-                className="btn btn-primary is-icon group"
+                className="btn btn-secondary is-icon group"
                 href="https://wa.me/1234567890" // Placeholder for WhatsApp link
                 target="_blank"
               >

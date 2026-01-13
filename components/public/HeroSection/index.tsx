@@ -13,12 +13,12 @@ const HeroSection = () => {
 
       <div
         style={{
-          backgroundImage: "radial-gradient(#4a5568 1px, transparent 1px)",
+          backgroundImage: "radial-gradient(#4c6ae6 1px, transparent 1px)",
           backgroundSize: "30px 30px"
         }}
-        className="grid grid-cols-1 lg:grid-cols-2 min-h-[800px] items-center">
+        className="grid grid-cols-1 lg:grid-cols-2 min-h-[800px]">
         {/* LEFT CONTENT */}
-        <div className="px-5 pt-[180px] pb-12 lg:pl-20 xl:pl-32 relative z-10 flex flex-col justify-center h-full">
+        <div className="px-5 pt-[100px] pb-12 lg:pl-20 xl:pl-32 relative z-10 flex flex-col justify-center h-full">
           {/* Pass Rate Badge */}
           <div className="mb-8 w-fit rounded-full border border-gray-500 bg-white/5 backdrop-blur-sm px-6 py-2" data-aos="fade-down">
             <span className="flex items-center gap-2 font-bold text-white">
@@ -45,20 +45,23 @@ const HeroSection = () => {
             Expert preparation for NCA Exams and Ontario Bar Licensing with personalized mentorship and comprehensive study materials.
           </p>
 
-          <div className="flex flex-wrap gap-4" data-aos="fade-up" data-aos-delay="300">
-            <Link href="/courses?category=nca" className="btn-outline-white group flex items-center gap-2 rounded-full border-2 border-gray-500 bg-transparent px-6 py-3 font-bold text-colorBrightGold hover:border-colorBrightGold hover:bg-white/5 transition-all">
-              <span className="text-lg">⚖️</span>
-              NCA Exams
+          <div className="flex flex-wrap gap-4 pt-2" data-aos="fade-up" data-aos-delay="300">
+            <Link
+              href="/courses"
+              className="group relative flex items-center gap-3 rounded-full bg-gradient-to-r from-amber-400 to-amber-600 px-8 py-4 text-lg font-bold text-white shadow-lg shadow-amber-500/20 transition-all hover:scale-105 hover:shadow-amber-500/40 hover:from-amber-500 hover:to-amber-700"
+            >
+              Explore Courses
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="h-5 w-5 transition-transform group-hover:translate-x-1">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+              </svg>
             </Link>
 
-            <Link href="/courses?category=solicitor" className="btn-outline-white group flex items-center gap-2 rounded-full border-2 border-gray-500 bg-transparent px-6 py-3 font-bold text-white hover:border-white hover:bg-white/5 transition-all">
-              <span className="text-lg">💼</span>
-              Ontario Bar - Solicitor
-            </Link>
-
-            <Link href="/courses?category=barrister" className="btn-outline-white group flex items-center gap-2 rounded-full border-2 border-gray-500 bg-transparent px-6 py-3 font-bold text-white hover:border-white hover:bg-white/5 transition-all">
-              <span className="text-lg">🏛️</span>
-              Ontario Bar - Barrister
+            <Link
+              href="/demo-lectures"
+              className="group flex items-center gap-3 rounded-full border-2 border-white/20 bg-white/5 px-8 py-4 text-lg font-bold text-white backdrop-blur-sm transition-all hover:border-white/50 hover:bg-white/10 hover:scale-105"
+            >
+              <span className="text-xl">▶️</span>
+              Free Demo Lectures
             </Link>
           </div>
         </div>
@@ -72,7 +75,7 @@ const HeroSection = () => {
             src="/assets/img/images/th-1/hero-male.png"
             alt="Male Law Student"
             width={740}
-            height={840}
+            height={900}
             priority
             className="relative z-10 max-w-[90%] md:max-w-md lg:max-w-xl xl:max-w-2xl object-cover object-top"
             style={{

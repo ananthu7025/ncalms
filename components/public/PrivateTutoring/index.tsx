@@ -144,7 +144,7 @@ const PrivateTutoring = () => {
                         <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-white opacity-75"></span>
                         <span className="relative inline-flex h-3 w-3 rounded-full bg-white"></span>
                       </div>
-                      <span className="font-semibold text-white">
+                      <span className="font-semibold ">
                         Limited Slots - Filling Fast!
                       </span>
                     </div>

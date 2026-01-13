@@ -47,7 +47,6 @@ export default function HomePage() {
       <WelcomeSection />
       <AboutInstructors />
       <FeaturedCourse />
-      <Categories />
       <FeaturesSection />
       <WhyChooseUs />
       <div className="section-client-logo">

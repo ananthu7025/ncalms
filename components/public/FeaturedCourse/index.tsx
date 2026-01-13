@@ -40,7 +40,7 @@ const FeaturedCourse = async () => {
               </div>
 
               <div className="inline-block" data-aos="fade-left" data-aos-delay="100">
-                <Link className="btn btn-primary is-icon group" href="/courses">
+                <Link className="btn btn-secondary is-icon group" href="/courses">
                   Explore All
                   <span className="btn-icon bg-white group-hover:right-0 group-hover:translate-x-full">
                     <Image src="/assets/img/icons/icon-purple-arrow-right.svg" alt="arrow" width={13} height={12} />

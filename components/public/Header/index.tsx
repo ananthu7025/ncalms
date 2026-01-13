@@ -35,72 +35,71 @@ const HeaderPublic = () => {
   };
 
   return (
-    <div
-      style={{ backgroundColor: "#ffff" }}
-      className="absolute left-0 top-0 z-20 w-full">
-      {/* Header Top Area */}
-      <div className="bg-transparent py-4">
+    <header
+      className="absolute left-0 top-0 z-20 w-full bg-white shadow-[0_4px_30px_16px] shadow-[#070229]/5">
+      <div className="py-2">
         <div className="container-expand">
-          <div className="flex items-center gap-x-6 lg:gap-x-10 xl:gap-x-[76px]">
+          <div className="flex items-center gap-x-4 lg:gap-x-8 justify-between">
             {/* Header Logo */}
-            <Link href="/" className="inline-flex">
+            <Link href="/" className="inline-flex flex-shrink-0">
               <Image
                 src="/assets/img/logo.jpeg"
                 alt="logo"
-                width={90}
-                height={22}
+                width={80}
+                height={20}
                 priority
               />
             </Link>
 
+            {/* Navigation - Moved from bottom */}
+            <div className="hidden md:flex ml-4 lg:ml-8 flex-shrink-0">
+              <nav>
+                <ul className="flex items-center gap-x-2 text-sm font-semibold text-[#263238] whitespace-nowrap">
+                  {menuItems.map((item) => (
+                    <li
+                      key={item.label}
+                      className="relative"
+                    >
+                      <Link
+                        href={item.href}
+                        className="px-4 py-2 rounded-full hover:bg-gray-100/80 hover:text-colorPurpleBlue transition-all duration-300 block"
+                      >
+                        {item.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </nav>
+            </div>
+
             {/* Header Right Block */}
-            <div className="flex flex-1 items-center justify-end gap-x-4 lg:gap-x-9">
+            <div className="flex flex-1 items-center justify-end gap-x-4">
               {/* Category & Search Block */}
-              <div className="relative hidden w-full flex-1 rounded-[50px] border bg-white py-3.5 pr-8 text-sm font-medium md:flex xl:pr-36">
-                <div className="flex w-full divide-[#B8B8B8] lg:divide-x">
+              <div className="relative hidden w-full max-w-[300px] xl:max-w-[400px] rounded-[50px] border bg-white py-2.5 pr-2 text-sm font-medium md:flex">
+                <div className="flex w-full divide-[#B8B8B8]">
 
                   {/* Search */}
-                  <form className="w-full flex-1 px-8" onSubmit={handleSearch}>
+                  <form className="w-full flex-1 px-4" onSubmit={handleSearch}>
                     <input
                       type="search"
-                      placeholder="Search your courses"
+                      placeholder="Search courses..."
                       className="w-full bg-transparent outline-none placeholder:text-colorBlackPearl/55"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                     />
                     <button
                       type="submit"
-                      className="absolute bottom-[5px] right-0 top-[5px] mr-[5px] inline-flex items-center justify-center gap-x-2.5 rounded-[50px] bg-colorPurpleBlue px-6 text-sm text-white hover:bg-colorBlackPearl"
+                      className="absolute bottom-[2px] right-[2px] top-[2px] inline-flex items-center justify-center gap-x-2.5 rounded-[50px] bg-colorPurpleBlue px-4 text-sm text-white hover:bg-colorBlackPearl"
                     >
-                      <span className="hidden xl:inline-block">Search</span>
                       <Image
                         src="/assets/img/icons/icon-white-search-line.svg"
                         alt=""
-                        width={16}
-                        height={16}
+                        width={14}
+                        height={14}
                       />
                     </button>
                   </form>
                 </div>
-              </div>
-
-              {/* Social Links */}
-              <div className="hidden items-center gap-x-3.5 xl:flex">
-                {["facebook", "twitter", "dribbble", "instagram"].map((s, index) => (
-                  <a
-                    key={`social-${s}-${index}`}
-                    href={`https://www.${s}.com`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <Image
-                      src={`/assets/img/icons/icon-dark-${s}.svg`}
-                      alt={s}
-                      width={17}
-                      height={17}
-                    />
-                  </a>
-                ))}
               </div>
 
               {/* Auth Buttons */}
@@ -116,18 +115,11 @@ const HeaderPublic = () => {
                     </button>
                   </Link>
                 ) : (
-                  <>
-                    <Link href="/register">
-                      <button className="hidden h-10 rounded-[50Px] bg-colorBrightGold px-6 text-sm font-medium text-colorBlackPearl hover:shadow sm:inline-block">
-                        Register
-                      </button>
-                    </Link>
-                    <Link href="/login">
-                      <button className="h-10 rounded-[50Px] bg-colorBrightGold px-6 text-sm font-medium text-colorBlackPearl hover:shadow">
-                        Log In
-                      </button>
-                    </Link>
-                  </>
+                  <Link href="/login">
+                    <button className="h-10 rounded-[50Px] bg-colorBrightGold px-6 text-sm font-medium text-colorBlackPearl hover:shadow">
+                      Login
+                    </button>
+                  </Link>
                 )}
                 {/* Mobile Menu */}
                 <div className="site-header inline-block lg:hidden">
@@ -144,33 +136,6 @@ const HeaderPublic = () => {
           </div>
         </div>
       </div>
-
-      {/* Header Bottom Area */}
-      <header className="site-header bg-white shadow-[0_4px_30px_16px] shadow-[#070229]/5">
-        <div className="container-expand">
-          <div className="flex justify-center text-sm font-medium text-[#263238]">
-
-            {/* Navigation */}
-            <nav className="menu-block">
-              <ul className="site-menu-main">
-                {menuItems.map((item) => (
-                  <li
-                    key={item.label}
-                    className="nav-item nav-item-has-children"
-                  >
-                    <Link
-                      href={item.href}
-                      className="nav-link-item drop-trigger text-colorBlackPearl"
-                    >
-                      {item.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </nav>
-          </div>
-        </div>
-      </header>
 
       {/* Mobile Menu Overlay */}
       {isMobileMenuOpen && (
@@ -232,7 +197,7 @@ const HeaderPublic = () => {
           </div>
         </div>
       )}
-    </div>
+    </header>
   );
 };
 
