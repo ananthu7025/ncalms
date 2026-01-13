@@ -623,6 +623,77 @@ export async function getActiveSubjectsWithStats() {
 }
 
 /**
+ * Get featured subjects with statistics
+ */
+export async function getFeaturedSubjects() {
+  try {
+    const subjects = await db
+      .select()
+      .from(schema.subjects)
+      .leftJoin(schema.learningStreams, eq(schema.subjects.streamId, schema.learningStreams.id))
+      .leftJoin(schema.examTypes, eq(schema.subjects.examTypeId, schema.examTypes.id))
+      .where(
+        and(
+          eq(schema.subjects.isActive, true),
+          eq(schema.subjects.isFeatured, true)
+        )
+      )
+      .orderBy(schema.subjects.createdAt)
+      .limit(4);
+
+    // Get content counts and statistics for each subject
+    const subjectsWithStats = await Promise.all(
+      subjects.map(async (row) => {
+        const subject = row.subjects;
+        const stream = row.learning_streams;
+        const examType = row.exam_types;
+
+        // Get content count (lessons)
+        const contents = await db
+          .select()
+          .from(schema.subjectContents)
+          .where(
+            and(
+              eq(schema.subjectContents.subjectId, subject.id),
+              eq(schema.subjectContents.isActive, true)
+            )
+          );
+
+        // Get enrolled students count (users with access to this subject)
+        const enrollments = await db
+          .select({ userId: schema.userAccess.userId })
+          .from(schema.userAccess)
+          .where(eq(schema.userAccess.subjectId, subject.id))
+          .groupBy(schema.userAccess.userId);
+
+        return {
+          subject,
+          stream,
+          examType,
+          stats: {
+            lessonsCount: contents.length,
+            studentsCount: enrollments.length,
+            reviews: 0,
+            rating: 5,
+          },
+        };
+      })
+    );
+
+    return {
+      success: true,
+      data: subjectsWithStats,
+    };
+  } catch (error) {
+    console.error("Get featured subjects error:", error);
+    return {
+      success: false,
+      error: "Failed to fetch featured subjects",
+    };
+  }
+}
+
+/**
  * Get subject details with statistics (for public course detail page)
  */
 export async function getSubjectByIdWithStats(id: string) {

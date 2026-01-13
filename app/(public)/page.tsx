@@ -53,7 +53,13 @@ export default function HomePage() {
         <div className="bg-white">
           <div className="z-10 -mt-44">
             <div className="container">
-              <div className="rounded-lg bg-colorPurpleBlue p-5">
+              <div
+                className="rounded-lg bg-[#1a365d] p-5"
+                style={{
+                  backgroundImage: "radial-gradient(#4c6ae6 1px, transparent 1px)",
+                  backgroundSize: "30px 30px",
+                }}
+              >
                 <div className="grid grid-cols-1 items-center gap-x-28 gap-y-10 lg:grid-cols-2">
                   <div className="overflow-hidden rounded-lg" data-aos="fade-right">
                     <img

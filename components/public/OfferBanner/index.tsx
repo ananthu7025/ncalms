@@ -8,7 +8,14 @@ const OfferBanner = () => {
   return (
     <div className="mt-4">
       <div className="container">
-        <div className="relative z-10 grid grid-cols-1 items-center overflow-hidden rounded-lg bg-colorPurpleBlue lg:grid-cols-2 lg:gap-14" data-aos="fade-up">
+        <div
+          className="relative z-10 grid grid-cols-1 items-center overflow-hidden rounded-lg bg-[#1a365d] lg:grid-cols-2 lg:gap-14"
+          data-aos="fade-up"
+          style={{
+            backgroundImage: "radial-gradient(#4c6ae6 1px, transparent 1px)",
+            backgroundSize: "30px 30px",
+          }}
+        >
 
           {/* Image */}
           <div className="relative order-2 p-4 lg:order-1 lg:p-12" data-aos="fade-right" data-aos-delay="100">
@@ -17,7 +24,7 @@ const OfferBanner = () => {
               alt="NCA bundle"
               width={507}
               height={448}
-              className="h-auto w-full"
+              className="h-auto w-full rounded-lg"
             />
           </div>
 

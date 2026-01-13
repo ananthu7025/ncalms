@@ -1,13 +1,13 @@
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { getActiveSubjectsWithStats } from "@/lib/actions/subjects";
+import { getFeaturedSubjects } from "@/lib/actions/subjects";
 
 const FeaturedCourse = async () => {
-  const result = await getActiveSubjectsWithStats();
+  const result = await getFeaturedSubjects();
 
   // Get first 4 courses for featured section
-  const courses = result.success && result.data ? result.data.slice(0, 4) : [];
+  const courses = result.success && result.data ? result.data : [];
 
   if (!result.success || courses.length === 0) {
     return (
@@ -127,11 +127,6 @@ const FeaturedCourse = async () => {
                           <div className="my-6 h-px w-full bg-[#E9E5DA]"></div>
 
                           <div className="flex items-center justify-between">
-                            <span className="font-title text-xl font-bold text-colorPurpleBlue">
-                              {subject.isBundleEnabled && bundlePrice > 0
-                                ? `$${bundlePrice.toFixed(2)}`
-                                : "Contact"}
-                            </span>
 
                             <span className="inline-flex items-center gap-1.5 text-sm">
                               <Image

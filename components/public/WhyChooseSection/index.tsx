@@ -109,7 +109,8 @@ const WhyChooseUs = () => {
                   alt="abstract"
                   width={70}
                   height={55}
-                  className="absolute left-1 top-[133px]"
+
+                  className="absolute left-1 top-[133px] animate-bounce"
                 />
                 <Image
                   src="/assets/img/abstracts/abstract-dots-3.svg"

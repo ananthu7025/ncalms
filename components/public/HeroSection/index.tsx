@@ -7,7 +7,7 @@ const HeroSection = () => {
 
       {/* Background Pattern grid */}
       <div
-        className="absolute inset-0 pointer-events-none opacity-20 px-5 pt-[210px] md:pt-[235px] lg:px-0 lg:pb-[100px] lg:pl-20 lg:pt-[310px] xxl:pb-[166px] xxxl:pl-32 xxxxl:pl-[250px]"
+        className="absolute inset-0 pointer-events-none opacity-20 px-5 pt-[180px] md:pt-[225px] lg:px-0 lg:pb-[100px] lg:pl-20 lg:pt-[310px] xxl:pb-[166px] xxxl:pl-32 xxxxl:pl-[250px]"
 
       ></div>
 
@@ -26,7 +26,7 @@ const HeroSection = () => {
             </span>
           </div>
 
-          <h1 className="mb-8 leading-tight" data-aos="fade-up" data-aos-delay="100">
+          <h1 className="mb-8 leading-tight" data-aos="fade-up" data-aos-delay="30">
             <span className="block text-4xl lg:text-6xl font-extrabold text-white mb-2">
               Begin your journey
             </span>
@@ -58,7 +58,7 @@ const HeroSection = () => {
 
             <Link
               href="/demo-lectures"
-              className="group flex items-center gap-3 rounded-full border-2 border-white/20 bg-white/5 px-8 py-4 text-lg font-bold text-white backdrop-blur-sm transition-all hover:border-white/50 hover:bg-white/10 hover:scale-105"
+              className="group flex items-center gap-3  px-8 py-4 text-lg font-bold text-white backdrop-blur-sm transition-all hover:border-white/50 hover:bg-white/10 hover:scale-105"
             >
               <span className="text-xl">▶️</span>
               Free Demo Lectures
@@ -67,7 +67,7 @@ const HeroSection = () => {
         </div>
 
         {/* RIGHT IMAGE */}
-        <div className="relative h-full flex items-end justify-center lg:justify-end overflow-hidden pt-[100px]" data-aos="fade-left" data-aos-delay="400">
+        <div className="relative h-full flex items-end justify-center lg:justify-end overflow-hidden pt-[80px]" data-aos="fade-left" data-aos-delay="400">
           {/* Abstract shapes behind */}
           <div className="absolute top-20 right-20 w-64 h-64 bg-blue-500/20 rounded-full blur-3xl"></div>
 
@@ -80,7 +80,8 @@ const HeroSection = () => {
             className="relative z-10 max-w-[90%] md:max-w-md lg:max-w-xl xl:max-w-2xl object-cover object-top"
             style={{
               maskImage: 'radial-gradient(circle at center 40%, black 50%, transparent 98%)',
-              WebkitMaskImage: 'radial-gradient(circle at center 40%, black 50%, transparent 98%)'
+              WebkitMaskImage: 'radial-gradient(circle at center 40%, black 50%, transparent 98%)',
+              height: '769px',             
             }}
           />
         </div>

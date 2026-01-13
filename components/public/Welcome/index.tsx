@@ -12,7 +12,7 @@ const WelcomeSection = () => {
           <div className="section-space-top">
             <div className="container">
               <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-2 lg:gap-16 xl:gap-32">
-                
+
                 {/* Image Block */}
                 <div
                   className="relative order-2 mx-auto lg:order-1"
@@ -110,7 +110,7 @@ const WelcomeSection = () => {
             alt="abstract"
             width={133}
             height={154}
-            className="absolute bottom-0 right-20 -z-10"
+            className="absolute bottom-0 right-20 -z-10 animate-bounce"
           />
           <div className="absolute -bottom-20 left-0 -z-10 h-[383px] w-[531px] -translate-x-1/2 rounded-[50%] bg-colorBrightGold/[23%] blur-3xl"></div>
         </div>
