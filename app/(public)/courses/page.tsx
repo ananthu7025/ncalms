@@ -51,14 +51,14 @@ const CoursePage = async ({ searchParams }: CoursePageProps) => {
   // Filter courses based on search query
   const displayedCourses = searchQuery
     ? allCourses.filter((item) => {
-        const { subject, stream, examType } = item;
-        return (
-          subject.title.toLowerCase().includes(searchQuery) ||
-          subject.description?.toLowerCase().includes(searchQuery) ||
-          stream?.name?.toLowerCase().includes(searchQuery) ||
-          examType?.name?.toLowerCase().includes(searchQuery)
-        );
-      })
+      const { subject, stream, examType } = item;
+      return (
+        subject.title.toLowerCase().includes(searchQuery) ||
+        subject.description?.toLowerCase().includes(searchQuery) ||
+        stream?.name?.toLowerCase().includes(searchQuery) ||
+        examType?.name?.toLowerCase().includes(searchQuery)
+      );
+    })
     : allCourses;
 
   const totalCourses = allCourses.length;
@@ -102,9 +102,9 @@ const CoursePage = async ({ searchParams }: CoursePageProps) => {
                     const embedUrl = subject.demoVideoUrl ? getEmbedUrl(subject.demoVideoUrl) : null;
 
                     return (
-                      <li key={subject.id} data-aos="fade-up" data-aos-delay={index * 100}>
-                        <div className="jos">
-                          <div className="group relative flex flex-col items-center xl:flex-row">
+                      <li key={subject.id} data-aos="fade-up" data-aos-delay={index * 100} className="w-full">
+                        <div className="jos w-full">
+                          <div className="group relative flex flex-col items-center xl:flex-row w-full">
                             {/* Thumbnail with Video Modal */}
                             <CourseCardImage
                               thumbnailUrl={subject.thumbnail || "/assets/img/images/th-2/course-img-1.jpg"}
@@ -117,7 +117,7 @@ const CoursePage = async ({ searchParams }: CoursePageProps) => {
                             />
 
                             {/* Content */}
-                            <div className="mt-[106px] rounded-lg bg-white px-6 py-10 pt-36 shadow-[0_0_50px_42px] shadow-[#0E0548]/5 transition-all duration-300 sm:px-8 xl:ml-[106px] xl:mt-0 xl:pl-36 xl:pt-10">
+                            <div className="mt-[106px] w-full rounded-lg bg-white px-6 py-10 pt-36 shadow-[0_0_50px_42px] shadow-[#0E0548]/5 transition-all duration-300 sm:px-8 xl:ml-[106px] xl:mt-0 xl:pl-36 xl:pt-10">
                               {/* Course Meta */}
                               <div className="flex gap-9">
                                 <span className="inline-flex items-center gap-1.5 text-sm">
