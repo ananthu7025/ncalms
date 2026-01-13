@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { LayoutDashboard } from "lucide-react";
 
@@ -11,6 +11,7 @@ const HeaderPublic = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const router = useRouter();
+  const pathname = usePathname();
   const { data: session } = useSession();
 
   const menuItems = [
@@ -55,19 +56,25 @@ const HeaderPublic = () => {
             <div className="hidden md:flex ml-4 lg:ml-8 flex-shrink-0">
               <nav>
                 <ul className="flex items-center gap-x-2 text-sm font-semibold text-[#263238] whitespace-nowrap">
-                  {menuItems.map((item) => (
-                    <li
-                      key={item.label}
-                      className="relative"
-                    >
-                      <Link
-                        href={item.href}
-                        className="px-4 py-2 rounded-full hover:bg-gray-100/80 hover:text-colorPurpleBlue transition-all duration-300 block"
+                  {menuItems.map((item) => {
+                    const isActive = item.href === '/' ? pathname === '/' : pathname.startsWith(item.href);
+                    return (
+                      <li
+                        key={item.label}
+                        className="relative"
                       >
-                        {item.label}
-                      </Link>
-                    </li>
-                  ))}
+                        <Link
+                          href={item.href}
+                          className={`px-4 py-2 rounded-full transition-all duration-300 block ${isActive
+                            ? "bg-gray-100/80 text-colorPurpleBlue"
+                            : "hover:bg-gray-100/80 hover:text-colorPurpleBlue"
+                            }`}
+                        >
+                          {item.label}
+                        </Link>
+                      </li>
+                    );
+                  })}
                 </ul>
               </nav>
             </div>
@@ -157,17 +164,23 @@ const HeaderPublic = () => {
               </button>
               <nav>
                 <ul className="space-y-4">
-                  {menuItems.map((item) => (
-                    <li key={item.label}>
-                      <Link
-                        href={item.href}
-                        className="block py-2 text-base font-medium text-colorBlackPearl hover:text-colorPurpleBlue"
-                        onClick={toggleMobileMenu}
-                      >
-                        {item.label}
-                      </Link>
-                    </li>
-                  ))}
+                  {menuItems.map((item) => {
+                    const isActive = item.href === '/' ? pathname === '/' : pathname.startsWith(item.href);
+                    return (
+                      <li key={item.label}>
+                        <Link
+                          href={item.href}
+                          className={`block py-2 text-base font-medium transition-colors ${isActive
+                            ? "text-colorPurpleBlue"
+                            : "text-colorBlackPearl hover:text-colorPurpleBlue"
+                            }`}
+                          onClick={toggleMobileMenu}
+                        >
+                          {item.label}
+                        </Link>
+                      </li>
+                    );
+                  })}
                 </ul>
               </nav>
               <div className="mt-6 space-y-2">

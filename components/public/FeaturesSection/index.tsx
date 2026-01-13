@@ -87,7 +87,7 @@ const FeaturesSection = () => {
                     Instant support team access.
                   </span>
                   <a
-                    href="https://wa.me/19053412031"
+                    href="https://wa.me/81232 83217"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-2 rounded-full bg-[#25D366] px-4 py-1.5 text-xs font-bold text-white transition-colors hover:bg-[#128C7E]"

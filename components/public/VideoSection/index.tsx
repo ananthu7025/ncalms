@@ -19,7 +19,7 @@ const VideoSection = () => {
 
             {/* Play Button Overlay */}
             <a
-              href="https://www.youtube.com/watch?v=3nQNiWdeH2Q"
+              href="https://www.youtube.com/playlist?list=PLk-9Hiidr8C7jltqeKH_KYY_K9WsBdGMJ"
               className="glightbox absolute left-1/2 top-1/2 z-10 inline-flex h-20 w-20 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-[50%] border-4 border-[#F1C93B] bg-white transition-all duration-300 hover:scale-110"
               target="_blank"
               rel="noopener noreferrer"

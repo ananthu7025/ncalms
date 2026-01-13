@@ -57,7 +57,7 @@ const HeroSection = () => {
             </Link>
 
             <Link
-              href="/demo-lectures"
+              href="https://www.youtube.com/playlist?list=PLk-9Hiidr8C7jltqeKH_KYY_K9WsBdGMJ"
               className="group flex items-center gap-3  px-8 py-4 text-lg font-bold text-white backdrop-blur-sm transition-all hover:border-white/50 hover:bg-white/10 hover:scale-105"
             >
               <span className="text-xl">▶️</span>
@@ -81,7 +81,7 @@ const HeroSection = () => {
             style={{
               maskImage: 'radial-gradient(circle at center 40%, black 50%, transparent 98%)',
               WebkitMaskImage: 'radial-gradient(circle at center 40%, black 50%, transparent 98%)',
-              height: '769px',             
+              height: '769px',
             }}
           />
         </div>

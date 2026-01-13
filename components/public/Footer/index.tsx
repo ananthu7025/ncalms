@@ -30,11 +30,8 @@ const Footer = () => {
                   <a href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer" aria-label="instagram">
                     <Image src="/assets/img/icons/icon-dark-instagram.svg" alt="instagram" width={21} height={20} />
                   </a>
-                  <a href="https://www.youtube.com/" target="_blank" rel="noopener noreferrer" aria-label="youtube">
+                  <a href="https://www.youtube.com/playlist?list=PLk-9Hiidr8C7jltqeKH_KYY_K9WsBdGMJ" target="_blank" rel="noopener noreferrer" aria-label="youtube">
                     <Image src="/assets/img/icons/icon-dark-youtube.svg" alt="youtube" width={21} height={20} />
-                  </a>
-                  <a href="https://www.linkedin.com/" target="_blank" rel="noopener noreferrer" aria-label="linkedin">
-                    <Image src="/assets/img/icons/icon-dark-linkedin.svg" alt="linkedin" width={21} height={20} />
                   </a>
                 </div>
               </div>

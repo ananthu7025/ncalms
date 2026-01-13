@@ -12,7 +12,7 @@ interface BreadcrumbProps {
 
 const Breadcrumb = ({ title, items }: BreadcrumbProps) => {
   return (
-    <section style={{marginTop:"130px"}} className="section-breadcrum">
+    <section style={{ marginTop: "75px" }} className="section-breadcrum">
       <div className="relative z-10 overflow-hidden bg-[#FAF9F6]">
         {/* Section Space */}
         <div className="py-[60px] lg:py-[90px]">
@@ -32,9 +32,8 @@ const Breadcrumb = ({ title, items }: BreadcrumbProps) => {
                     return (
                       <li
                         key={`${item.label}-${index}`}
-                        className={`flex items-center ${
-                          item.href ? "text-colorJasper" : "text-black"
-                        }`}
+                        className={`flex items-center ${item.href ? "text-colorJasper" : "text-black"
+                          }`}
                       >
                         {item.href && !isLast ? (
                           <Link href={item.href} className="hover:underline">
@@ -66,7 +65,7 @@ const Breadcrumb = ({ title, items }: BreadcrumbProps) => {
           alt="abstract decoration"
           width={120}
           height={120}
-          className="absolute left-56 top-1/2 -z-10 hidden -translate-y-1/2 sm:inline-block"
+          className="animate-bounce absolute left-56  top-1/2 -z-10 hidden -translate-y-1/2 sm:inline-block"
         />
 
         <Image
@@ -74,7 +73,7 @@ const Breadcrumb = ({ title, items }: BreadcrumbProps) => {
           alt="abstract decoration"
           width={120}
           height={120}
-          className="absolute -bottom-14 right-[100px] -z-10 hidden sm:inline-block"
+          className="animate-bounce absolute -bottom-14 right-[100px] -z-10 hidden sm:inline-block"
         />
       </div>
     </section>
