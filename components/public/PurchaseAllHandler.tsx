@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { Suspense, useEffect, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { addAllSubjectsToCart } from "@/lib/actions/cart";
@@ -64,6 +64,8 @@ function PurchaseAllHandlerInner() {
  */
 export default function PurchaseAllHandler() {
   return (
-    <PurchaseAllHandlerInner />
+    <Suspense fallback={null}>
+      <PurchaseAllHandlerInner />
+    </Suspense>
   );
 }
