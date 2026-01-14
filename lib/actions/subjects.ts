@@ -1,7 +1,7 @@
 "use server";
 
 import { db, schema } from "@/lib/db";
-import { eq, and } from "drizzle-orm";
+import { eq, and, count, sql } from "drizzle-orm";
 import { requireAdmin } from "@/lib/auth/helpers";
 import {
   createSubjectSchema,
@@ -562,52 +562,57 @@ export async function toggleSubjectStatus(id: string) {
  */
 export async function getActiveSubjectsWithStats() {
   try {
+    // Optimized: Single query with subqueries for counts instead of N+1 queries
+    // Create subquery for content counts per subject
+    const contentCounts = db
+      .select({
+        subjectId: schema.subjectContents.subjectId,
+        count: count().as('content_count')
+      })
+      .from(schema.subjectContents)
+      .where(eq(schema.subjectContents.isActive, true))
+      .groupBy(schema.subjectContents.subjectId)
+      .as('content_counts');
+
+    // Create subquery for distinct enrolled students count per subject
+    const enrollmentCounts = db
+      .select({
+        subjectId: schema.userAccess.subjectId,
+        count: sql<number>`count(distinct ${schema.userAccess.userId})`.as('enrollment_count')
+      })
+      .from(schema.userAccess)
+      .groupBy(schema.userAccess.subjectId)
+      .as('enrollment_counts');
+
+    // Single query to get all subjects with stats
     const subjects = await db
-      .select()
+      .select({
+        subject: schema.subjects,
+        stream: schema.learningStreams,
+        examType: schema.examTypes,
+        lessonsCount: sql<number>`coalesce(${contentCounts.count}, 0)`,
+        studentsCount: sql<number>`coalesce(${enrollmentCounts.count}, 0)`
+      })
       .from(schema.subjects)
       .leftJoin(schema.learningStreams, eq(schema.subjects.streamId, schema.learningStreams.id))
       .leftJoin(schema.examTypes, eq(schema.subjects.examTypeId, schema.examTypes.id))
+      .leftJoin(contentCounts, eq(schema.subjects.id, contentCounts.subjectId))
+      .leftJoin(enrollmentCounts, eq(schema.subjects.id, enrollmentCounts.subjectId))
       .where(eq(schema.subjects.isActive, true))
       .orderBy(schema.subjects.createdAt);
 
-    // Get content counts and statistics for each subject
-    const subjectsWithStats = await Promise.all(
-      subjects.map(async (row) => {
-        const subject = row.subjects;
-        const stream = row.learning_streams;
-        const examType = row.exam_types;
-
-        // Get content count (lessons)
-        const contents = await db
-          .select()
-          .from(schema.subjectContents)
-          .where(
-            and(
-              eq(schema.subjectContents.subjectId, subject.id),
-              eq(schema.subjectContents.isActive, true)
-            )
-          );
-
-        // Get enrolled students count (users with access to this subject)
-        const enrollments = await db
-          .select({ userId: schema.userAccess.userId })
-          .from(schema.userAccess)
-          .where(eq(schema.userAccess.subjectId, subject.id))
-          .groupBy(schema.userAccess.userId);
-
-        return {
-          subject,
-          stream,
-          examType,
-          stats: {
-            lessonsCount: contents.length,
-            studentsCount: enrollments.length,
-            reviews: 0, // Can be implemented later with a reviews table
-            rating: 5, // Default rating, can be calculated from reviews
-          },
-        };
-      })
-    );
+    // Map to expected format
+    const subjectsWithStats = subjects.map((row) => ({
+      subject: row.subject,
+      stream: row.stream,
+      examType: row.examType,
+      stats: {
+        lessonsCount: Number(row.lessonsCount) || 0,
+        studentsCount: Number(row.studentsCount) || 0,
+        reviews: 0, // Can be implemented later with a reviews table
+        rating: 5, // Default rating, can be calculated from reviews
+      },
+    }));
 
     return {
       success: true,
@@ -698,17 +703,70 @@ export async function getFeaturedSubjects() {
  */
 export async function getSubjectByIdWithStats(id: string) {
   try {
-    const [result] = await db
-      .select({
-        subject: schema.subjects,
-        stream: schema.learningStreams,
-        examType: schema.examTypes,
-      })
-      .from(schema.subjects)
-      .leftJoin(schema.learningStreams, eq(schema.subjects.streamId, schema.learningStreams.id))
-      .leftJoin(schema.examTypes, eq(schema.subjects.examTypeId, schema.examTypes.id))
-      .where(eq(schema.subjects.id, id))
-      .limit(1);
+    // Optimized: Run independent queries in parallel and use COUNT instead of fetching all rows
+    const [subjectResult, statsResult, pricing, contentsWithTypes] = await Promise.all([
+      // Query 1: Get subject with related data
+      db
+        .select({
+          subject: schema.subjects,
+          stream: schema.learningStreams,
+          examType: schema.examTypes,
+        })
+        .from(schema.subjects)
+        .leftJoin(schema.learningStreams, eq(schema.subjects.streamId, schema.learningStreams.id))
+        .leftJoin(schema.examTypes, eq(schema.subjects.examTypeId, schema.examTypes.id))
+        .where(eq(schema.subjects.id, id))
+        .limit(1),
+
+      // Query 2: Get stats (content count + enrollment count) in one query
+      db
+        .select({
+          lessonsCount: count(schema.subjectContents.id),
+          studentsCount: sql<number>`count(distinct ${schema.userAccess.userId})`
+        })
+        .from(schema.subjects)
+        .leftJoin(
+          schema.subjectContents,
+          and(
+            eq(schema.subjects.id, schema.subjectContents.subjectId),
+            eq(schema.subjectContents.isActive, true)
+          )
+        )
+        .leftJoin(schema.userAccess, eq(schema.subjects.id, schema.userAccess.subjectId))
+        .where(eq(schema.subjects.id, id))
+        .groupBy(schema.subjects.id)
+        .then(rows => rows[0] || { lessonsCount: 0, studentsCount: 0 }),
+
+      // Query 3: Get pricing with content types
+      db
+        .select({
+          contentTypeId: schema.subjectContentTypePricing.contentTypeId,
+          price: schema.subjectContentTypePricing.price,
+          contentTypeName: schema.contentTypes.name,
+          contentType: schema.contentTypes,
+        })
+        .from(schema.subjectContentTypePricing)
+        .leftJoin(schema.contentTypes, eq(schema.subjectContentTypePricing.contentTypeId, schema.contentTypes.id))
+        .where(eq(schema.subjectContentTypePricing.subjectId, id)),
+
+      // Query 4: Get contents with their content types
+      db
+        .select({
+          content: schema.subjectContents,
+          contentType: schema.contentTypes,
+        })
+        .from(schema.subjectContents)
+        .leftJoin(schema.contentTypes, eq(schema.subjectContents.contentTypeId, schema.contentTypes.id))
+        .where(
+          and(
+            eq(schema.subjectContents.subjectId, id),
+            eq(schema.subjectContents.isActive, true)
+          )
+        )
+        .orderBy(schema.subjectContents.sortOrder)
+    ]);
+
+    const [result] = subjectResult;
 
     if (!result) {
       return {
@@ -717,63 +775,10 @@ export async function getSubjectByIdWithStats(id: string) {
       };
     }
 
-    // Get content count (lessons)
-    const contents = await db
-      .select()
-      .from(schema.subjectContents)
-      .where(
-        and(
-          eq(schema.subjectContents.subjectId, id),
-          eq(schema.subjectContents.isActive, true)
-        )
-      );
-
-    // Get enrolled students count
-    const enrollments = await db
-      .select({ userId: schema.userAccess.userId })
-      .from(schema.userAccess)
-      .where(eq(schema.userAccess.subjectId, id))
-      .groupBy(schema.userAccess.userId);
-
-    // Get pricing for all content types for this subject
-    const pricing = await db
-      .select({
-        contentTypeId: schema.subjectContentTypePricing.contentTypeId,
-        price: schema.subjectContentTypePricing.price,
-        contentTypeName: schema.contentTypes.name,
-      })
-      .from(schema.subjectContentTypePricing)
-      .leftJoin(schema.contentTypes, eq(schema.subjectContentTypePricing.contentTypeId, schema.contentTypes.id))
-      .where(eq(schema.subjectContentTypePricing.subjectId, id));
-
-    // Get all content types to show what's available
-    // FILTER: Only include content types that are "Enabled" (exist in pricing table)
-    const allContentTypes = await db
-      .select()
-      .from(schema.contentTypes)
-      .orderBy(schema.contentTypes.name);
-
-    const contentTypes = allContentTypes.filter(ct =>
-      pricing.some(p => p.contentTypeId === ct.id)
-    );
-
-    // Get contents with their content types
-    const contentsWithTypes = await db
-      .select({
-        content: schema.subjectContents,
-        contentType: schema.contentTypes,
-      })
-      .from(schema.subjectContents)
-      .leftJoin(schema.contentTypes, eq(schema.subjectContents.contentTypeId, schema.contentTypes.id))
-      .where(
-        and(
-          eq(schema.subjectContents.subjectId, id),
-          eq(schema.subjectContents.isActive, true)
-        )
-      )
-      .orderBy(schema.subjectContents.sortOrder);
-
-
+    // Extract content types from pricing (no need for separate query + filter)
+    const contentTypes = pricing
+      .map(p => p.contentType)
+      .filter((ct): ct is NonNullable<typeof ct> => ct !== null);
 
     console.log("DEBUG: getSubjectByIdWithStats returning", {
       id: result.subject.id,
@@ -786,8 +791,8 @@ export async function getSubjectByIdWithStats(id: string) {
       data: {
         ...result,
         stats: {
-          lessonsCount: contents.length,
-          studentsCount: enrollments.length,
+          lessonsCount: Number(statsResult.lessonsCount) || 0,
+          studentsCount: Number(statsResult.studentsCount) || 0,
           reviews: 0, // Can be implemented later with a reviews table
           rating: 5, // Default rating, can be calculated from reviews
         },
