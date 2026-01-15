@@ -10,7 +10,7 @@ export function getContentTypeIcon(contentTypeName: string): LucideIcon {
   if (upperName.includes("VIDEO") || upperName.includes("LECTURE")) {
     return Video;
   }
-  if (upperName.includes("PDF") || upperName.includes("DOCUMENT") || upperName.includes("MATERIAL")) {
+  if (upperName.includes("PDF") || upperName.includes("DOCUMENT") || upperName.includes("MATERIAL") || upperName.includes("NOTES")) {
     return FileText;
   }
   if (upperName.includes("MOCK") || upperName.includes("QUIZ") || upperName.includes("TEST") || upperName.includes("QUESTION")) {
@@ -30,10 +30,10 @@ export function getContentTypeLabel(contentTypeName: string, plural = false): st
   if (upperName.includes("VIDEO") || upperName.includes("LECTURE")) {
     return plural ? "Videos" : "Video";
   }
-  if (upperName.includes("PDF") || upperName.includes("DOCUMENT") || upperName.includes("MATERIAL")) {
-    return plural ? "PDFs" : "PDF";
+  if (upperName.includes("PDF") || upperName.includes("DOCUMENT") || upperName.includes("MATERIAL") || upperName.includes("NOTES")) {
+    return plural ? "Notes" : "Notes";
   }
-  if (upperName.includes("MOCK") || upperName.includes("QUIZ") || upperName.includes("TEST") || upperName.includes("Q&A")) {
+  if (upperName.includes("MOCK") || upperName.includes("QUIZ") || upperName.includes("TEST") || upperName.includes("Q&A") || upperName.includes("QUESTION")) {
     return plural ? "Q&A" : "Q&A";
   }
 
@@ -53,7 +53,7 @@ export function getContentTypeColor(contentTypeName: string): {
   if (upperName.includes("VIDEO") || upperName.includes("LECTURE")) {
     return { icon: "text-primary", bg: "bg-primary/10" };
   }
-  if (upperName.includes("PDF") || upperName.includes("DOCUMENT") || upperName.includes("MATERIAL")) {
+  if (upperName.includes("PDF") || upperName.includes("DOCUMENT") || upperName.includes("MATERIAL") || upperName.includes("NOTES")) {
     return { icon: "text-info", bg: "bg-info/10" };
   }
   if (upperName.includes("MOCK") || upperName.includes("QUIZ") || upperName.includes("TEST")) {
@@ -86,9 +86,9 @@ export function isDocumentContentType(contentTypeName: string): boolean {
 export function getContentBundleDescription(contentTypeName: string): string {
   const upperName = contentTypeName.toUpperCase();
 
-  if (upperName.includes("VIDEO")) return "Lectures";
-  if (upperName.includes("PDF")) return "Materials";
-  if (upperName.includes("MOCK")) return "Content";
+  if (upperName.includes("VIDEO") || upperName.includes("LECTURE")) return "Lectures";
+  if (upperName.includes("PDF") || upperName.includes("NOTES")) return "Materials";
+  if (upperName.includes("MOCK") || upperName.includes("QUESTION")) return "Content";
 
   return "Content";
 }

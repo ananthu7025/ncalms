@@ -8,18 +8,21 @@ import {
 import { getOffers, getOfferStats } from '@/lib/actions/offers';
 import { getActiveSubjects } from '@/lib/actions/subjects';
 import { getContentTypes } from '@/lib/actions/content-types';
+import { getPlatformSettings } from '@/lib/actions/platform-settings';
 import { OffersTable } from '@/components/admin/offers/OffersTable';
 import { OfferDialog } from '@/components/admin/offers/OfferDialog';
+import { AllSubjectsBundleModal } from '@/components/admin/AllSubjectsBundleCard';
 
 export const dynamic = 'force-dynamic';
 
 export default async function AdminOffersPage() {
   // Fetch data in parallel
-  const [offersResult, statsResult, subjectsResult, contentTypesResult] = await Promise.all([
+  const [offersResult, statsResult, subjectsResult, contentTypesResult, platformSettingsResult] = await Promise.all([
     getOffers(),
     getOfferStats(),
     getActiveSubjects(),
     getContentTypes(),
+    getPlatformSettings(),
   ]);
 
   const offers = offersResult.success && offersResult.data ? offersResult.data : [];
@@ -31,6 +34,7 @@ export default async function AdminOffersPage() {
   };
   const subjects = subjectsResult.success && subjectsResult.data ? subjectsResult.data.map(s => s.subject) : [];
   const contentTypes = contentTypesResult.success && contentTypesResult.data ? contentTypesResult.data : [];
+  const platformSettings = platformSettingsResult.success && platformSettingsResult.data ? platformSettingsResult.data : null;
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -43,10 +47,18 @@ export default async function AdminOffersPage() {
             Manage discounts and promotional offers
           </p>
         </div>
-        <OfferDialog
-          subjects={subjects}
-          contentTypes={contentTypes}
-        />
+        <div className="flex gap-2">
+          {platformSettings && (
+            <AllSubjectsBundleModal
+              initialEnabled={platformSettings.allSubjectsBundleEnabled}
+              initialPrice={platformSettings.allSubjectsBundlePrice || "0"}
+            />
+          )}
+          <OfferDialog
+            subjects={subjects}
+            contentTypes={contentTypes}
+          />
+        </div>
       </div>
 
       {/* Stats */}

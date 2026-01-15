@@ -27,9 +27,9 @@ export const platformSettings = pgTable("platform_settings", {
   displayName: varchar("display_name", { length: 255 }), // Additional business/display name
   paymentCurrency: varchar("payment_currency", { length: 3 }).notNull().default("USD"), // ISO 4217 code
   timezone: varchar("timezone", { length: 100 }).notNull().default("UTC"), // IANA timezone
-  // All Subjects Bundle Pricing
-  allSubjectsBundlePrice: decimal("all_subjects_bundle_price", { precision: 10, scale: 2 }), // Price for purchasing all subjects
-  allSubjectsBundleEnabled: boolean("all_subjects_bundle_enabled").default(false).notNull(), // Whether all-subjects bundle is available
+  // Mandatory Subjects Bundle Pricing
+  allSubjectsBundlePrice: decimal("all_subjects_bundle_price", { precision: 10, scale: 2 }), // Price for purchasing all mandatory subjects
+  allSubjectsBundleEnabled: boolean("all_subjects_bundle_enabled").default(false).notNull(), // Whether mandatory subjects bundle is available
   // Social Media Links
   whatsappNumber: varchar("whatsapp_number", { length: 50 }), // WhatsApp phone number with country code
   facebookUrl: varchar("facebook_url", { length: 500 }), // Facebook page URL
@@ -122,10 +122,10 @@ export const subjects = pgTable(
   })
 );
 
-// Content types table - defines types of content (VIDEO, PDF, MOCK)
+// Content types table - defines types of content (Video Lectures, Notes, Question & Answers)
 export const contentTypes = pgTable("content_types", {
   id: uuid("id").defaultRandom().primaryKey(),
-  name: varchar("name", { length: 50 }).unique().notNull(), // VIDEO, PDF, MOCK
+  name: varchar("name", { length: 50 }).unique().notNull(), // Video Lectures, Notes, Question & Answers
   description: text("description"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });

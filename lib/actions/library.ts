@@ -198,9 +198,9 @@ export async function getSubjectContentStats(subjectId: string): Promise<{
       .select({ id: contentTypes.id, name: contentTypes.name })
       .from(contentTypes);
 
-    const videoTypeId = contentTypeData.find((ct) => ct.name === "VIDEO")?.id;
-    const pdfTypeId = contentTypeData.find((ct) => ct.name === "PDF")?.id;
-    const mockTypeId = contentTypeData.find((ct) => ct.name === "MOCK")?.id;
+    const videoTypeId = contentTypeData.find((ct) => ct.name === "Video Lectures")?.id;
+    const pdfTypeId = contentTypeData.find((ct) => ct.name === "Notes")?.id;
+    const mockTypeId = contentTypeData.find((ct) => ct.name === "Question & Answers")?.id;
 
     // Get content counts
     const contents = await db

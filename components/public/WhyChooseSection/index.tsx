@@ -85,7 +85,7 @@ const WhyChooseUs = () => {
                 />
 
                 <div className="absolute bottom-[60px] left-0 z-10 inline-flex items-center gap-5 rounded-lg bg-white py-2 pl-4 pr-8 shadow-[17px_18px_30px_16px] shadow-[#070229]/10" data-aos="zoom-in" data-aos-delay="200">
-                  <div className="inline-flex h-16 w-16 items-center justify-center rounded-[50%] bg-[#DF4343]/5">
+                  <div className="inline-flex h-16 w-16 items-center justify-center rounded-[50%] bg-[#4c6ae6]/5">
                     <Image
                       src="/assets/img/icons/icon-red-tomato-graduation-cap-line.svg"
                       alt="success"
@@ -94,7 +94,7 @@ const WhyChooseUs = () => {
                     />
                   </div>
                   <div>
-                    <span className="block font-title text-[28px] font-bold leading-[1.73] text-[#DF4343]">
+                    <span className="block font-title text-[28px] font-bold leading-[1.73] text-colorPurpleBlue">
                       98%
                     </span>
                     <span>Pass Rate</span>
@@ -132,13 +132,7 @@ const WhyChooseUs = () => {
           height={79}
           className="absolute left-28 top-28 -z-10 hidden animate-pulse xl:inline-block"
         />
-        <Image
-          src="/assets/img/abstracts/abstract-dots-3.svg"
-          alt="abstract"
-          width={79}
-          height={50}
-          className="absolute bottom-16 right-96 -z-10 hidden animate-pulse xl:inline-block"
-        />
+     
 
         <div className="absolute -left-80 top-1/2 -z-10 h-[457px] w-[457px] -translate-y-1/2 rounded-[50%] bg-[#BFC06F] blur-[230px]"></div>
       </div>

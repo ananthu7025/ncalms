@@ -4,14 +4,6 @@
  * Handles pricing and discount calculations for NCA course bundles
  */
 
-// Individual content item prices
-export const CONTENT_PRICES = {
-  VIDEO: 150,
-  PDF: 70,
-  QA: 80,
-  IRACS: 80,
-} as const;
-
 // Single subject bundle pricing
 export const SINGLE_SUBJECT_BUNDLE = {
   INDIVIDUAL_TOTAL: 380, // Sum of all content types (150 + 70 + 80 + 80)

@@ -130,8 +130,8 @@ export async function addToCart(
 }
 
 /**
- * Add all subjects as bundles to cart
- * For "Purchase Now" - Buy All Subjects feature
+ * Add all mandatory subjects as bundles to cart
+ * For "Purchase Now" - Buy All Mandatory Subjects feature
  */
 export async function addAllSubjectsToCart(): Promise<{
   success: boolean;
@@ -145,7 +145,7 @@ export async function addAllSubjectsToCart(): Promise<{
       return { success: false, message: "Unauthorized" };
     }
 
-    // Get all active subjects with bundle enabled
+    // Get all active mandatory subjects with bundle enabled
     const allSubjects = await db
       .select({
         id: subjects.id,
@@ -156,13 +156,14 @@ export async function addAllSubjectsToCart(): Promise<{
       .from(subjects)
       .where(and(
         eq(subjects.isActive, true),
-        eq(subjects.isBundleEnabled, true)
+        eq(subjects.isBundleEnabled, true),
+        eq(subjects.isMandatory, true)
       ));
 
     if (allSubjects.length === 0) {
       return {
         success: false,
-        message: "No subjects available for bundle purchase",
+        message: "No mandatory subjects available for bundle purchase",
       };
     }
 
@@ -250,7 +251,7 @@ export async function addAllSubjectsToCart(): Promise<{
     if (addedCount === 0) {
       return {
         success: false,
-        message: "All subjects are already in your cart or you have access to them",
+        message: "All mandatory subjects are already in your cart or you have access to them",
         addedCount: 0,
         skippedCount,
       };
@@ -258,13 +259,13 @@ export async function addAllSubjectsToCart(): Promise<{
 
     return {
       success: true,
-      message: `Added ${addedCount} subject${addedCount > 1 ? 's' : ''} to cart`,
+      message: `Added ${addedCount} mandatory subject${addedCount > 1 ? 's' : ''} to cart`,
       addedCount,
       skippedCount,
     };
   } catch (error) {
-    console.error("Error adding all subjects to cart:", error);
-    return { success: false, message: "Failed to add subjects to cart" };
+    console.error("Error adding mandatory subjects to cart:", error);
+    return { success: false, message: "Failed to add mandatory subjects to cart" };
   }
 }
 

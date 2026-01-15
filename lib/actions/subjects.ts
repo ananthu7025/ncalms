@@ -644,7 +644,6 @@ export async function getFeaturedSubjects() {
         )
       )
       .orderBy(schema.subjects.createdAt)
-      .limit(4);
 
     // Get content counts and statistics for each subject
     const subjectsWithStats = await Promise.all(

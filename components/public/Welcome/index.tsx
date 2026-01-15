@@ -27,7 +27,7 @@ const WelcomeSection = () => {
                   />
 
                   <div className="absolute bottom-24 left-16 z-10 inline-flex items-center gap-5 rounded-lg bg-white py-4 pl-4 pr-8 shadow-[17px_18px_30px_16px] shadow-[#070229]/10 xxl:-left-16 xxxl:-left-28" data-aos="zoom-in" data-aos-delay="200">
-                    <div className="inline-flex h-16 w-16 items-center justify-center rounded-[50%] bg-[#DF4343]/5">
+                    <div className="inline-flex h-16 w-16 items-center justify-center rounded-[50%] bg-[#4c6ae6]/5">
                       <Image
                         src="/assets/img/icons/icon-red-tomato-graduation-cap-line.svg"
                         alt="graduation"
@@ -36,7 +36,7 @@ const WelcomeSection = () => {
                       />
                     </div>
                     <div>
-                      <span className="block font-title text-[28px] font-bold leading-[1.73] text-[#DF4343]">
+                      <span className="block font-title text-[28px] font-bold leading-[1.73] text-colorPurpleBlue">
                         100%
                       </span>
                       <span>First Attempt Focus</span>

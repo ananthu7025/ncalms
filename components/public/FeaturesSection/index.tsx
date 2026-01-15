@@ -51,7 +51,7 @@ const FeaturesSection = () => {
 
               {/* Feature 3 */}
               <li className="flex items-start gap-4" data-aos="fade-up" data-aos-delay="300">
-                <div className="inline-flex h-[50px] w-[50px] items-center justify-center rounded-[50%] bg-[#DF4343]/10 flex-shrink-0">
+                <div className="inline-flex h-[50px] w-[50px] items-center justify-center rounded-[50%] bg-[#4c6ae6]/10 flex-shrink-0">
                   <Image
                     src="/assets/img/icons/feature-icon-3.svg"
                     alt="feature-icon"
@@ -81,10 +81,10 @@ const FeaturesSection = () => {
                 </div>
                 <div className="flex-1">
                   <span className="mb-2 block font-title text-lg font-bold text-white">
-                    WhatsApp Chat
+                    Legal Research & Writing
                   </span>
                   <span className="mb-3 block text-white/80 text-sm">
-                    Instant support team access.
+                    Connect for legal support.
                   </span>
                   <a
                     href="https://wa.me/81232 83217"

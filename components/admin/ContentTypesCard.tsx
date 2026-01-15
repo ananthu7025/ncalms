@@ -254,9 +254,8 @@ export function ContentTypesCard() {
                 field="name"
                 label="Name"
                 labelMandatory
-                placeholder="e.g., VIDEO, PDF, MOCK"
+                placeholder="e.g., Video Lectures, Notes, Question & Answers"
                 maxLength={50}
-                textTransformMode="uppercase"
               />
 
               <InputTextarea

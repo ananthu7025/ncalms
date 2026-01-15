@@ -74,7 +74,7 @@ const OfferBanner = () => {
                   NCA BUNDLE DEAL
                 </span>
                 <h2 className="text-white">
-                  All 6 NCA Courses for $1,500 CAD
+                  All 5  NCA Mandatory Courses for 1,200 (Save $300)CAD
                 </h2>
               </div>
 

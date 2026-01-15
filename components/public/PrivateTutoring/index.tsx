@@ -11,10 +11,10 @@ const PrivateTutoring = () => {
             <div className="mb-10 lg:mb-[60px]">
               <div className="mx-auto max-w-2xl text-center" data-aos="fade-up">
                 <span className="mb-5 block uppercase tracking-wider text-colorPurpleBlue">
-                  NCA Services
+                  Personalized Coaching
                 </span>
                 <h2 className="font-title text-3xl font-bold text-colorBlackPearl lg:text-5xl">
-                  We offer comprehensive support for your success
+                  Book Your 1:1 Coaching Session
                 </h2>
               </div>
             </div>
@@ -36,39 +36,30 @@ const PrivateTutoring = () => {
                       />
                     </div>
                     <h3 className="flex-1 font-title text-2xl font-bold text-colorBlackPearl lg:text-3xl">
-                      What We Offer
+                      1:1 Call Options
                     </h3>
                   </div>
 
                   <div className="space-y-5">
                     <p className="text-lg leading-relaxed text-gray-700">
-                      At <span className="font-semibold text-colorPurpleBlue">NCA MADE EASY</span>, we
-                      provide everything you need to succeed in your NCA exams with comprehensive study materials,
-                      expert guidance, and personalized support.
+                      Book personalized 1:1 coaching sessions with our experienced NCA experts.
+                      Get tailored guidance and support for your specific needs.
                     </p>
 
                     {/* Services List */}
                     <ul className="mt-8 space-y-4">
                       {[
                         {
-                          title: "Detailed Lecture Recording",
-                          desc: "Complete NCA updated Syllabus coverage and how to write answers"
+                          title: "NCA Assessment Guidance",
+                          desc: "Get expert advice on NCA eligibility, course selection, and application process. Understand what to expect and how to prepare for your NCA journey."
                         },
                         {
-                          title: "Study Materials",
-                          desc: "Notes, Questions and Answers, IRACs, Essay Answer Structures"
+                          title: "NCA Exam Preparation",
+                          desc: "Personalized coaching for NCA exams. Review your answers, get detailed feedback, and learn proven strategies to pass your exams with confidence."
                         },
                         {
-                          title: "1:1 Doubt Clearing",
-                          desc: "Personal sessions with prior booking"
-                        },
-                        {
-                          title: "Legal Research & Writing",
-                          desc: "Learn how to research Canadian law, write clear legal memos, and draft answers the way Canadian lawyers do — essential skills for NCA qualification, articling, and legal practice in Canada"
-                        },
-                        {
-                          title: "1:1 Call Options",
-                          desc: "Book personalized coaching sessions"
+                          title: "Teaching / Answer Writing",
+                          desc: "Master the art of legal writing. Learn how to structure answers, apply IRAC methodology, and write like a Canadian lawyer."
                         }
                       ].map((service, idx) => (
                         <li key={idx} className="flex items-start gap-3">
@@ -138,14 +129,14 @@ const PrivateTutoring = () => {
                   />
 
                   {/* Limited Slots Badge */}
-                  <div className="absolute -top-4 right-8 z-10 rounded-full bg-gradient-to-r from-[#DF4343] to-[#FF6B6B] px-6 py-3 shadow-lg" data-aos="zoom-in" data-aos-delay="200">
+                  <div className="absolute -top-4 right-8 z-10 rounded-full bg-gradient-to-r from-[#4c6ae6] to-[#FF6B6B] px-6 py-3 shadow-lg" data-aos="zoom-in" data-aos-delay="200">
                     <div className="flex items-center gap-3">
                       <div className="relative flex h-3 w-3">
                         <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-white opacity-75"></span>
                         <span className="relative inline-flex h-3 w-3 rounded-full bg-white"></span>
                       </div>
-                      <span className="font-semibold ">
-                        Limited Slots - Filling Fast!
+                      <span className="font-semibold text-white">
+                        Limited Coaching Slots Available!
                       </span>
                     </div>
                   </div>

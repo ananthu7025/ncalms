@@ -32,15 +32,56 @@ const testimonials = [
 
 const TestimonialSection = () => {
   const [activeIndex, setActiveIndex] = useState(0);
+  const [isAnimating, setIsAnimating] = useState(false);
+  const [progress, setProgress] = useState(0);
 
-  // Auto rotate every 5s
-  useEffect(() => {
-    const interval = setInterval(() => {
+  const handleNext = () => {
+    setIsAnimating(true);
+    setTimeout(() => {
       setActiveIndex((prev) => (prev + 1) % testimonials.length);
+      setIsAnimating(false);
+    }, 300);
+  };
+
+  const handlePrev = () => {
+    setIsAnimating(true);
+    setTimeout(() => {
+      setActiveIndex((prev) => (prev - 1 + testimonials.length) % testimonials.length);
+      setIsAnimating(false);
+    }, 300);
+  };
+
+  const goToSlide = (index: number) => {
+    if (index !== activeIndex) {
+      setIsAnimating(true);
+      setTimeout(() => {
+        setActiveIndex(index);
+        setIsAnimating(false);
+      }, 300);
+    }
+  };
+
+  // Auto rotate every 5s with progress indicator
+  useEffect(() => {
+    let currentProgress = 0;
+
+    const progressInterval = setInterval(() => {
+      currentProgress += 2; // 100 / 50 = 2% every 100ms for 5s total
+      if (currentProgress <= 100) {
+        setProgress(currentProgress);
+      }
+    }, 100);
+
+    const rotateInterval = setTimeout(() => {
+      handleNext();
     }, 5000);
 
-    return () => clearInterval(interval);
-  }, []);
+    return () => {
+      clearInterval(progressInterval);
+      clearTimeout(rotateInterval);
+      setProgress(0);
+    };
+  }, [activeIndex]);
 
   const active = testimonials[activeIndex];
 
@@ -53,11 +94,29 @@ const TestimonialSection = () => {
             {/* Testimonial */}
             <div data-aos="fade-left">
               <div className="mb-10 lg:mb-[60px]">
-                <span className="mb-5 block uppercase">OUR TESTIMONIAL</span>
-                <h2>What Students Say About NCA MADE EASY</h2>
+                <span className="mb-3 block uppercase text-colorPurpleBlue font-semibold tracking-wider">OUR TESTIMONIAL</span>
+                <h2 className="font-title text-3xl font-bold text-colorBlackPearl lg:text-5xl mb-3">What Students Say About NCA MADE EASY</h2>
+                <p className="text-gray-600 flex items-center gap-2">
+                  <span className="inline-flex items-center gap-1">
+                    <svg className="w-4 h-4 text-colorPurpleBlue animate-pulse" fill="currentColor" viewBox="0 0 20 20">
+                      <circle cx="10" cy="10" r="3"/>
+                    </svg>
+                    <span className="text-sm font-medium">Live Carousel Animation</span>
+                  </span>
+                  <span className="text-sm text-gray-400">• Auto-rotating testimonials</span>
+                </p>
               </div>
 
-              <div className="rounded-lg bg-white p-8 transition-all duration-500">
+              <div className={`relative rounded-lg bg-white p-8 shadow-lg transition-all duration-500 ${isAnimating ? 'opacity-50 scale-95' : 'opacity-100 scale-100'}`}>
+                {/* LIVE Badge */}
+                <div className="absolute -top-3 -right-3 flex items-center gap-2 bg-gradient-to-r from-red-500 to-red-600 text-white px-4 py-2 rounded-full shadow-lg">
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
+                  </span>
+                  <span className="text-xs font-bold uppercase tracking-wide">Live</span>
+                </div>
+
                 <div className="mb-5 inline-flex items-center gap-x-1">
                   {[...Array(5)].map((_, i) => (
                     <Image
@@ -86,6 +145,81 @@ const TestimonialSection = () => {
                   </div>
                 </div>
               </div>
+
+              {/* Auto-rotation Progress Bar */}
+              <div className="mt-6 relative h-1 w-full bg-gray-200 rounded-full overflow-hidden">
+                <div
+                  className="absolute top-0 left-0 h-full bg-gradient-to-r from-colorPurpleBlue to-colorLightSeaGreen transition-all duration-100 ease-linear"
+                  style={{ width: `${progress}%` }}
+                />
+              </div>
+
+              {/* Carousel Controls */}
+              <div className="mt-6 flex items-center justify-between">
+                {/* Navigation Arrows */}
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={handlePrev}
+                    className="group flex h-12 w-12 items-center justify-center rounded-full border-2 border-colorPurpleBlue/30 bg-white transition-all duration-300 hover:border-colorPurpleBlue hover:bg-colorPurpleBlue"
+                    aria-label="Previous testimonial"
+                  >
+                    <svg
+                      className="h-5 w-5 text-colorPurpleBlue transition-colors group-hover:text-white"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                    </svg>
+                  </button>
+                  <button
+                    onClick={handleNext}
+                    className="group flex h-12 w-12 items-center justify-center rounded-full border-2 border-colorPurpleBlue/30 bg-white transition-all duration-300 hover:border-colorPurpleBlue hover:bg-colorPurpleBlue"
+                    aria-label="Next testimonial"
+                  >
+                    <svg
+                      className="h-5 w-5 text-colorPurpleBlue transition-colors group-hover:text-white"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </button>
+
+                  {/* Counter */}
+                  <div className="ml-3 flex flex-col">
+                    <span className="text-sm font-medium text-gray-600">
+                      {activeIndex + 1} / {testimonials.length}
+                    </span>
+                    {activeIndex < testimonials.length - 1 ? (
+                      <span className="text-xs text-colorPurpleBlue font-medium animate-pulse">
+                        {testimonials.length - activeIndex - 1} more {testimonials.length - activeIndex - 1 === 1 ? 'testimonial' : 'testimonials'}
+                      </span>
+                    ) : (
+                      <span className="text-xs text-colorLightSeaGreen font-medium">
+                        Restarting...
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Dots Indicator */}
+                <div className="flex items-center gap-2">
+                  {testimonials.map((_, index) => (
+                    <button
+                      key={index}
+                      onClick={() => goToSlide(index)}
+                      className={`transition-all duration-300 rounded-full ${
+                        index === activeIndex
+                          ? 'w-8 h-2 bg-colorPurpleBlue'
+                          : 'w-2 h-2 bg-gray-300 hover:bg-gray-400'
+                      }`}
+                      aria-label={`Go to testimonial ${index + 1}`}
+                    />
+                  ))}
+                </div>
+              </div>
             </div>
 
             {/* Image Side */}
@@ -99,7 +233,7 @@ const TestimonialSection = () => {
               />
 
               <div className="absolute bottom-12 left-16 z-10 inline-flex items-center gap-5 rounded-lg bg-white py-2 pl-4 pr-8 shadow-[17px_18px_30px_16px] shadow-[#070229]/10 xxl:-left-16 xxxl:-left-28" data-aos="zoom-in" data-aos-delay="200">
-                <div className="inline-flex h-16 w-16 items-center justify-center rounded-[50%] bg-[#DF4343]/5">
+                <div className="inline-flex h-16 w-16 items-center justify-center rounded-[50%] bg-[#4c6ae6]/5">
                   <Image
                     src="/assets/img/icons/icon-red-tomato-graduation-cap-line.svg"
                     alt="rating"
@@ -108,7 +242,7 @@ const TestimonialSection = () => {
                   />
                 </div>
                 <div>
-                  <span className="block font-title text-[28px] font-bold leading-[1.73] text-[#DF4343]">
+                  <span className="block font-title text-[28px] font-bold leading-[1.73] text-colorPurpleBlue">
                     5★
                   </span>
                   <span>Rated by Students</span>

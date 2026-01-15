@@ -2415,11 +2415,11 @@ button {
   background-color: rgb(222 30 249 / 0.1);
 }
 
-.bg-\[\#DF4343\]\/10 {
+.bg-\[\#4c6ae6\]\/10 {
   background-color: rgb(223 67 67 / 0.1);
 }
 
-.bg-\[\#DF4343\]\/5 {
+.bg-\[\#4c6ae6\]\/5 {
   background-color: rgb(223 67 67 / 0.05);
 }
 
@@ -2996,7 +2996,7 @@ button {
   color: rgb(141 141 141 / var(--tw-text-opacity));
 }
 
-.text-\[\#DF4343\] {
+.text-\[\#4c6ae6\] {
   --tw-text-opacity: 1;
   color: rgb(223 67 67 / var(--tw-text-opacity));
 }

@@ -148,7 +148,7 @@ async function getUserStats(userId: string) {
     const videoType = await db
       .select()
       .from(contentTypes)
-      .where(eq(contentTypes.name, "VIDEO"))
+      .where(eq(contentTypes.name, "Video Lectures"))
       .limit(1);
 
     if (videoType.length > 0) {

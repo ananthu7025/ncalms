@@ -103,7 +103,7 @@ Table content_types {
   description text
   created_at timestamp [not null, default: `now()`]
   
-  Note: 'Types of content: VIDEO, PDF, MOCK'
+  Note: 'Types of content: Video Lectures, Notes, Question & Answers, IRACs'
 }
 
 Table subject_contents {

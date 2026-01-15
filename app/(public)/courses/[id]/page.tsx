@@ -177,9 +177,9 @@ const CourseDetailPage = async ({ params }: CourseDetailPageProps) => {
                             >
                               <Image
                                 src={
-                                  ct.name === "VIDEO"
+                                  ct.name === "Video Lectures"
                                     ? "/assets/img/icons/icon-purple-arrow-right.svg"
-                                    : ct.name === "PDF"
+                                    : ct.name === "Notes"
                                       ? "/assets/img/icons/icon-grey-book-3-line.svg"
                                       : "/assets/img/icons/icon-grey-graduation-cap-line.svg"
                                 }

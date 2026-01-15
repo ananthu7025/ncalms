@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 "use client";
 
 import { useState, useEffect } from "react";
@@ -58,11 +59,6 @@ export default function CourseCardImage({
           >
             {streamName}
           </Link>
-          {isFeatured && (
-            <span className="inline-block rounded-[40px] bg-yellow-500 px-3.5 py-1.5 text-sm leading-none text-white font-semibold">
-              Featured
-            </span>
-          )}
           {isMandatory && (
             <span className="inline-block rounded-[40px] bg-red-500 px-3.5 py-1.5 text-sm leading-none text-white font-semibold">
               Mandatory

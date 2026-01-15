@@ -45,22 +45,26 @@ const HeroSection = () => {
             Expert preparation for NCA Exams and Ontario Bar Licensing with personalized mentorship and comprehensive study materials.
           </p>
 
-          <div className="flex flex-wrap gap-4 pt-2" data-aos="fade-up" data-aos-delay="300">
+          <div className="flex flex-wrap gap-3 pt-4 mt-2" data-aos="fade-up" data-aos-delay="300">
             <Link
               href="/courses"
-              className="group relative flex items-center gap-3 rounded-full bg-gradient-to-r from-amber-400 to-amber-600 px-8 py-4 text-lg font-bold text-white shadow-lg shadow-amber-500/20 transition-all hover:scale-105 hover:shadow-amber-500/40 hover:from-amber-500 hover:to-amber-700"
+              className="group flex items-center gap-2 rounded-full border-2 border-colorBrightGold/60 bg-colorBrightGold/15 px-6 py-3 text-base font-bold text-white backdrop-blur-sm transition-all hover:scale-110 hover:border-colorBrightGold hover:bg-colorBrightGold/25 hover:shadow-lg hover:shadow-amber-400/30 active:scale-105"
             >
               Explore Courses
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="h-5 w-5 transition-transform group-hover:translate-x-1">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="h-4 w-4 transition-transform group-hover:translate-x-1">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
               </svg>
             </Link>
 
             <Link
               href="https://www.youtube.com/playlist?list=PLk-9Hiidr8C7jltqeKH_KYY_K9WsBdGMJ"
-              className="group flex items-center gap-3  px-8 py-4 text-lg font-bold text-white backdrop-blur-sm transition-all hover:border-white/50 hover:bg-white/10 hover:scale-105"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group flex items-center gap-2 rounded-full border-2 border-white/30 bg-white/10 px-6 py-3 text-base font-bold text-white backdrop-blur-sm transition-all hover:scale-110 hover:border-white/60 hover:bg-white/20 hover:shadow-lg hover:shadow-white/20 active:scale-105"
             >
-              <span className="text-xl">▶️</span>
+              <svg className="h-5 w-5 transition-transform group-hover:scale-110" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+              </svg>
               Free Demo Lectures
             </Link>
           </div>

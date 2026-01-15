@@ -8,7 +8,7 @@ const FeaturedCourse = async () => {
 
   // Get first 4 courses for featured section
   const courses = result.success && result.data ? result.data : [];
-
+  console.log(courses.length,"DDDDDDDDDDDDddd")
   if (!result.success || courses.length === 0) {
     return (
       <section className="section-course">

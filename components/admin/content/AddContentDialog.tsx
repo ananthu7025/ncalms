@@ -220,7 +220,7 @@ export function AddContentDialog({
     ?.toLowerCase()
     .includes("video");
 const isPdfContent =
-  ["pdf", "question bank", "questionbank", "qb"].some(keyword =>
+  ["pdf","notes", "question bank", "questionbank", "qb"].some(keyword =>
     selectedContentType?.name?.toLowerCase().includes(keyword)
   );
 
@@ -272,14 +272,6 @@ const isPdfContent =
               field="duration"
               label="Duration (minutes - optional)"
               placeholder="30"
-              type="number"
-            />
-
-            <InputText
-              hookForm={hookForm}
-              field="sortOrder"
-              label="Sort Order"
-              placeholder="0"
               type="number"
             />
           </div>

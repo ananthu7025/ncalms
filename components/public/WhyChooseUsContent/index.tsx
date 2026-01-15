@@ -85,7 +85,7 @@ const WhyChooseUsContent = () => {
 
                 {/* Stat Card */}
                 <div className="absolute -bottom-8 left-8 inline-flex items-center gap-4 rounded-lg bg-white p-6 shadow-lg">
-                  <div className="inline-flex h-16 w-16 items-center justify-center rounded-[50%] bg-[#DF4343]/10">
+                  <div className="inline-flex h-16 w-16 items-center justify-center rounded-[50%] bg-[#4c6ae6]/10">
                     <Image
                       src="/assets/img/icons/icon-red-tomato-graduation-cap-line.svg"
                       alt="students"
@@ -94,7 +94,7 @@ const WhyChooseUsContent = () => {
                     />
                   </div>
                   <div>
-                    <span className="block font-title text-2xl font-bold text-[#DF4343]">
+                    <span className="block font-title text-2xl font-bold text-colorPurpleBlue">
                       1000+
                     </span>
                     <span className="text-sm">Students Trained</span>
